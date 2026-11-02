@@ -1,0 +1,61 @@
+name: Build SkyDesk for Windows
+
+on:
+  push:
+    branches:
+      - skydesk-windows-build
+    paths:
+      - "SkyDesk-Windows/**"
+      - ".github/workflows/skydesk-windows.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test-and-build:
+    name: Test and package SkyDesk x64
+    runs-on: windows-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        shell: pwsh
+        working-directory: SkyDesk-Windows
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Validate Python syntax
+        run: python -m compileall -q app.py skydesk_core.py tests
+
+      - name: Run unit tests
+        run: python -m unittest discover -s tests -v
+
+      - name: Install build dependency
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install pyinstaller
+
+      - name: Build standalone Windows executable
+        run: python -m PyInstaller --clean --noconfirm --onefile --windowed --name SkyDesk app.py
+
+      - name: Verify executable
+        run: |
+          if (!(Test-Path "dist/SkyDesk.exe")) { throw "SkyDesk.exe was not created." }
+          $exe = Get-Item "dist/SkyDesk.exe"
+          if ($exe.Length -lt 100000) { throw "SkyDesk.exe is unexpectedly small ($($exe.Length) bytes)." }
+          Write-Host "Verified $($exe.FullName) ($($exe.Length) bytes)"
+
+      - name: Upload Windows executable
+        uses: actions/upload-artifact@v4
+        with:
+          name: SkyDesk-Windows-x64
+          path: SkyDesk-Windows/dist/SkyDesk.exe
+          if-no-files-found: error
+          retention-days: 30
