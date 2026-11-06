@@ -1,0 +1,70 @@
+name: Build SkyLyrics for Minecraft 26.3
+
+on:
+  push:
+    branches:
+      - skylyrics-26.3
+    paths:
+      - "source-archive.tar.gz.b64.part*"
+      - ".github/workflows/build-skylyrics.yml"
+      - "README.md"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: skylyrics-build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Compile, test, and package mod
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up JDK 25
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: "25"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v6
+        with:
+          gradle-version: "9.8.2"
+
+      - name: Reconstruct and verify source archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat source-archive.tar.gz.b64.part0[1-5] > /tmp/skylyrics-source.tar.gz.b64
+          base64 --decode /tmp/skylyrics-source.tar.gz.b64 > /tmp/skylyrics-source.tar.gz
+          echo "b25c656f2a020175ade39420693ee57831922b5e4c3f04a4c2d170701e30a86a  /tmp/skylyrics-source.tar.gz" | sha256sum --check -
+          mkdir -p .build-src
+          tar -xzf /tmp/skylyrics-source.tar.gz -C .build-src
+          test -f .build-src/SkyLyrics-26.3/build.gradle
+          echo "Source archive verified and extracted."
+
+      - name: Run tests and build remapped mod JAR
+        working-directory: .build-src/SkyLyrics-26.3
+        shell: bash
+        run: |
+          set -euo pipefail
+          java -version
+          gradle --no-daemon clean test build
+          test -s build/libs/skylyrics-0.2.0.jar
+          jar tf build/libs/skylyrics-0.2.0.jar | grep -q 'fabric.mod.json'
+          echo "SkyLyrics JAR verified."
+
+      - name: Upload SkyLyrics JAR
+        uses: actions/upload-artifact@v7
+        with:
+          name: SkyLyrics-Minecraft-26.3
+          path: .build-src/SkyLyrics-26.3/build/libs/skylyrics-0.2.0.jar
+          if-no-files-found: error
+          retention-days: 30
