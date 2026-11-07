@@ -19,7 +19,7 @@ The final JAR is verified for the declared Sky author and icon, eight embedded T
 
 ## Build and test
 
-Open the **Actions** tab or create a pull request to `main` to run **Build SkyLyrics for Minecraft 26.3**. The workflow compiles with Java 25, runs tests, verifies required assets inside the final JAR, validates the browser extension, and uploads the JAR artifact named **SkyLyrics-Minecraft-26.3**.
+Open the **Actions** tab or create a pull request to `main` to run **Build SkyLyrics for Minecraft 26.3**. The workflow compiles with Java 25, runs tests, verifies required assets inside the final JAR, validates the browser extension, and uploads a complete **SkyLyrics-Minecraft-26.3** package containing the JAR, README, and Chrome / Edge extension folder.
 
 A green CI build is not a substitute for in-game testing. Local audio output, browser controls, lyric synchronization, all sky presets, and HUD placement still need a manual smoke test in TLauncher.
 
