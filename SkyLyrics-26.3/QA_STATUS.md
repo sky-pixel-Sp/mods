@@ -1,3 +1,21 @@
+# QA STATUS — SkyLyrics 0.9.1 / Minecraft 26.3
+
+## 0.9.1 branding, navigation, and final-package checks
+- Fabric metadata author is exactly `Sky`; the mod now declares its custom `assets/skylyrics/icon.png` icon.
+- Added an in-game Quick Guide with direct buttons to Music Center, Lyrics, and Online Music.
+- Fixed navigation actions that previously opened a destination screen and then immediately refreshed the old tab; tab navigation and HUD editor navigation now use dedicated non-refreshing actions.
+- Added a final-JAR verification task: author and Minecraft/Java metadata, icon, all eight TTF fonts and OFL notices, 20 sky presets, four shaders, and all five bundled audio codec JARs must be present.
+- The JAR is checked for complete contents, not artificially inflated to match the 20.7 MB reference download. Runtime assets and dependencies must be genuine and loadable.
+
+### Still required on the target PC
+- [ ] Open Quick Guide, navigate between tabs, and open the HUD Layout Studio.
+- [ ] Import local MP3 / OGG / WAV, confirm the Offline Library lists the file, and verify sound output.
+- [ ] Load matching `.lrc` and confirm line / word synchronization.
+- [ ] Test the browser extension with YouTube Music and Spotify Web.
+- [ ] Test all 20 sky presets, text styles, Elytra lyrics, and HUD positioning in TLauncher.
+
+---
+
 # QA STATUS — SkyLyrics 0.9.0 / Minecraft 26.3
 
 ## 0.9.0 port additions (implementation in review)
