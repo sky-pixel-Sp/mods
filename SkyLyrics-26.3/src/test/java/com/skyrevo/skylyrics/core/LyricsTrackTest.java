@@ -51,7 +51,7 @@ class LyricsTrackTest {
     @Test
     void parsesLrclibWordTimestampsAndTracksTheActiveKaraokeWord() throws Exception {
         LyricsTrack track = LyricsTrack.fromLrcText(
-                "[ti:Word Sync]\\n[00:10.00]<00:10.00>Good <00:10.55>morning <00:11.25>sky\\n",
+                "[ti:Word Sync]\n[00:10.00]<00:10.00>Good <00:10.55>morning <00:11.25>sky\n",
                 "Fallback", "Artist");
 
         LyricsCue cue = track.cues().getFirst();
@@ -68,7 +68,7 @@ class LyricsTrackTest {
     @Test
     void preservesWordTimingAcrossMultipleLineTimestamps() throws Exception {
         LyricsTrack track = LyricsTrack.fromLrcText(
-                "[00:01.00][00:05.00]<00:01.00>Hello <00:01.40>world\\n",
+                "[00:01.00][00:05.00]<00:01.00>Hello <00:01.40>world\n",
                 "Fallback", "Artist");
 
         assertEquals(2, track.cues().size());
@@ -80,7 +80,7 @@ class LyricsTrackTest {
     @Test
     void ordinaryLrcRemainsLineTimedWithoutWordMarkers() throws Exception {
         LyricsTrack track = LyricsTrack.fromLrcText(
-                "[00:00.00]Ordinary lyric line\\n[00:04.00]Next line\\n",
+                "[00:00.00]Ordinary lyric line\n[00:04.00]Next line\n",
                 "Fallback", "Artist");
         assertFalse(track.cues().getFirst().hasWordTimings());
         assertEquals("Ordinary lyric line", track.cues().getFirst().text());
