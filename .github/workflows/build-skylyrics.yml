@@ -33,36 +33,26 @@ jobs:
           distribution: temurin
           java-version: "25"
 
-      - name: Force JDK 25 for all following steps
-        shell: bash
-        run: |
-          set -euo pipefail
-          test -x "${JAVA_HOME_25_X64}/bin/java"
-          echo "JAVA_HOME=${JAVA_HOME_25_X64}" >> "${GITHUB_ENV}"
-          echo "${JAVA_HOME_25_X64}/bin" >> "${GITHUB_PATH}"
-          "${JAVA_HOME_25_X64}/bin/java" -version
-
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v6
         with:
           gradle-version: "9.8.2"
           cache-provider: basic
 
-      - name: Verify Java and Gradle environment
-        shell: bash
-        run: |
-          set -euo pipefail
-          echo "JAVA_HOME=$JAVA_HOME"
-          command -v java
-          java -version
-          java -version 2>&1 | head -n 1 | grep -Eq 'version "25([.]|")'
-
       - name: Run unit tests and build the Fabric mod
         working-directory: SkyLyrics-26.3
         shell: bash
         run: |
           set -euo pipefail
-          gradle --no-daemon clean test build
+          export JAVA_HOME="${JAVA_HOME_25_X64}"
+          export PATH="${JAVA_HOME}/bin:${PATH}"
+          echo "Selected JAVA_HOME: ${JAVA_HOME}"
+          command -v java
+          java -version
+          java -version 2>&1 | head -n 1 | grep -Eq 'version "25([.]|")'
+
+          gradle --no-daemon -Dorg.gradle.java.home="${JAVA_HOME}" clean test build
+
           test -s build/libs/skylyrics-0.2.0.jar
           jar tf build/libs/skylyrics-0.2.0.jar | grep -q 'fabric.mod.json'
           echo "SkyLyrics JAR verified."
