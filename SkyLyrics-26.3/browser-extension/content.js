@@ -24,7 +24,7 @@
     const artworkUrl = artworkEntries
       .sort((a, b) => {
         const area = value => {
-          const match = /^\\s*(\\d+)x(\\d+)\\s*$/.exec(value?.sizes || "");
+          const match = /^\s*(\d+)x(\d+)\s*$/.exec(value?.sizes || "");
           return match ? Number(match[1]) * Number(match[2]) : 0;
         };
         return area(b) - area(a);
