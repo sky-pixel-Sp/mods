@@ -4,7 +4,7 @@
 
 - JUnit tests cover LRC parsing, lyric timing, preset catalog behavior, clean-install cinematic defaults, and migration from the 0.4 settings format.
 - The Gradle verification task checks all 20 procedural sky post-effect definitions and the four shader stages.
-- The GitHub Actions workflow is configured to use Temurin JDK 25 and Gradle 9.8.2, then run clean test build.
+- The GitHub Actions workflow is configured to use Temurin JDK 25 and Gradle 9.8.2, then run clean test build. The default-branch workflow now reads the JAR version from gradle.properties so feature branches are not incorrectly checked for the old 0.3.0 filename.
 - The workflow checks the built JAR manifest, pinned custom fonts, font provider JSON, AlbumArtManager, font license notices, and browser-extension JavaScript/manifest.
 - A built-in original-text preview is exposed through the client command /skylyrics demo and /skylyrics stop, and through the Studio overview.
 
