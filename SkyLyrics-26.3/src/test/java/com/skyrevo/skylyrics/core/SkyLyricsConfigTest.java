@@ -24,6 +24,8 @@ class SkyLyricsConfigTest {
         assertTrue(config.wordByWord());
         assertEquals("poppins", config.fontFamily());
         assertEquals(0.115f, config.worldTextScale(), 0.0001f);
+        assertTrue(config.elytraLyricsEnabled());
+        assertEquals("Bordered", config.nowPlayingStyleName());
     }
 
     @Test
@@ -49,7 +51,7 @@ class SkyLyricsConfigTest {
         try (var reader = Files.newBufferedReader(settings)) {
             migrated.load(reader);
         }
-        assertEquals("4", migrated.getProperty("configVersion"));
+        assertEquals("5", migrated.getProperty("configVersion"));
         assertEquals("golden_sunset", migrated.getProperty("skyPreset"));
     }
 
@@ -92,6 +94,22 @@ class SkyLyricsConfigTest {
         assertEquals(0.62f, reloaded.listeningStatsHudY(), 0.0001f);
         assertTrue(reloaded.recentTracksHudEnabled());
         assertTrue(reloaded.listeningStatsHudEnabled());
+    }
+
+    @Test
+    void elytraModeAndNowPlayingStylePersistAcrossReloads() {
+        SkyLyricsConfig config = new SkyLyricsConfig(temporaryDirectory);
+        config.toggleElytraLyricsEnabled();
+        config.cycleNowPlayingStyle();
+        assertEquals("Borderless", config.nowPlayingStyleName());
+
+        SkyLyricsConfig reloaded = new SkyLyricsConfig(temporaryDirectory);
+        assertFalse(reloaded.elytraLyricsEnabled());
+        assertEquals(1, reloaded.nowPlayingStyle());
+        reloaded.cycleNowPlayingStyle();
+        assertEquals("Compact", reloaded.nowPlayingStyleName());
+        reloaded.cycleNowPlayingStyle();
+        assertEquals("Bordered", reloaded.nowPlayingStyleName());
     }
 
     @Test

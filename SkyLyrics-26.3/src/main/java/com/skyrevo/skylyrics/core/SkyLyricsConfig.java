@@ -10,7 +10,7 @@ import java.util.Properties;
 
 /** Persisted settings for the SkyLyrics sky and lyric engines. */
 public final class SkyLyricsConfig {
-    private static final int CURRENT_CONFIG_VERSION = 4;
+    private static final int CURRENT_CONFIG_VERSION = 5;
 
     private final Path file;
     private int theme = 0;
@@ -41,6 +41,8 @@ public final class SkyLyricsConfig {
     private boolean glowEnabled = true;
     private float worldTextScale = 0.115f;
     private float worldDistance = 18.0f;
+    private boolean elytraLyricsEnabled = true;
+    private int nowPlayingStyle = 0;
     private String fontFamily = "poppins";
 
     public SkyLyricsConfig(Path configDirectory) {
@@ -87,6 +89,8 @@ public final class SkyLyricsConfig {
             glowEnabled = Boolean.parseBoolean(p.getProperty("glowEnabled", "true"));
             worldTextScale = clamp(parseFloat(p.getProperty("worldTextScale"), 0.115f), 0.06f, 0.20f);
             worldDistance = clamp(parseFloat(p.getProperty("worldDistance"), 18.0f), 8.0f, 40.0f);
+            elytraLyricsEnabled = Boolean.parseBoolean(p.getProperty("elytraLyricsEnabled", "true"));
+            nowPlayingStyle = clamp(parseInt(p.getProperty("nowPlayingStyle"), 0), 0, 2);
             fontFamily = SkyFontCatalog.byId(p.getProperty("fontFamily", "poppins")).id();
 
             /*
@@ -146,6 +150,8 @@ public final class SkyLyricsConfig {
         p.setProperty("glowEnabled", Boolean.toString(glowEnabled));
         p.setProperty("worldTextScale", Float.toString(worldTextScale));
         p.setProperty("worldDistance", Float.toString(worldDistance));
+        p.setProperty("elytraLyricsEnabled", Boolean.toString(elytraLyricsEnabled));
+        p.setProperty("nowPlayingStyle", Integer.toString(nowPlayingStyle));
         p.setProperty("fontFamily", fontFamily);
         try {
             Files.createDirectories(file.getParent());
@@ -286,6 +292,17 @@ public final class SkyLyricsConfig {
     public void adjustWorldDistance(float delta) {
         worldDistance = clamp(worldDistance + delta, 8.0f, 40.0f);
         save();
+    }
+    public boolean elytraLyricsEnabled() { return elytraLyricsEnabled; }
+    public void toggleElytraLyricsEnabled() { elytraLyricsEnabled = !elytraLyricsEnabled; save(); }
+    public int nowPlayingStyle() { return nowPlayingStyle; }
+    public void cycleNowPlayingStyle() { nowPlayingStyle = (nowPlayingStyle + 1) % 3; save(); }
+    public String nowPlayingStyleName() {
+        return switch (nowPlayingStyle) {
+            case 1 -> "Borderless";
+            case 2 -> "Compact";
+            default -> "Bordered";
+        };
     }
 
     public String fontFamily() { return fontFamily; }

@@ -1,4 +1,4 @@
-# SkyLyrics 0.8.0 — Modular HUD Studio & Live Audio Visualizer
+# SkyLyrics 0.9.0 — Adaptive Lyrics HUD & Elytra Mode
 
 SkyLyrics is a client-side Fabric mod for Minecraft Java 26.3. It combines an in-game clickable Music Center, local offline audio playback, browser-connected online music controls, synchronized lyrics, and optional cinematic sky effects.
 
@@ -12,6 +12,9 @@ Open the interface with **O**. The entire player is operated through clickable M
 - **Artwork Glow:** the Now Playing card samples a color from the current cover art and uses it for a restrained pulsing glow when GLOW is enabled.
 - **Online Music:** open YouTube Music or Spotify Web in the browser and control the active browser player from Minecraft.
 - **Lyrics Studio:** floating 3D lyrics or HUD lyrics, standard LRC import, word-by-word reveal, font and style controls.
+- **Elytra Lyrics Mode:** while gliding, the 3D lyrics move farther ahead and remain camera-facing; the option can be disabled in HUD settings.
+- **Now Playing styles:** Bordered, Borderless, and Compact presentations, selectable from Styles.
+- **Manual sync offset:** shift lyric timing by 250 ms from the Lyrics page and reset it without editing files. The offset applies to the current loaded track.
 - **Word-synced karaoke:** reads LRCLIB-style inline word timestamps such as `<00:12.42>` and highlights each word at its actual timestamp. Ordinary line-timed LRC files continue to work.
 - **HUD Layout Studio:** five independent cards (Now Playing, Lyrics, PCM Visualizer, Recently Played and Listening Stats) can be moved separately. Positions persist across restarts and resolution changes; double-click resets one card and right-click cancels a drag.
 - **Live PCM Visualizer:** the offline player measures decoded PCM amplitude and drives a dedicated multi-bar HUD card. Browser sessions are explicitly marked as transport-only because the extension does not capture browser audio.
@@ -68,7 +71,7 @@ Open **O → HUD → Open HUD Layout Editor**. Drag the **Now Playing** card and
 
 The editor changes only client-side HUD placement. It does not alter the world, player position, server state, or resource packs.
 
-The HUD Layout Studio now includes VIS, RECENT, and STATS visibility switches. Every card can be dragged, independently reset by double-click, or restored to its previous position with right-click. New widget positions and visibility choices are stored in configuration schema version 4; existing version 3 settings migrate automatically.
+The HUD Layout Studio now includes VIS, RECENT, and STATS visibility switches. Every card can be dragged, independently reset by double-click, or restored to its previous position with right-click. New widget positions and visibility choices are stored in configuration schema version 4; existing settings migrate automatically. SkyLyrics 0.9.0 advances the settings schema to version 5 for the Elytra toggle and Now Playing style.
 
 ## Word-synchronized lyrics
 
@@ -80,7 +83,7 @@ SkyLyrics accepts ordinary LRC line timestamps and LRCLIB-style word timestamps 
 
 When word timestamps are present and **Word-by-word reveal** is enabled, the screen HUD highlights the active word and the floating 3D lyrics reveal words in time. For LRC files without inline word timestamps, SkyLyrics falls back to its existing line-progress reveal behavior.
 
-A detailed independent architecture review of the supplied VerseFall 1.1.0 archive, its media/lyrics/HUD subsystems, compatibility limits, and the features chosen for SkyLyrics is in [`VERSEFALL_TECHNICAL_REVIEW.md`](VERSEFALL_TECHNICAL_REVIEW.md).
+A detailed independent architecture review of the supplied VerseFall 1.1.0 archive, its media/lyrics/HUD subsystems, compatibility limits, and the features chosen for SkyLyrics is in [`VERSEFALL_TECHNICAL_REVIEW.md`](VERSEFALL_TECHNICAL_REVIEW.md). The 0.9.0 presentation additions were also informed by the feature description of [Lyrics by QQID](https://www.curseforge.com/minecraft/mc-mods/lyrics); SkyLyrics retains its own `skylyrics` mod ID, package namespace, and branding. No third-party JAR is bundled.
 
 
 ## Listening history, artwork glow and visualizer
@@ -107,7 +110,7 @@ The Music Center, offline audio engine, online browser bridge, playlists/library
 ## Install in TLauncher
 
 1. Start the Minecraft 26.3 Fabric profile once, then close Minecraft.
-2. Put `skylyrics-0.8.0.jar` and the matching Fabric API JAR in the `mods` folder used by that Fabric profile.
+2. Put `skylyrics-0.9.0.jar` and the matching Fabric API JAR in the `mods` folder used by that Fabric profile.
 3. Start TLauncher and select the Fabric 26.3 profile.
 4. Enter a world and press **O** to open SkyLyrics Music Center.
 
@@ -117,7 +120,7 @@ SkyLyrics is client-side; a multiplayer server does not need this mod installed.
 
 GitHub Actions uses JDK 25 and Gradle 9.8.2. The pipeline runs unit tests, verifies sky shaders and fonts, compiles the Minecraft 26.3 Fabric client, validates browser-extension JavaScript, verifies audio/player classes, and uploads the mod JAR.
 
-GitHub Actions Run #110 for SkyLyrics 0.8.0 passed `clean test build`, resource verification, browser-extension syntax checks, and JAR packaging. The verified workflow artifact is `SkyLyrics-Minecraft-26.3` (Run #110). Its build record and checksum are tracked in `QA_STATUS.md`. A green CI result does not replace the final manual audio and mouse-interaction test in TLauncher. Local MP3/OGG output and online browser controls must be smoke-tested on the target Windows PC before calling this a fully verified release.
+The SkyLyrics 0.8.0 baseline passed GitHub Actions Run #110. The 0.9.0 port additions are being checked in the current pull request; do not treat the older 0.8.0 artifact as the 0.9.0 release. CI cannot replace manual audio, Elytra, layout, and mouse-interaction tests in TLauncher.
 
 ## Licenses
 

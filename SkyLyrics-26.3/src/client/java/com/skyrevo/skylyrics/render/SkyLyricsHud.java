@@ -177,24 +177,27 @@ public final class SkyLyricsHud {
     ) {
         Minecraft minecraft = Minecraft.getInstance();
         int screenWidth = graphics.guiWidth();
-        int panelWidth = Math.min(380, screenWidth - 24);
+        int style = SkyLyricsClient.CONFIG.nowPlayingStyle();
+        int panelWidth = Math.min(style == 2 ? 320 : 380, screenWidth - 24);
         if (panelWidth < 220) return;
 
-        int panelHeight = 58;
+        int panelHeight = style == 2 ? 48 : 58;
         int x = Math.round(screenWidth * SkyLyricsClient.CONFIG.nowPlayingHudX()) - panelWidth / 2;
         int y = Math.round(graphics.guiHeight() * SkyLyricsClient.CONFIG.nowPlayingHudY());
         x = Math.max(4, Math.min(screenWidth - panelWidth - 4, x));
         y = Math.max(4, Math.min(graphics.guiHeight() - panelHeight - 4, y));
         int accent = hasArtwork ? AlbumArtManager.dominantColor() : SkyLyricsClient.CONFIG.accentColor();
 
-        // Translucent compact panel with a restrained top accent, not a large opaque HUD card.
-        graphics.fill(x, y, x + panelWidth, y + panelHeight, 0xD60B0A13);
-        graphics.outline(x, y, panelWidth, panelHeight, 0xAA75618F);
-        graphics.fill(x + 2, y + 2, x + panelWidth - 2, y + 3, withAlpha(accent, 190));
+        // Bordered, Borderless, and Compact presentation styles.
+        if (style != 1) {
+            graphics.fill(x, y, x + panelWidth, y + panelHeight, 0xD60B0A13);
+            if (style == 0) graphics.outline(x, y, panelWidth, panelHeight, 0xAA75618F);
+            graphics.fill(x + 2, y + 2, x + panelWidth - 2, y + 3, withAlpha(accent, 190));
+        }
 
         int artX = x + 9;
-        int artY = y + 10;
-        int artSize = 36;
+        int artSize = style == 2 ? 28 : 36;
+        int artY = y + (panelHeight - artSize) / 2;
         if (hasArtwork) {
             if (SkyLyricsClient.CONFIG.glowEnabled()) {
                 int glowAlpha = 22 + (int) (26 * (0.5 + 0.5 *
@@ -219,19 +222,22 @@ public final class SkyLyricsHud {
                 ? 150 + (int) (55 * (0.5 + 0.5 * Math.sin(System.nanoTime() / 280_000_000.0)))
                 : 120;
 
-        graphics.fill(textX, y + 11, textX + 5, y + 16, withAlpha(0xFF8BE2B5, pulse));
+        int labelY = style == 2 ? 5 : 8;
+        int titleY = style == 2 ? 17 : 22;
+        int artistY = style == 2 ? 30 : 37;
+        graphics.fill(textX, y + (style == 2 ? 8 : 11), textX + 5, y + (style == 2 ? 13 : 16), withAlpha(0xFF8BE2B5, pulse));
         String sourceLabel = source == null || source.isBlank() ? "MUSIC" : source;
         if (sourceLabel.length() > 18) sourceLabel = sourceLabel.substring(0, 18);
         graphics.text(minecraft.font, "NOW PLAYING  ·  " + sourceLabel,
-                textX + 10, y + 8, 0xFFCBB8F4, true);
+                textX + 10, y + labelY, 0xFFCBB8F4, true);
         graphics.text(minecraft.font, fit(title == null || title.isBlank() ? "Unknown track" : title,
-                minecraft, maxTextWidth, 1.0f), textX + 10, y + 22, 0xFFFFFCF7, true);
+                minecraft, maxTextWidth, 1.0f), textX + 10, y + titleY, 0xFFFFFCF7, true);
         graphics.text(minecraft.font, fit(artist == null ? "" : artist,
-                minecraft, maxTextWidth, 1.0f), textX + 10, y + 37, 0xFFC9C4D5, false);
+                minecraft, maxTextWidth, 1.0f), textX + 10, y + artistY, 0xFFC9C4D5, false);
 
         // A small animated waveform echoes the music instead of adding another large panel.
         int waveX = x + panelWidth - 27;
-        int waveCenter = y + 28;
+        int waveCenter = y + panelHeight / 2;
         boolean localAudio = "OFFLINE LIBRARY".equals(source);
         // Offline bars react to measured PCM amplitude. Browser mode remains a low-intensity
         // transport animation because the extension intentionally never captures audio bytes.

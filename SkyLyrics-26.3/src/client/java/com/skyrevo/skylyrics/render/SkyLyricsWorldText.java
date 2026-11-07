@@ -52,7 +52,10 @@ public final class SkyLyricsWorldText {
         Quaternionf facing = new Quaternionf(camera.orientation);
         Vector3f forward = facing.transform(new Vector3f(0.0F, 0.0F, -1.0F));
         Vec3 cameraPos = camera.pos;
-        float distance = SkyLyricsClient.CONFIG.worldDistance();
+        boolean elytraActive = SkyLyricsClient.CONFIG.elytraLyricsEnabled()
+                && client.player != null && client.player.isFallFlying();
+        float distance = SkyLyricsClient.CONFIG.worldDistance() + (elytraActive ? 9.0F : 0.0F);
+        float lift = SKY_LIFT + (elytraActive ? 1.0F : 0.0F);
         float bob = (float) Math.sin(System.nanoTime() / 780_000_000.0) * 0.07F;
         String text = visibleWords(player, cue);
         var visualText = SkyLyricsTypography.ordered(text);
@@ -67,17 +70,18 @@ public final class SkyLyricsWorldText {
 
         poseStack.pushPose();
         try {
-            if (SkyLyricsClient.CONFIG.followView()) {
+            if (SkyLyricsClient.CONFIG.followView() || elytraActive) {
+                // During gliding, keep lyrics in front of the moving camera and farther ahead.
                 poseStack.translate(
                         forward.x * distance,
-                        forward.y * distance + SKY_LIFT + bob,
+                        forward.y * distance + lift + bob,
                         forward.z * distance
                 );
                 poseStack.rotate(facing);
             } else {
                 if (!anchored) {
                     anchorX = cameraPos.x + forward.x * distance;
-                    anchorY = cameraPos.y + forward.y * distance + SKY_LIFT;
+                    anchorY = cameraPos.y + forward.y * distance + lift;
                     anchorZ = cameraPos.z + forward.z * distance;
                     anchorRotation = new Quaternionf(facing);
                     anchored = true;
