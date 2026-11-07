@@ -180,8 +180,12 @@ public final class SkyLyricsScreen extends Screen {
                 contentLeft + half + gap, y + 113, half, 31);
         action("SEEK +10s", () -> SkyLyricsClient.controlOnline("seek_forward"),
                 contentLeft, y + 154, half, 31);
-        action("VOLUME − / +", () -> SkyLyricsClient.controlOnline("volume_down"),
+        action("VOLUME −", () -> SkyLyricsClient.controlOnline("volume_down"),
                 contentLeft + half + gap, y + 154, half, 31);
+        action("VOLUME +", () -> SkyLyricsClient.controlOnline("volume_up"),
+                contentLeft, y + 195, half, 31);
+        action("PAUSE ONLINE PLAYER", () -> SkyLyricsClient.controlOnline("pause"),
+                contentLeft + half + gap, y + 195, half, 31);
     }
 
     private void keybinds(int y) {
