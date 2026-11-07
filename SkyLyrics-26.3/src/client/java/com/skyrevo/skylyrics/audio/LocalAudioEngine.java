@@ -104,6 +104,14 @@ public final class LocalAudioEngine implements AutoCloseable {
         status = "Stopped";
     }
 
+    public synchronized void clear() {
+        stop();
+        currentFile = null;
+        durationMs = 0L;
+        positionMs = 0L;
+        status = "No offline track selected.";
+    }
+
     public void seekTo(long millis) {
         if (currentFile == null) return;
         long max = durationMs > 0 ? durationMs : Math.max(0L, millis);
