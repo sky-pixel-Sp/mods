@@ -1,5 +1,12 @@
 name: Build SkyLyrics for Minecraft 26.3
 on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "SkyLyrics-26.3/**"
+      - ".github/workflows/build-skylyrics.yml"
+      - ".gitattributes"
   push:
     branches:
       - main
