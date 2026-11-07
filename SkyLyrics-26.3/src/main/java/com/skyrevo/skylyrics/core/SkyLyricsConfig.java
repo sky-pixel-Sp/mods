@@ -8,7 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Properties;
 
-/** Small, human-editable settings file. */
+/** Persisted settings for the SkyLyrics sky and lyric engines. */
 public final class SkyLyricsConfig {
     private final Path file;
     private int theme = 0;
@@ -19,6 +19,14 @@ public final class SkyLyricsConfig {
     private boolean enabled = true;
     private boolean showContextLines = true;
     private boolean showBackdrop = true;
+    private String skyPreset = "nebula_storm";
+    private boolean skyEnabled = true;
+    private boolean worldLyrics = true;
+    private boolean followView = true;
+    private boolean wordByWord = false;
+    private boolean glowEnabled = true;
+    private float worldTextScale = 0.025f;
+    private float worldDistance = 18.0f;
 
     public SkyLyricsConfig(Path configDirectory) {
         file = configDirectory.resolve("skylyrics.properties");
@@ -26,24 +34,27 @@ public final class SkyLyricsConfig {
     }
 
     public void load() {
-        if (!Files.exists(file)) {
-            save();
-            return;
-        }
+        if (!Files.exists(file)) { save(); return; }
         Properties p = new Properties();
         try (Reader reader = Files.newBufferedReader(file, StandardCharsets.UTF_8)) {
             p.load(reader);
             theme = clamp(parseInt(p.getProperty("theme"), 0), 0, 4);
-            textStyle = clamp(parseInt(p.getProperty("textStyle"), 0), 0, 4);
+            textStyle = clamp(parseInt(p.getProperty("textStyle"), 0), 0, 5);
             scale = clamp(parseFloat(p.getProperty("scale"), 1.0f), 0.75f, 1.8f);
             verticalPosition = clamp(parseFloat(p.getProperty("verticalPosition"), 0.38f), 0.18f, 0.72f);
             opacity = clamp(parseInt(p.getProperty("opacity"), 64), 0, 160);
             enabled = Boolean.parseBoolean(p.getProperty("enabled", "true"));
             showContextLines = Boolean.parseBoolean(p.getProperty("showContextLines", "true"));
             showBackdrop = Boolean.parseBoolean(p.getProperty("showBackdrop", "true"));
-        } catch (IOException ignored) {
-            // Defaults stay active if the settings file is damaged or unreadable.
-        }
+            skyPreset = SkyPresetCatalog.byId(p.getProperty("skyPreset", "nebula_storm")).id();
+            skyEnabled = Boolean.parseBoolean(p.getProperty("skyEnabled", "true"));
+            worldLyrics = Boolean.parseBoolean(p.getProperty("worldLyrics", "true"));
+            followView = Boolean.parseBoolean(p.getProperty("followView", "true"));
+            wordByWord = Boolean.parseBoolean(p.getProperty("wordByWord", "false"));
+            glowEnabled = Boolean.parseBoolean(p.getProperty("glowEnabled", "true"));
+            worldTextScale = clamp(parseFloat(p.getProperty("worldTextScale"), 0.025f), 0.012f, 0.060f);
+            worldDistance = clamp(parseFloat(p.getProperty("worldDistance"), 18.0f), 5.0f, 40.0f);
+        } catch (IOException ignored) { }
     }
 
     public void save() {
@@ -56,14 +67,20 @@ public final class SkyLyricsConfig {
         p.setProperty("enabled", Boolean.toString(enabled));
         p.setProperty("showContextLines", Boolean.toString(showContextLines));
         p.setProperty("showBackdrop", Boolean.toString(showBackdrop));
+        p.setProperty("skyPreset", skyPreset);
+        p.setProperty("skyEnabled", Boolean.toString(skyEnabled));
+        p.setProperty("worldLyrics", Boolean.toString(worldLyrics));
+        p.setProperty("followView", Boolean.toString(followView));
+        p.setProperty("wordByWord", Boolean.toString(wordByWord));
+        p.setProperty("glowEnabled", Boolean.toString(glowEnabled));
+        p.setProperty("worldTextScale", Float.toString(worldTextScale));
+        p.setProperty("worldDistance", Float.toString(worldDistance));
         try {
             Files.createDirectories(file.getParent());
             try (Writer writer = Files.newBufferedWriter(file, StandardCharsets.UTF_8)) {
                 p.store(writer, "SkyLyrics settings - Minecraft Java 26.3");
             }
-        } catch (IOException ignored) {
-            // A failed save must not crash Minecraft.
-        }
+        } catch (IOException ignored) { }
     }
 
     private static int parseInt(String value, int fallback) {
@@ -78,7 +95,7 @@ public final class SkyLyricsConfig {
     public int theme() { return theme; }
     public void setTheme(int value) { theme = clamp(value, 0, 4); save(); }
     public int textStyle() { return textStyle; }
-    public void setTextStyle(int value) { textStyle = clamp(value, 0, 4); save(); }
+    public void setTextStyle(int value) { textStyle = clamp(value, 0, 5); save(); }
     public float scale() { return scale; }
     public void adjustScale(float delta) { scale = clamp(scale + delta, 0.75f, 1.8f); save(); }
     public float verticalPosition() { return verticalPosition; }
@@ -93,13 +110,32 @@ public final class SkyLyricsConfig {
     public boolean showBackdrop() { return showBackdrop; }
     public void toggleBackdrop() { showBackdrop = !showBackdrop; save(); }
 
+    public String skyPreset() { return skyPreset; }
+    public void setSkyPreset(String value) { skyPreset = SkyPresetCatalog.byId(value).id(); save(); }
+    public boolean skyEnabled() { return skyEnabled; }
+    public void setSkyEnabled(boolean value) { skyEnabled = value; save(); }
+    public void toggleSkyEnabled() { setSkyEnabled(!skyEnabled); }
+    public boolean worldLyrics() { return worldLyrics; }
+    public void toggleWorldLyrics() { worldLyrics = !worldLyrics; save(); }
+    public boolean followView() { return followView; }
+    public void toggleFollowView() { followView = !followView; save(); }
+    public boolean wordByWord() { return wordByWord; }
+    public void toggleWordByWord() { wordByWord = !wordByWord; save(); }
+    public boolean glowEnabled() { return glowEnabled; }
+    public void toggleGlow() { glowEnabled = !glowEnabled; save(); }
+    public float worldTextScale() { return worldTextScale; }
+    public void adjustWorldTextScale(float delta) { worldTextScale = clamp(worldTextScale + delta, 0.012f, 0.060f); save(); }
+    public float worldDistance() { return worldDistance; }
+    public void adjustWorldDistance(float delta) { worldDistance = clamp(worldDistance + delta, 5.0f, 40.0f); save(); }
+
     public String textStyleName() {
         return switch (textStyle) {
-            case 1 -> "Cinema Soft";
-            case 2 -> "Clean Minimal";
-            case 3 -> "Dream Glow";
-            case 4 -> "Classic Shadow";
-            default -> "Aurora Glow";
+            case 1 -> "Dreamy";
+            case 2 -> "Comic";
+            case 3 -> "Script";
+            case 4 -> "Ice";
+            case 5 -> "Royal";
+            default -> "Lavender";
         };
     }
 
@@ -114,22 +150,24 @@ public final class SkyLyricsConfig {
     }
 
     public int accentColor() {
-        return switch (theme) {
-            case 1 -> 0xFF8EF0C4;
-            case 2 -> 0xFFC6A0FF;
-            case 3 -> 0xFF86D9FF;
-            case 4 -> 0xFFF1F1F1;
-            default -> 0xFFFFD28A;
+        return switch (textStyle) {
+            case 1 -> 0xFFF0B8EF;
+            case 2 -> 0xFFFFD166;
+            case 3 -> 0xFFFFB5D8;
+            case 4 -> 0xFF8FDcff;
+            case 5 -> 0xFFFFD58A;
+            default -> 0xFFC6A0FF;
         };
     }
 
     public int secondaryColor() {
-        return switch (theme) {
-            case 1 -> 0xFF80B8FF;
-            case 2 -> 0xFFEA8DDA;
-            case 3 -> 0xFF7AB9E8;
-            case 4 -> 0xFFB8B8B8;
-            default -> 0xFFFFA98A;
+        return switch (textStyle) {
+            case 1 -> 0xFFFFD7F8;
+            case 2 -> 0xFFFF8F5E;
+            case 3 -> 0xFFFF8FC4;
+            case 4 -> 0xFFB7F0FF;
+            case 5 -> 0xFFFFECBB;
+            default -> 0xFFEA8DDA;
         };
     }
 }

@@ -1,0 +1,75 @@
+{
+  "targets": {
+    "swap": {}
+  },
+  "passes": [
+    {
+      "vertex_shader": "skylyrics:post/sky",
+      "fragment_shader": "skylyrics:post/sky",
+      "inputs": [
+        {
+          "sampler_name": "MainSampler",
+          "target": "minecraft:main"
+        },
+        {
+          "sampler_name": "DepthSampler",
+          "target": "minecraft:main",
+          "use_depth_buffer": true
+        }
+      ],
+      "output": "swap",
+      "uniforms": {
+        "SkyPalette": [
+          {
+            "name": "TopColor",
+            "type": "vec3",
+            "value": [
+              0.03137254901960784,
+              0.043137254901960784,
+              0.17254901960784313
+            ]
+          },
+          {
+            "name": "NebulaColor",
+            "type": "vec3",
+            "value": [
+              0.34901960784313724,
+              0.21176470588235294,
+              0.6588235294117647
+            ]
+          },
+          {
+            "name": "HorizonColor",
+            "type": "vec3",
+            "value": [
+              0.11372549019607843,
+              0.1568627450980392,
+              0.40784313725490196
+            ]
+          },
+          {
+            "name": "Intensity",
+            "type": "float",
+            "value": 1.35
+          },
+          {
+            "name": "Variant",
+            "type": "float",
+            "value": 1
+          }
+        ]
+      }
+    },
+    {
+      "vertex_shader": "skylyrics:post/copy",
+      "fragment_shader": "skylyrics:post/copy",
+      "inputs": [
+        {
+          "sampler_name": "InSampler",
+          "target": "swap"
+        }
+      ],
+      "output": "minecraft:main"
+    }
+  ]
+}
