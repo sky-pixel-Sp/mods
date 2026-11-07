@@ -19,6 +19,8 @@ public final class SkyLyricsScreen extends Screen {
     private final Tab tab;
     private int left, top, panelWidth, panelHeight, sideWidth, contentLeft, contentWidth;
     private int libraryPage;
+    private int navStep = 34;
+    private int navHeight = 27;
 
     public SkyLyricsScreen() { this(Tab.OVERVIEW); }
     private SkyLyricsScreen(Tab tab) {
@@ -39,13 +41,15 @@ public final class SkyLyricsScreen extends Screen {
         sideWidth = Math.min(170, panelWidth / 4);
         contentLeft = left + sideWidth + 18;
         contentWidth = panelWidth - sideWidth - 34;
+        navStep = Math.min(34, Math.max(24, (panelHeight - 78) / Tab.values().length));
+        navHeight = Math.max(20, Math.min(27, navStep - 4));
 
         String[] labels = {"OVERVIEW","MUSIC CENTER","OFFLINE LIBRARY","ONLINE MUSIC","LYRICS","STYLES","SKIES","HUD","KEYBINDS","PERFORMANCE","SETTINGS","INFORMATION"};
         Tab[] tabs = Tab.values();
         for (int i=0;i<tabs.length;i++) {
             Tab next = tabs[i];
             Button item = addRenderableWidget(Button.builder(Component.literal(labels[i]), b -> open(next))
-                    .bounds(left+10, top+70+i*34, sideWidth-20, 27).build());
+                    .bounds(left+10, top+70+i*navStep, sideWidth-20, navHeight).build());
             item.active = tab != next;
         }
         addRenderableWidget(Button.builder(Component.literal("×"), b -> onClose())
@@ -339,8 +343,8 @@ public final class SkyLyricsScreen extends Screen {
         graphics.text(font,"SKYLYRICS",left+16,top+16,0xFFFFFFFF,true);
         graphics.text(font,"CINEMATIC MUSIC EXPERIENCE",left+16,top+33,0xFFC7B9E8,false);
         graphics.text(font,tab.name(),contentLeft,top+78,0xFFFFFFFF,true);
-        int activeY = top + 70 + tab.ordinal() * 34;
-        graphics.fill(left + 10, activeY + 2, left + 13, activeY + 25, 0xFFB58BFF);
+        int activeY = top + 70 + tab.ordinal() * navStep;
+        graphics.fill(left + 10, activeY + 2, left + 13, activeY + navHeight - 2, 0xFFB58BFF);
         boolean ready = SkyLyricsClient.PLAYER.hasTrack();
         graphics.fill(left + panelWidth - 142, top + 17, left + panelWidth - 20, top + 38,
                 ready ? 0xFF20372F : 0xFF30283B);
