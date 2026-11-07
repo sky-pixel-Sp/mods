@@ -38,7 +38,7 @@ public final class SkyLyricsHud {
         int width = graphics.guiWidth();
         int height = graphics.guiHeight();
         int centerX = width / 2;
-        int accent = hasArtwork ? AlbumArtManager.dominantColor() : SkyLyricsClient.CONFIG.accentColor();
+        int accent = SkyLyricsClient.CONFIG.accentColor();
         int secondary = SkyLyricsClient.CONFIG.secondaryColor();
         int mainY = Math.round(height * SkyLyricsClient.CONFIG.verticalPosition());
         float scale = SkyLyricsClient.CONFIG.scale();
@@ -174,7 +174,7 @@ public final class SkyLyricsHud {
         int panelHeight = 58;
         int x = (screenWidth - panelWidth) / 2;
         int y = 12;
-        int accent = SkyLyricsClient.CONFIG.accentColor();
+        int accent = hasArtwork ? AlbumArtManager.dominantColor() : SkyLyricsClient.CONFIG.accentColor();
 
         // Translucent compact panel with a restrained top accent, not a large opaque HUD card.
         graphics.fill(x, y, x + panelWidth, y + panelHeight, 0xD60B0A13);
