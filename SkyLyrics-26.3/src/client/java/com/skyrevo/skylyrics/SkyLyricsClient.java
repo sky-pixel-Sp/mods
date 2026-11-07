@@ -48,6 +48,7 @@ public final class SkyLyricsClient implements ClientModInitializer {
     private static long lastExternalTimestamp;
     private static Object lastAppliedSkyLevel;
     private static boolean demoActive;
+    private static boolean localAudioMode;
 
     private static final String DEMO_LRC = """
             [ti:Golden Hour Preview]
@@ -128,7 +129,7 @@ public final class SkyLyricsClient implements ClientModInitializer {
     }
 
     private static void updateMediaIntegration() {
-        if (demoActive) return;
+        if (demoActive || localAudioMode) return;
         MediaStatus media = MEDIA_BRIDGE.latest();
         CURRENT_MEDIA = media;
         AlbumArtManager.update(media);
@@ -212,6 +213,8 @@ public final class SkyLyricsClient implements ClientModInitializer {
 
     public static void startDemo() {
         try {
+            AUDIO.clear();
+            localAudioMode = false;
             demoActive = true;
             activeMediaIdentity = "";
             CURRENT_MEDIA = null;
@@ -278,6 +281,10 @@ public final class SkyLyricsClient implements ClientModInitializer {
     public static void playLocalTrack(Path file) {
         if (file == null) return;
         stopDemo();
+        localAudioMode = true;
+        activeMediaIdentity = "";
+        CURRENT_MEDIA = null;
+        AlbumArtManager.update(null);
         AUDIO.play(file);
         Path matchingLyrics = MUSIC_LIBRARY.matchingLyrics(file);
         if (matchingLyrics != null) {
@@ -349,6 +356,9 @@ public final class SkyLyricsClient implements ClientModInitializer {
     }
 
     public static void openOnlineProvider(String provider) {
+        localAudioMode = false;
+        AUDIO.clear();
+        PLAYER.clear();
         String url = switch (provider) {
             case "spotify" -> "https://open.spotify.com/";
             default -> "https://music.youtube.com/";
