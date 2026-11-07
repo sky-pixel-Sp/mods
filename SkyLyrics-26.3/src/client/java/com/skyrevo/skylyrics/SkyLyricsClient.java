@@ -77,6 +77,22 @@ public final class SkyLyricsClient implements ClientModInitializer {
     private static KeyMapping nextTrackKey;
     private static KeyMapping previousTrackKey;
 
+    public static KeyMapping openMenuKeyMapping() { return openMenuKey; }
+    public static KeyMapping toggleHudKeyMapping() { return toggleHudKey; }
+    public static KeyMapping playPauseKeyMapping() { return playPauseKey; }
+    public static KeyMapping nextTrackKeyMapping() { return nextTrackKey; }
+    public static KeyMapping previousTrackKeyMapping() { return previousTrackKey; }
+
+    public static void resetKeyBindings() {
+        openMenuKey.setKey(InputConstants.Type.KEYBOARD.getOrCreate(InputConstants.KEY_O));
+        toggleHudKey.setKey(InputConstants.Type.KEYBOARD.getOrCreate(InputConstants.KEY_H));
+        playPauseKey.setKey(InputConstants.Type.KEYBOARD.getOrCreate(InputConstants.KEY_K));
+        nextTrackKey.setKey(InputConstants.Type.KEYBOARD.getOrCreate(InputConstants.KEY_N));
+        previousTrackKey.setKey(InputConstants.Type.KEYBOARD.getOrCreate(InputConstants.KEY_B));
+        KeyMapping.resetMapping();
+        Minecraft.getInstance().options.save();
+    }
+
     @Override
     public void onInitializeClient() {
         Path configDirectory = net.fabricmc.loader.api.FabricLoader.getInstance().getConfigDir();

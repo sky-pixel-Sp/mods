@@ -1,6 +1,8 @@
 package com.skyrevo.skylyrics.ui;
 
 import com.skyrevo.skylyrics.SkyLyricsClient;
+import com.mojang.blaze3d.platform.InputConstants;
+import net.minecraft.client.KeyMapping;
 import com.skyrevo.skylyrics.core.LyricsCue;
 import com.skyrevo.skylyrics.core.LyricsPlayer;
 import com.skyrevo.skylyrics.core.SkyPresetCatalog;
@@ -19,6 +21,8 @@ public final class SkyLyricsScreen extends Screen {
     private final Tab tab;
     private int left, top, panelWidth, panelHeight, sideWidth, contentLeft, contentWidth;
     private static int libraryPage;
+    private KeyMapping pendingKeyBinding;
+    private Button pendingKeyBindingButton;
     private int navStep = 34;
     private int navHeight = 27;
 
@@ -203,8 +207,76 @@ public final class SkyLyricsScreen extends Screen {
     }
 
     private void keybinds(int y) {
-        action("OPEN MUSIC CENTER", () -> open(Tab.MUSIC), contentLeft, y + 12, contentWidth, 30);
-        action("OPEN SETTINGS", () -> open(Tab.SETTINGS), contentLeft, y + 52, contentWidth, 30);
+        int rowHeight = 30;
+        int rowGap = 8;
+        bindButton("OPEN MUSIC CENTER", SkyLyricsClient.openMenuKeyMapping(),
+                contentLeft, y + 10, contentWidth, rowHeight);
+        bindButton("TOGGLE LYRIC HUD", SkyLyricsClient.toggleHudKeyMapping(),
+                contentLeft, y + 10 + (rowHeight + rowGap), contentWidth, rowHeight);
+        bindButton("PLAY / PAUSE", SkyLyricsClient.playPauseKeyMapping(),
+                contentLeft, y + 10 + 2 * (rowHeight + rowGap), contentWidth, rowHeight);
+        bindButton("NEXT TRACK", SkyLyricsClient.nextTrackKeyMapping(),
+                contentLeft, y + 10 + 3 * (rowHeight + rowGap), contentWidth, rowHeight);
+        bindButton("PREVIOUS TRACK", SkyLyricsClient.previousTrackKeyMapping(),
+                contentLeft, y + 10 + 4 * (rowHeight + rowGap), contentWidth, rowHeight);
+        action("RESTORE DEFAULT KEYS", SkyLyricsClient::resetKeyBindings,
+                contentLeft, y + 10 + 5 * (rowHeight + rowGap), contentWidth, rowHeight);
+    }
+
+    private void bindButton(String label, KeyMapping mapping, int x, int y, int w, int h) {
+        Button button = addRenderableWidget(Button.builder(keyBindingMessage(label, mapping, false), b -> {
+            pendingKeyBinding = mapping;
+            pendingKeyBindingButton = b;
+            b.setMessage(keyBindingMessage(label, mapping, true));
+        }).bounds(x, y, w, h).build());
+    }
+
+    private static Component keyBindingMessage(String label, KeyMapping mapping, boolean waiting) {
+        String key = waiting ? "PRESS KEY OR MOUSE BUTTON  ·  ESC CANCEL"
+                : mapping.getKey().getDisplayName().getString();
+        return Component.literal(label + "  [" + key + "]");
+    }
+
+    private void applyPendingKeyBinding(InputConstants.Key key) {
+        if (pendingKeyBinding == null) return;
+        KeyMapping target = pendingKeyBinding;
+        pendingKeyBinding = null;
+        target.setKey(key);
+        KeyMapping.resetMapping();
+        if (minecraft != null) minecraft.options.save();
+        if (pendingKeyBindingButton != null) {
+            String label = pendingKeyBindingButton.getMessage().getString();
+            int marker = label.indexOf("  [");
+            if (marker >= 0) label = label.substring(0, marker);
+            pendingKeyBindingButton.setMessage(keyBindingMessage(label, target, false));
+        }
+        pendingKeyBindingButton = null;
+    }
+
+    @Override
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        if (pendingKeyBinding != null) {
+            if (keyCode == 256) {
+                pendingKeyBindingButton.setMessage(Component.literal(
+                        pendingKeyBindingButton.getMessage().getString().replace(
+                                "  [PRESS KEY OR MOUSE BUTTON  ·  ESC CANCEL]", "  [CANCELLED]")));
+                pendingKeyBinding = null;
+                pendingKeyBindingButton = null;
+                return true;
+            }
+            applyPendingKeyBinding(InputConstants.getKey(keyCode, scanCode));
+            return true;
+        }
+        return super.keyPressed(keyCode, scanCode, modifiers);
+    }
+
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        if (pendingKeyBinding != null) {
+            applyPendingKeyBinding(InputConstants.Type.MOUSE.getOrCreate(button));
+            return true;
+        }
+        return super.mouseClicked(mouseX, mouseY, button);
     }
 
     private void lyrics(int y) {
@@ -445,14 +517,12 @@ public final class SkyLyricsScreen extends Screen {
                     contentLeft, top + 354, 0xFFD4D1E2, false);
             graphics.text(font, SkyLyricsClient.MEDIA_NOTICE, contentLeft, top + 378, 0xFF9D96B3, false);
         } else if (tab == Tab.KEYBINDS) {
-            graphics.text(font, "KEYBINDS ARE REBINDABLE IN MINECRAFT OPTIONS → CONTROLS.",
-                    contentLeft, top + 200, 0xFFFFFFFF, true);
-            graphics.text(font, "SkyLyrics category:", contentLeft, top + 230, 0xFFC6A0FF, true);
-            graphics.text(font, "O  Open Music Center", contentLeft, top + 256, 0xFFD4D1E2, false);
-            graphics.text(font, "H  Toggle lyric HUD", contentLeft, top + 279, 0xFFD4D1E2, false);
-            graphics.text(font, "K  Play / pause", contentLeft, top + 302, 0xFFD4D1E2, false);
-            graphics.text(font, "N  Next local song   ·   B  Previous local song", contentLeft, top + 325, 0xFFD4D1E2, false);
-            graphics.text(font, "Choose any key in Controls; no chat command is required.", contentLeft, top + 365, 0xFFBDB7CD, false);
+            graphics.text(font, "EDIT CONTROLS DIRECTLY FROM THIS SCREEN",
+                    contentLeft, top + 360, 0xFFFFFFFF, true);
+            graphics.text(font, "Click a control above, then press a keyboard key or mouse button.",
+                    contentLeft, top + 383, 0xFFD4D1E2, false);
+            graphics.text(font, "Press ESC while capturing to cancel. Defaults can be restored above.",
+                    contentLeft, top + 406, 0xFFBDB7CD, false);
         } else if(tab==Tab.SKIES) {
             graphics.text(font,"20 original animated, depth-masked sky presets",contentLeft,top+98,0xFFBDB7CD,false);
             graphics.text(font,"Active: "+SkyPresetCatalog.byId(SkyLyricsClient.CONFIG.skyPreset()).name(),
