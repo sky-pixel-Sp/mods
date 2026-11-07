@@ -38,7 +38,7 @@ public final class SkyLyricsHud {
         int width = graphics.guiWidth();
         int height = graphics.guiHeight();
         int centerX = width / 2;
-        int accent = SkyLyricsClient.CONFIG.accentColor();
+        int accent = hasArtwork ? AlbumArtManager.dominantColor() : SkyLyricsClient.CONFIG.accentColor();
         int secondary = SkyLyricsClient.CONFIG.secondaryColor();
         int mainY = Math.round(height * SkyLyricsClient.CONFIG.verticalPosition());
         float scale = SkyLyricsClient.CONFIG.scale();
@@ -185,6 +185,14 @@ public final class SkyLyricsHud {
         int artY = y + 10;
         int artSize = 36;
         if (hasArtwork) {
+            if (SkyLyricsClient.CONFIG.glowEnabled()) {
+                int glowAlpha = 22 + (int) (26 * (0.5 + 0.5 *
+                        Math.sin(System.nanoTime() / 310_000_000.0)));
+                graphics.fill(artX - 4, artY - 4, artX + artSize + 4, artY + artSize + 4,
+                        withAlpha(accent, glowAlpha));
+                graphics.outline(artX - 2, artY - 2, artSize + 4, artSize + 4,
+                        withAlpha(accent, Math.min(180, glowAlpha * 3)));
+            }
             graphics.blit(RenderPipelines.GUI_TEXTURED, AlbumArtManager.TEXTURE_ID,
                     artX, artY, 0.0F, 0.0F, artSize, artSize, artSize, artSize);
         } else {
