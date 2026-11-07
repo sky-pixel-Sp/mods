@@ -150,6 +150,91 @@ tasks.test {
     dependsOn 'verifySkyResources'
 }
 
+tasks.register('verifySkyJar') {
+    group = 'verification'
+    description = 'Checks that every required SkyLyrics resource and nested audio codec is present in the final distributable JAR.'
+    dependsOn tasks.named('jar')
+    doLast {
+        File archiveFile = tasks.named('jar').get().archiveFile.get().asFile
+        if (!archiveFile.isFile() || archiveFile.length() == 0L) {
+            throw new GradleException("Final SkyLyrics JAR is missing or empty: ${archiveFile}")
+        }
+
+        def zip = new java.util.zip.ZipFile(archiveFile)
+        try {
+            def entries = []
+            def enumeration = zip.entries()
+            while (enumeration.hasMoreElements()) entries.add(enumeration.nextElement())
+            def names = entries.collect { it.name } as Set
+
+            def required = [
+                'fabric.mod.json',
+                'assets/skylyrics/icon.png',
+                'assets/skylyrics/shaders/post/sky.vsh',
+                'assets/skylyrics/shaders/post/sky.fsh',
+                'assets/skylyrics/shaders/post/copy.vsh',
+                'assets/skylyrics/shaders/post/copy.fsh',
+                'META-INF/licenses/skylyrics-audio/NOTICE.txt'
+            ]
+            required.each { name ->
+                if (!names.contains(name)) throw new GradleException("Final JAR is missing required resource: ${name}")
+            }
+
+            def fontFiles = entries.findAll {
+                it.name.startsWith('assets/skylyrics/font/') && it.name.endsWith('.ttf')
+            }
+            if (fontFiles.size() != 8) throw new GradleException("Expected 8 embedded TTF fonts, found ${fontFiles.size()}.")
+            fontFiles.each {
+                if (it.size < 1024L) throw new GradleException("Embedded font is empty or incomplete: ${it.name}")
+                String family = it.name.substring(it.name.lastIndexOf('/') + 1, it.name.length() - 4)
+                String license = "META-INF/licenses/skylyrics-fonts/${family}-OFL.txt"
+                if (!names.contains(license)) throw new GradleException("Missing font license in final JAR: ${license}")
+            }
+
+            def effects = entries.findAll {
+                it.name.startsWith('assets/skylyrics/post_effect/') && it.name.endsWith('.json')
+            }
+            if (effects.size() != 20) throw new GradleException("Expected 20 packaged sky presets, found ${effects.size()}.")
+
+            def codecNames = [
+                'META-INF/jars/mp3spi-1.9.5.4.jar',
+                'META-INF/jars/vorbisspi-1.0.3.3.jar',
+                'META-INF/jars/jlayer-1.0.1.4.jar',
+                'META-INF/jars/jorbis-0.0.17.4.jar',
+                'META-INF/jars/tritonus-share-0.3.7.4.jar'
+            ]
+            codecNames.each { name ->
+                if (!names.contains(name)) throw new GradleException("Missing bundled audio codec: ${name}")
+            }
+
+            def parser = new groovy.json.JsonSlurper()
+            def metadata = parser.parse(zip.getInputStream(zip.getEntry('fabric.mod.json')))
+            if (!(metadata.authors instanceof List) || metadata.authors != ['Sky']) {
+                throw new GradleException("fabric.mod.json author must be exactly Sky.")
+            }
+            if (metadata.icon != 'assets/skylyrics/icon.png') {
+                throw new GradleException("fabric.mod.json does not point to the packaged SkyLyrics icon.")
+            }
+            if (metadata.depends.minecraft != '~26.3' || metadata.depends.java != '>=25') {
+                throw new GradleException("Final JAR metadata is not targeting Minecraft 26.3 / Java 25.")
+            }
+
+            long uncompressedBytes = 0L
+            entries.each { uncompressedBytes += Math.max(0L, it.size) }
+            if (uncompressedBytes < 3_000_000L) {
+                throw new GradleException("Final JAR payload is unexpectedly small (${uncompressedBytes} uncompressed bytes); bundled resources may be missing.")
+            }
+            println "Verified final JAR: Sky author, icon, 8 TTF fonts and licenses, 20 sky presets, 4 shaders, and 5 audio codec libraries; ${uncompressedBytes} uncompressed bytes."
+        } finally {
+            zip.close()
+        }
+    }
+}
+
+tasks.named('build') {
+    dependsOn tasks.named('verifySkyJar')
+}
+
 // The generated TTF files are also included in the sources archive.
 tasks.named('sourcesJar') {
     dependsOn tasks.named('downloadSkyFonts')
