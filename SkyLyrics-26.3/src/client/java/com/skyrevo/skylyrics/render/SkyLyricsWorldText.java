@@ -32,7 +32,7 @@ public final class SkyLyricsWorldText {
         if (SkyLyricsClient.CONFIG == null || !SkyLyricsClient.CONFIG.enabled()
                 || !SkyLyricsClient.CONFIG.worldLyrics() || !SkyLyricsClient.PLAYER.hasTrack()) return;
         Minecraft client = Minecraft.getInstance();
-        if (client.screen != null) return;
+        if (client.gui.screen() != null) return;
 
         LyricsPlayer player = SkyLyricsClient.PLAYER;
         LyricsCue cue = player.currentCue();
@@ -50,7 +50,7 @@ public final class SkyLyricsWorldText {
         try {
             if (SkyLyricsClient.CONFIG.followView()) {
                 poseStack.translate(forward.x * distance, forward.y * distance, forward.z * distance);
-                poseStack.mulPose(facing);
+                poseStack.rotate(facing);
             } else {
                 if (!anchored) {
                     anchorX = cameraPos.x + forward.x * distance;
@@ -60,10 +60,10 @@ public final class SkyLyricsWorldText {
                     anchored = true;
                 }
                 poseStack.translate(anchorX - cameraPos.x, anchorY - cameraPos.y, anchorZ - cameraPos.z);
-                poseStack.mulPose(anchorRotation);
+                poseStack.rotate(anchorRotation);
             }
 
-            poseStack.mulPose(Axis.YP.rotationDegrees(180.0F));
+            poseStack.rotateDegrees(Axis.YP, 180.0F);
             float scale = SkyLyricsClient.CONFIG.worldTextScale();
             poseStack.scale(-scale, -scale, -scale);
             int width = client.font.width(text);
