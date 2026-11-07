@@ -49,7 +49,7 @@ class SkyLyricsConfigTest {
         try (var reader = Files.newBufferedReader(settings)) {
             migrated.load(reader);
         }
-        assertEquals("3", migrated.getProperty("configVersion"));
+        assertEquals("4", migrated.getProperty("configVersion"));
         assertEquals("golden_sunset", migrated.getProperty("skyPreset"));
     }
 
@@ -71,8 +71,6 @@ class SkyLyricsConfigTest {
         assertEquals(0.09f, config.worldTextScale(), 0.0001f);
         assertTrue(config.wordByWord());
     }
-}
-
 
     @Test
     void modularHudWidgetsDefaultSafelyAndPersistTheirLayout() throws IOException {
