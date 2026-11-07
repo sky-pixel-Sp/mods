@@ -235,7 +235,7 @@ public final class SkyLyricsScreen extends Screen {
 
     private static Component keyBindingMessage(String label, KeyMapping mapping, boolean waiting) {
         String key = waiting ? "PRESS KEY OR MOUSE BUTTON  ·  ESC CANCEL"
-                : mapping.getKey().getDisplayName().getString();
+                : mapping.getTranslatedKeyMessage().getString();
         return Component.literal(label + "  [" + key + "]");
     }
 
