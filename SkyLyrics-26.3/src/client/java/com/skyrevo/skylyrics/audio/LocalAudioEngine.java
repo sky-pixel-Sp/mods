@@ -30,6 +30,7 @@ public final class LocalAudioEngine implements AutoCloseable {
     private volatile float volume = 0.82f;
     private volatile long positionMs;
     private volatile long durationMs;
+    private volatile long segmentBaseMs;
     private volatile String status = "No offline track selected.";
 
     public synchronized void play(Path file) {
@@ -40,6 +41,7 @@ public final class LocalAudioEngine implements AutoCloseable {
         }
         currentFile = file.toAbsolutePath().normalize();
         positionMs = 0L;
+        segmentBaseMs = 0L;
         durationMs = 0L;
         paused = false;
         stopRequested = false;
@@ -61,7 +63,7 @@ public final class LocalAudioEngine implements AutoCloseable {
         paused = true;
         SourceDataLine active = line;
         if (active != null && active.isOpen()) {
-            positionMs = positionAt(active, positionMs);
+            positionMs = positionAt(active, segmentBaseMs);
             active.stop();
         }
         status = "Paused";
@@ -125,7 +127,7 @@ public final class LocalAudioEngine implements AutoCloseable {
     public boolean isPaused() { return paused; }
     public long positionMs() {
         SourceDataLine active = line;
-        if (active != null && active.isOpen() && !paused) positionMs = positionAt(active, positionMs);
+        if (active != null && active.isOpen() && !paused) positionMs = positionAt(active, segmentBaseMs);
         return positionMs;
     }
     public long durationMs() { return durationMs; }
@@ -148,6 +150,7 @@ public final class LocalAudioEngine implements AutoCloseable {
                         SourceDataLine opened = (SourceDataLine) AudioSystem.getLine(info);
                         opened.open(pcm, 65_536);
                         applyVolume(opened);
+                        segmentBaseMs = resumeAt;
                         line = opened;
                         if (!paused) opened.start();
                         status = paused ? "Paused" : "Playing offline";
