@@ -84,7 +84,7 @@ public final class AlbumArtManager {
             HttpRequest request = HttpRequest.newBuilder(uri)
                     .timeout(Duration.ofSeconds(8))
                     .header("Accept", "image/jpeg,image/png")
-                    .header("User-Agent", "SkyLyrics/0.4.0")
+                    .header("User-Agent", "SkyLyrics/0.5.0")
                     .GET()
                     .build();
             HttpResponse<InputStream> response = HTTP.send(request, HttpResponse.BodyHandlers.ofInputStream());
