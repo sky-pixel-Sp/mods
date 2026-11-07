@@ -116,7 +116,7 @@ public final class SkyLyricsHud {
         int progress = player.durationMs() <= 0 ? 0
                 : (int) (barWidth * (double) player.positionMs() / player.durationMs());
         graphics.fill(barX, barY, barX + Math.min(barWidth, progress), barY + 2, accent);
-        String status = (player.isPlaying() ? "SYNC  " : "PAUSED  ")
+        String status = ui(player.isPlaying() ? "SYNC  " : "PAUSED  ")
                 + LyricsPlayer.formatTime(player.positionMs()) + " / "
                 + LyricsPlayer.formatTime(player.durationMs());
         graphics.centeredText(minecraft.font, status, centerX, barY + 5, withAlpha(0xFFE5E5EF, 170));
@@ -226,11 +226,11 @@ public final class SkyLyricsHud {
         int titleY = style == 2 ? 17 : 22;
         int artistY = style == 2 ? 30 : 37;
         graphics.fill(textX, y + (style == 2 ? 8 : 11), textX + 5, y + (style == 2 ? 13 : 16), withAlpha(0xFF8BE2B5, pulse));
-        String sourceLabel = source == null || source.isBlank() ? "MUSIC" : source;
+        String sourceLabel = ui(source == null || source.isBlank() ? "MUSIC" : source);
         if (sourceLabel.length() > 18) sourceLabel = sourceLabel.substring(0, 18);
-        graphics.text(minecraft.font, "NOW PLAYING  ·  " + sourceLabel,
+        graphics.text(minecraft.font, ui("NOW PLAYING") + "  ·  " + sourceLabel,
                 textX + 10, y + labelY, 0xFFCBB8F4, true);
-        graphics.text(minecraft.font, fit(title == null || title.isBlank() ? "Unknown track" : title,
+        graphics.text(minecraft.font, fit(title == null || title.isBlank() ? ui("Unknown track") : title,
                 minecraft, maxTextWidth, 1.0f), textX + 10, y + titleY, 0xFFFFFCF7, true);
         graphics.text(minecraft.font, fit(artist == null ? "" : artist,
                 minecraft, maxTextWidth, 1.0f), textX + 10, y + artistY, 0xFFC9C4D5, false);
@@ -294,6 +294,20 @@ public final class SkyLyricsHud {
             sequence = SkyLyricsTypography.ordered(clipped + "…");
         }
         return sequence;
+    }
+
+    private static String ui(String english) {
+        if (SkyLyricsClient.CONFIG == null || SkyLyricsClient.CONFIG.isEnglish()) return english;
+        return switch (english) {
+            case "SYNC  " -> "SINKRON  ";
+            case "PAUSED  " -> "DIJEDA  ";
+            case "NOW PLAYING" -> "SEDANG DIPUTAR";
+            case "OFFLINE LIBRARY" -> "PUSTAKA OFFLINE";
+            case "SKYLYRICS DEMO" -> "DEMO SKYLYRICS";
+            case "MUSIC" -> "MUSIK";
+            case "Unknown track" -> "Lagu tidak diketahui";
+            default -> english;
+        };
     }
 
     private static int argb(int alpha, int red, int green, int blue) {
