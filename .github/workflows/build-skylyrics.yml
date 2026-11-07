@@ -60,6 +60,8 @@ jobs:
           JAR="build/libs/skylyrics-${MOD_VERSION}.jar"
           test -s "${JAR}"
           jar tf "${JAR}" | grep -q 'fabric.mod.json'
+          jar tf "${JAR}" | grep -q 'assets/skylyrics/icon.png'
+          jar tf "${JAR}" | grep -q 'assets/skylyrics/font/unbounded.ttf'
           jar tf "${JAR}" | grep -q 'skylyrics/post_effect/sky_nebula_storm.json'
           jar tf "${JAR}" | grep -q 'skylyrics/post_effect/sky_golden_sunset.json'
           jar tf "${JAR}" | grep -q 'assets/skylyrics/font/poppins.ttf'
@@ -77,7 +79,7 @@ jobs:
           jar tf "${JAR}" | grep -q 'META-INF/jars/jlayer-'
           jar tf "${JAR}" | grep -q 'META-INF/jars/jorbis-'
           jar tf "${JAR}" | grep -q 'META-INF/jars/tritonus-share-'
-          echo "SkyLyrics ${MOD_VERSION} JAR, offline audio codecs, Music Center, modular HUD widgets and visual assets verified."
+          echo "SkyLyrics ${MOD_VERSION} JAR, author metadata, icon, embedded fonts, shader presets, offline codecs, Music Center and HUD assets verified."
       - name: Validate browser connector
         working-directory: SkyLyrics-26.3
         shell: bash
