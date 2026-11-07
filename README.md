@@ -15,7 +15,7 @@ The in-game **Quick Guide** tab repeats these steps and links directly to Music 
 
 ## Packaged resources
 
-The final JAR is verified for the declared Sky author and icon, eight embedded TTF fonts with their OFL notices, 20 sky post-effect presets, four shaders, and five nested audio codec libraries. The package is checked by its contents rather than padded to match another mod's 20.7 MB size.
+The final JAR is verified for the declared Sky author and icon, eight embedded TTF fonts with OFL notices, 20 sky post-effect presets, four shaders, five nested audio codecs, and eight authentic NASA/JPL 1600×900 photo previews used by the Skies selector. Full-resolution source JPGs are fetched and validated during the build, then resized for runtime. The 0.9.2 JAR measures 7,874,042 bytes and the build enforces a 5,000,000-byte minimum.
 
 ## Build and test
 
