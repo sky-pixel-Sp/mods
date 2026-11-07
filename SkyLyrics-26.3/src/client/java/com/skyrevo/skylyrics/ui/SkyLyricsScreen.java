@@ -18,7 +18,7 @@ public final class SkyLyricsScreen extends Screen {
     private static boolean firstOpen = true;
     private final Tab tab;
     private int left, top, panelWidth, panelHeight, sideWidth, contentLeft, contentWidth;
-    private int libraryPage;
+    private static int libraryPage;
     private int navStep = 34;
     private int navHeight = 27;
 
