@@ -1,7 +1,7 @@
 # QA STATUS — SkyLyrics 0.9.2 / Minecraft 26.3
 
 ## 0.9.2 gallery artwork, bilingual UI, and packaging checks
-- Eight authentic NASA/JPL astronomy photographs are bundled as full-resolution source JPGs and 1600×900 preview textures used by the Skies selector.
+- The build downloads and validates eight full-resolution NASA/JPL source JPGs, then creates eight 1600×900 photo previews. Only the eight previews actually used by the Skies selector ship in the runtime JAR; full-resolution source masters remain build-time inputs.
 - Every photograph has a retained image-page URL and individual credit line in `META-INF/licenses/skylyrics-artwork/NOTICE.txt`; no NASA/JPL endorsement is implied.
 - Skies now shows a photographic preview of the currently selected preset. The procedural post-effect remains the actual Minecraft sky effect.
 - The HUD Layout Studio uses real album artwork when it is available and localizes its controls and helper text.
@@ -14,7 +14,7 @@
 - The GitHub artifact now bundles the JAR, installation README, MIT license, and the complete Chrome / Edge extension folder.
 - Fixed navigation actions that previously opened a destination screen and then immediately refreshed the old tab; tab navigation and HUD editor navigation now use dedicated non-refreshing actions.
 - Added a final-JAR verification task: author and Minecraft/Java metadata, icon, all eight TTF fonts and OFL notices, 20 sky presets, four shaders, and all five bundled audio codec JARs must be present.
-- The JAR is checked for complete contents, not artificially inflated to match the 20.7 MB reference download. Runtime assets and dependencies must be genuine and loadable.
+- The JAR is checked for complete contents and must be at least 5,000,000 bytes. Verified 0.9.2 output: 7,874,042 bytes; no padding or duplicate assets. Runtime assets and dependencies must be genuine and loadable.
 
 ### Still required on the target PC
 - [ ] Open Quick Guide, navigate between tabs, and open the HUD Layout Studio.
