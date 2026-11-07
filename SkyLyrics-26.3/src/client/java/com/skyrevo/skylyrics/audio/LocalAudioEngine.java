@@ -31,6 +31,7 @@ public final class LocalAudioEngine implements AutoCloseable {
     private volatile long positionMs;
     private volatile long durationMs;
     private volatile long segmentBaseMs;
+    private volatile float visualizerLevel;
     private volatile String status = "No offline track selected.";
 
     public synchronized void play(Path file) {
@@ -43,6 +44,7 @@ public final class LocalAudioEngine implements AutoCloseable {
         positionMs = 0L;
         segmentBaseMs = 0L;
         durationMs = 0L;
+        visualizerLevel = 0.0f;
         paused = false;
         stopRequested = false;
         seekRequest.set(-1L);
@@ -66,6 +68,7 @@ public final class LocalAudioEngine implements AutoCloseable {
             positionMs = positionAt(active, segmentBaseMs);
             active.stop();
         }
+        visualizerLevel = 0.0f;
         status = "Paused";
     }
 
@@ -101,6 +104,7 @@ public final class LocalAudioEngine implements AutoCloseable {
         playbackThread = null;
         playing = false;
         positionMs = 0L;
+        visualizerLevel = 0.0f;
         status = "Stopped";
     }
 
@@ -140,6 +144,8 @@ public final class LocalAudioEngine implements AutoCloseable {
     }
     public long durationMs() { return durationMs; }
     public String status() { return status; }
+    /** Normalized recent PCM amplitude (0..1), for the local-track visualizer only. */
+    public float visualizerLevel() { return visualizerLevel; }
 
     private void stream(Path file, long initialPositionMs) {
         long resumeAt = initialPositionMs;
@@ -177,6 +183,7 @@ public final class LocalAudioEngine implements AutoCloseable {
                             if (stopRequested) break;
                             if (paused) continue;
                             if (!opened.isOpen()) break;
+                            visualizerLevel = measureRms(buffer, count, visualizerLevel);
                             opened.write(buffer, 0, count);
                             positionMs = resumeAt + Math.round(opened.getLongFramePosition() * 1000.0 / sampleRate);
                         }
@@ -214,6 +221,7 @@ public final class LocalAudioEngine implements AutoCloseable {
                 try { active.stop(); active.close(); } catch (RuntimeException ignored) { }
             }
             line = null;
+            visualizerLevel = 0.0f;
             if (playbackThread == Thread.currentThread()) {
                 playing = false;
                 if (stopRequested) status = "Stopped";
@@ -221,6 +229,21 @@ public final class LocalAudioEngine implements AutoCloseable {
                 playbackThread = null;
             }
         }
+    }
+
+    private static float measureRms(byte[] pcm, int length, float previous) {
+        double squares = 0.0;
+        int samples = 0;
+        for (int i = 0; i + 1 < length; i += 2) {
+            short sample = (short) (((pcm[i + 1] & 0xFF) << 8) | (pcm[i] & 0xFF));
+            double normalized = sample / 32768.0;
+            squares += normalized * normalized;
+            samples++;
+        }
+        if (samples == 0) return previous * 0.6f;
+        double rms = Math.sqrt(squares / samples);
+        float level = (float) Math.max(0.0, Math.min(1.0, rms * 3.0));
+        return previous * 0.28f + level * 0.72f;
     }
 
     private void waitWhilePaused() throws InterruptedException {
