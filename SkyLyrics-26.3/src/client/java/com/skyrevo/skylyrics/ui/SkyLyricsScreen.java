@@ -259,8 +259,10 @@ public final class SkyLyricsScreen extends Screen {
     public boolean keyPressed(KeyEvent event) {
         if (pendingKeyBinding != null) {
             if (event.isEscape()) {
-                pendingKeyBindingButton.setMessage(Component.literal(
-                        "  [" + ui("CANCELLED") + "]"));
+                String prompt = "  [" + ui("PRESS KEY OR MOUSE BUTTON  ·  ESC CANCEL") + "]";
+                String cancelled = "  [" + ui("CANCELLED") + "]";
+                String currentMessage = pendingKeyBindingButton.getMessage().getString();
+                pendingKeyBindingButton.setMessage(Component.literal(currentMessage.replace(prompt, cancelled)));
                 pendingKeyBinding = null;
                 pendingKeyBindingButton = null;
                 return true;
@@ -497,6 +499,10 @@ public final class SkyLyricsScreen extends Screen {
             case "OFF" -> "NONAKTIF";
             case "LYRICS READY" -> "LIRIK SIAP";
             case "WAITING FOR MUSIC" -> "MENUNGGU MUSIK";
+            case "PLAYING" -> "SEDANG DIPUTAR";
+            case "PAUSED" -> "DIJEDA";
+            case "Volume " -> "Volume ";
+            case "WAITING FOR MUSIC" -> "MENUNGGU MUSIK";
             case "CINEMATIC MUSIC EXPERIENCE" -> "PENGALAMAN MUSIK SINEMATIK";
             case "BY SKY  ·  CINEMATIC MUSIC EXPERIENCE" -> "OLEH SKY  ·  MUSIK SINEMATIK";
             case "CINEMATIC PREVIEW" -> "PRATINJAU SINEMATIK";
@@ -520,6 +526,7 @@ public final class SkyLyricsScreen extends Screen {
             case "Manual sync offset: " -> "Offset sinkron manual: ";
             case "Style: " -> "Gaya: ";
             case "Font: " -> "Font: ";
+            case "Active: " -> "Aktif: ";
             case "World text distance: " -> "Jarak teks dunia: ";
             case "HUD vertical position: " -> "Posisi vertikal HUD: ";
             case "Now Playing position: " -> "Posisi Now Playing: ";
@@ -595,7 +602,7 @@ public final class SkyLyricsScreen extends Screen {
         boolean ready = SkyLyricsClient.PLAYER.hasTrack();
         graphics.fill(left + panelWidth - 142, top + 17, left + panelWidth - 20, top + 38,
                 ready ? 0xFF20372F : 0xFF30283B);
-        graphics.text(font, ready ? "LYRICS READY" : "WAITING FOR MUSIC",
+        graphics.text(font, ui(ready ? "LYRICS READY" : "WAITING FOR MUSIC"),
                 left + panelWidth - 132, top + 24, ready ? 0xFF9BE7BF : 0xFFD2BFEF, true);
         if(tab==Tab.OVERVIEW) {
             graphics.text(font,ui("SKY PRESET")+"  "+SkyPresetCatalog.byId(SkyLyricsClient.CONFIG.skyPreset()).name()
@@ -607,7 +614,7 @@ public final class SkyLyricsScreen extends Screen {
                 graphics.text(font,SkyLyricsClient.PLAYER.track().artist(),contentLeft+14,top+318,0xFFBDB7CD,false);
                 LyricsCue cue=SkyLyricsClient.PLAYER.currentCue();
                 if(cue!=null) graphics.text(font,cue.text(),contentLeft+14,top+344,SkyLyricsClient.CONFIG.accentColor(),true);
-                graphics.text(font,(SkyLyricsClient.PLAYER.isPlaying()?"PLAYING":"PAUSED")
+                graphics.text(font,ui(SkyLyricsClient.PLAYER.isPlaying()?"PLAYING":"PAUSED")
                         +"  ·  "+LyricsPlayer.formatTime(SkyLyricsClient.PLAYER.positionMs())
                         +" / "+LyricsPlayer.formatTime(SkyLyricsClient.PLAYER.durationMs()),
                         contentLeft+14,top+368,0xFFD4D1E2,false);
@@ -627,7 +634,7 @@ public final class SkyLyricsScreen extends Screen {
                 graphics.text(font, LyricsPlayer.formatTime(SkyLyricsClient.AUDIO.positionMs()) + " / "
                         + LyricsPlayer.formatTime(SkyLyricsClient.AUDIO.durationMs()),
                         contentLeft, top + 334, 0xFFD4D1E2, false);
-                graphics.text(font, "Volume " + Math.round(SkyLyricsClient.AUDIO.volume() * 100) + "%",
+                graphics.text(font, ui("Volume ") + Math.round(SkyLyricsClient.AUDIO.volume() * 100) + "%",
                         contentLeft, top + 358, 0xFFD4D1E2, false);
             } else if (SkyLyricsClient.CURRENT_MEDIA != null) {
                 graphics.text(font, SkyLyricsClient.CURRENT_MEDIA.title(), contentLeft, top + 285, 0xFFFFFFFF, true);
@@ -690,7 +697,7 @@ public final class SkyLyricsScreen extends Screen {
                     contentLeft, top + 406, 0xFFBDB7CD, false);
         } else if(tab==Tab.SKIES) {
             graphics.text(font,ui("20 original animated, depth-masked sky presets"),contentLeft,top+98,0xFFBDB7CD,false);
-            graphics.text(font,"Active: "+SkyPresetCatalog.byId(SkyLyricsClient.CONFIG.skyPreset()).name(),
+            graphics.text(font,ui("Active: ")+SkyPresetCatalog.byId(SkyLyricsClient.CONFIG.skyPreset()).name(),
                     contentLeft,top+panelHeight-28,SkyLyricsClient.CONFIG.accentColor(),true);
         } else if(tab==Tab.LYRICS) {
             String title=SkyLyricsClient.PLAYER.hasTrack()?SkyLyricsClient.PLAYER.track().title():"No track loaded";
@@ -707,7 +714,7 @@ public final class SkyLyricsScreen extends Screen {
                     contentLeft, top + 245, SkyLyricsClient.CONFIG.accentColor(), true);
             graphics.centeredText(font, SkyLyricsTypography.ordered("Dream it. Sing it."),
                     contentLeft + contentWidth / 2, top + 275, 0xFFFFFFFF);
-            graphics.text(font, "Font: " + SkyLyricsClient.CONFIG.fontFamilyName(),
+            graphics.text(font, ui("Font: ") + SkyLyricsClient.CONFIG.fontFamilyName(),
                     contentLeft, top + 312, 0xFFBDB7CD, false);
         } else if(tab==Tab.HUD) {
             graphics.text(font,ui("World text distance: ")+String.format("%.1f",SkyLyricsClient.CONFIG.worldDistance())+" blocks",
