@@ -16,7 +16,7 @@
 
 ---
 
-# QA STATUS — SkyLyrics 0.9.0 / Minecraft 26.3
+## Historical QA — SkyLyrics 0.9.0 / Minecraft 26.3
 
 ## 0.9.0 port additions (implementation in review)
 - Elytra Lyrics Mode moves 3D lyrics farther forward and keeps them camera-facing while the player is gliding; toggle is available in HUD settings and is persisted in config schema v5.
