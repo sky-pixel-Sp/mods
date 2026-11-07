@@ -430,6 +430,8 @@ public final class SkyLyricsScreen extends Screen {
             case "SKY ENGINE  OFF" -> "MESIN LANGIT  NONAKTIF";
             case "LYRIC DISPLAY  ON" -> "TAMPILAN LIRIK  AKTIF";
             case "LYRIC DISPLAY  OFF" -> "TAMPILAN LIRIK  NONAKTIF";
+            case "WORD REVEAL  ON" -> "TAMPILKAN PER KATA  AKTIF";
+            case "WORD REVEAL  OFF" -> "TAMPILKAN PER KATA  NONAKTIF";
             case "OPEN MUSIC CENTER" -> "BUKA PUSAT MUSIK";
             case "OPEN OFFLINE LIBRARY" -> "BUKA PUSTAKA OFFLINE";
             case "LYRICS STUDIO" -> "STUDIO LIRIK";
@@ -502,7 +504,6 @@ public final class SkyLyricsScreen extends Screen {
             case "PLAYING" -> "SEDANG DIPUTAR";
             case "PAUSED" -> "DIJEDA";
             case "Volume " -> "Volume ";
-            case "WAITING FOR MUSIC" -> "MENUNGGU MUSIK";
             case "CINEMATIC MUSIC EXPERIENCE" -> "PENGALAMAN MUSIK SINEMATIK";
             case "BY SKY  ·  CINEMATIC MUSIC EXPERIENCE" -> "OLEH SKY  ·  MUSIK SINEMATIK";
             case "CINEMATIC PREVIEW" -> "PRATINJAU SINEMATIK";
