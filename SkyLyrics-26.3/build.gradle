@@ -32,6 +32,10 @@ dependencies {
     implementation "com.googlecode.soundlibs:vorbisspi:1.0.3.3"
     include "com.googlecode.soundlibs:mp3spi:1.9.5.4"
     include "com.googlecode.soundlibs:vorbisspi:1.0.3.3"
+    // Loom's include configuration is not transitive: bundle codec runtimes explicitly.
+    include "com.googlecode.soundlibs:jlayer:1.0.1.4"
+    include "com.googlecode.soundlibs:jorbis:0.0.17.4"
+    include "com.googlecode.soundlibs:tritonus-share:0.3.7.4"
     testImplementation platform('org.junit:junit-bom:5.11.4')
     testImplementation 'org.junit.jupiter:junit-jupiter'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
