@@ -49,7 +49,7 @@ class SkyLyricsConfigTest {
         try (var reader = Files.newBufferedReader(settings)) {
             migrated.load(reader);
         }
-        assertEquals("3", migrated.getProperty("configVersion"));
+        assertEquals("4", migrated.getProperty("configVersion"));
         assertEquals("golden_sunset", migrated.getProperty("skyPreset"));
     }
 
@@ -70,5 +70,41 @@ class SkyLyricsConfigTest {
         assertEquals("aurora", config.skyPreset());
         assertEquals(0.09f, config.worldTextScale(), 0.0001f);
         assertTrue(config.wordByWord());
+    }
+
+    @Test
+    void modularHudWidgetsDefaultSafelyAndPersistTheirLayout() throws IOException {
+        SkyLyricsConfig config = new SkyLyricsConfig(temporaryDirectory);
+        assertTrue(config.visualizerHudEnabled());
+        assertFalse(config.recentTracksHudEnabled());
+        assertFalse(config.listeningStatsHudEnabled());
+        config.setVisualizerHudPosition(0.22f, 0.73f);
+        config.setRecentTracksHudPosition(0.18f, 0.61f);
+        config.setListeningStatsHudPosition(0.81f, 0.62f);
+        config.toggleRecentTracksHudEnabled();
+        config.toggleListeningStatsHudEnabled();
+        SkyLyricsConfig reloaded = new SkyLyricsConfig(temporaryDirectory);
+        assertEquals(0.22f, reloaded.visualizerHudX(), 0.0001f);
+        assertEquals(0.73f, reloaded.visualizerHudY(), 0.0001f);
+        assertEquals(0.18f, reloaded.recentTracksHudX(), 0.0001f);
+        assertEquals(0.61f, reloaded.recentTracksHudY(), 0.0001f);
+        assertEquals(0.81f, reloaded.listeningStatsHudX(), 0.0001f);
+        assertEquals(0.62f, reloaded.listeningStatsHudY(), 0.0001f);
+        assertTrue(reloaded.recentTracksHudEnabled());
+        assertTrue(reloaded.listeningStatsHudEnabled());
+    }
+
+    @Test
+    void modularHudWidgetPositionsAreClampedToNormalizedScreenBounds() {
+        SkyLyricsConfig config = new SkyLyricsConfig(temporaryDirectory);
+        config.setVisualizerHudPosition(-5.0f, 5.0f);
+        config.setRecentTracksHudPosition(8.0f, -8.0f);
+        config.setListeningStatsHudPosition(-2.0f, 4.0f);
+        assertEquals(0.08f, config.visualizerHudX(), 0.0001f);
+        assertEquals(0.92f, config.visualizerHudY(), 0.0001f);
+        assertEquals(0.92f, config.recentTracksHudX(), 0.0001f);
+        assertEquals(0.0f, config.recentTracksHudY(), 0.0001f);
+        assertEquals(0.08f, config.listeningStatsHudX(), 0.0001f);
+        assertEquals(0.88f, config.listeningStatsHudY(), 0.0001f);
     }
 }

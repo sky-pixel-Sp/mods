@@ -1,4 +1,4 @@
-# SkyLyrics 0.7.0 — Music Center, Karaoke Timing & HUD Layout Studio
+# SkyLyrics 0.8.0 — Modular HUD Studio & Live Audio Visualizer
 
 SkyLyrics is a client-side Fabric mod for Minecraft Java 26.3. It combines an in-game clickable Music Center, local offline audio playback, browser-connected online music controls, synchronized lyrics, and optional cinematic sky effects.
 
@@ -13,7 +13,10 @@ Open the interface with **O**. The entire player is operated through clickable M
 - **Online Music:** open YouTube Music or Spotify Web in the browser and control the active browser player from Minecraft.
 - **Lyrics Studio:** floating 3D lyrics or HUD lyrics, standard LRC import, word-by-word reveal, font and style controls.
 - **Word-synced karaoke:** reads LRCLIB-style inline word timestamps such as `<00:12.42>` and highlights each word at its actual timestamp. Ordinary line-timed LRC files continue to work.
-- **HUD Layout Studio:** drag Now Playing and Lyrics HUD independently, persist positions across restarts/resolutions, double-click a panel to reset it, or right-click during a drag to cancel.
+- **HUD Layout Studio:** five independent cards (Now Playing, Lyrics, PCM Visualizer, Recently Played and Listening Stats) can be moved separately. Positions persist across restarts and resolution changes; double-click resets one card and right-click cancels a drag.
+- **Live PCM Visualizer:** the offline player measures decoded PCM amplitude and drives a dedicated multi-bar HUD card. Browser sessions are explicitly marked as transport-only because the extension does not capture browser audio.
+- **Recently Played HUD:** shows the latest three locally recorded listening sessions, including an elapsed-time label.
+- **Listening Stats HUD:** exposes persistent play count and recent unique-track count from the local history store. Optional cards can be enabled/disabled in the HUD Layout Studio.
 - **Keybinds:** change the five SkyLyrics shortcuts directly in the in-game KEYBINDS page. Click a row, press any keyboard key or mouse button, or press ESC to cancel. Restore Defaults is one click away. The same mappings remain visible in Minecraft's Controls screen.
 - **Skies / Performance:** choose a procedural sky or disable the sky effect entirely.
 
@@ -65,6 +68,8 @@ Open **O → HUD → Open HUD Layout Editor**. Drag the **Now Playing** card and
 
 The editor changes only client-side HUD placement. It does not alter the world, player position, server state, or resource packs.
 
+The HUD Layout Studio now includes VIS, RECENT, and STATS visibility switches. Every card can be dragged, independently reset by double-click, or restored to its previous position with right-click. New widget positions and visibility choices are stored in configuration schema version 4; existing version 3 settings migrate automatically.
+
 ## Word-synchronized lyrics
 
 SkyLyrics accepts ordinary LRC line timestamps and LRCLIB-style word timestamps embedded inside a line, for example:
@@ -102,7 +107,7 @@ The Music Center, offline audio engine, online browser bridge, playlists/library
 ## Install in TLauncher
 
 1. Start the Minecraft 26.3 Fabric profile once, then close Minecraft.
-2. Put `skylyrics-0.7.0.jar` and the matching Fabric API JAR in the `mods` folder used by that Fabric profile.
+2. Put `skylyrics-0.8.0.jar` and the matching Fabric API JAR in the `mods` folder used by that Fabric profile.
 3. Start TLauncher and select the Fabric 26.3 profile.
 4. Enter a world and press **O** to open SkyLyrics Music Center.
 
@@ -112,7 +117,7 @@ SkyLyrics is client-side; a multiplayer server does not need this mod installed.
 
 GitHub Actions uses JDK 25 and Gradle 9.8.2. The pipeline runs unit tests, verifies sky shaders and fonts, compiles the Minecraft 26.3 Fabric client, validates browser-extension JavaScript, verifies audio/player classes, and uploads the mod JAR.
 
-GitHub Actions Run #104 for SkyLyrics 0.7.0 passed `clean test build`, resource verification, browser-extension syntax checks, and JAR packaging. The workflow artifact is named `SkyLyrics-Minecraft-26.3`; its build record and checksum are tracked in `QA_STATUS.md`. A green CI result does not replace the final manual audio and mouse-interaction test in TLauncher. Local MP3/OGG output and online browser controls must be smoke-tested on the target Windows PC before calling this a fully verified release.
+GitHub Actions validation for SkyLyrics 0.8.0 must pass `clean test build`, resource verification, browser-extension syntax checks, and JAR packaging. The workflow artifact is named `SkyLyrics-Minecraft-26.3`; its build record and checksum are tracked in `QA_STATUS.md`. A green CI result does not replace the final manual audio and mouse-interaction test in TLauncher. Local MP3/OGG output and online browser controls must be smoke-tested on the target Windows PC before calling this a fully verified release.
 
 ## Licenses
 
