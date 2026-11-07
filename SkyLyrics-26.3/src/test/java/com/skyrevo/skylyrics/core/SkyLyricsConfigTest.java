@@ -30,6 +30,20 @@ class SkyLyricsConfigTest {
         assertTrue(config.isEnglish());
     }
 
+
+    @Test
+    void everySkyPresetMapsToARealPackagedGalleryArtworkId() {
+        var artworkIds = java.util.Set.of(
+                "jack_o_lantern", "catspaw", "eagle", "north_america",
+                "blue_ring", "lynds_bright", "audience_favorite", "w51"
+        );
+        assertEquals(20, SkyPresetCatalog.ALL.size());
+        for (SkyPresetCatalog.Preset preset : SkyPresetCatalog.ALL) {
+            assertTrue(artworkIds.contains(SkyPresetCatalog.artworkFor(preset.id())),
+                    "Missing gallery mapping for " + preset.id());
+        }
+    }
+
     @Test
     void languageDefaultsToEnglishAndPersistsIndonesianSelection() {
         SkyLyricsConfig config = new SkyLyricsConfig(temporaryDirectory);
