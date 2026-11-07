@@ -49,8 +49,8 @@ public final class SkyLyricsScreen extends Screen {
         sideWidth = Math.min(170, panelWidth / 4);
         contentLeft = left + sideWidth + 18;
         contentWidth = panelWidth - sideWidth - 34;
-        navStep = Math.min(34, Math.max(24, (panelHeight - 78) / Tab.values().length));
-        navHeight = Math.max(20, Math.min(27, navStep - 4));
+        navStep = Math.max(16, Math.min(34, (panelHeight - 78) / Tab.values().length));
+        navHeight = Math.max(13, Math.min(27, navStep - 4));
 
         String[] labels = {"OVERVIEW","MUSIC CENTER","OFFLINE LIBRARY","HISTORY & STATS","ONLINE MUSIC","LYRICS","STYLES","SKIES","HUD","KEYBINDS","PERFORMANCE","SETTINGS","QUICK GUIDE"};
         Tab[] tabs = Tab.values();
@@ -414,6 +414,26 @@ public final class SkyLyricsScreen extends Screen {
 
     private static String ui(String english) {
         if (SkyLyricsClient.CONFIG.isEnglish()) return english;
+        // Dynamic toggle labels are composed from a translated ON/OFF state.
+        if (english.startsWith("SKY ENGINE  ")) return "MESIN LANGIT  " + english.substring("SKY ENGINE  ".length());
+        if (english.startsWith("LYRIC DISPLAY  ")) return "TAMPILAN LIRIK  " + english.substring("LYRIC DISPLAY  ".length());
+        if (english.startsWith("LYRICS  ")) return "LIRIK  " + english.substring("LYRICS  ".length());
+        if (english.startsWith("DISPLAY  ")) return "TAMPILAN  " + english.substring("DISPLAY  ".length());
+        if (english.startsWith("FOLLOW VIEW  ")) return "IKUTI PANDANGAN  " + english.substring("FOLLOW VIEW  ".length());
+        if (english.startsWith("WORD-BY-WORD REVEAL  ")) return "TAMPILKAN PER KATA  " + english.substring("WORD-BY-WORD REVEAL  ".length());
+        if (english.startsWith("WORD REVEAL  ")) return "TAMPILKAN PER KATA  " + english.substring("WORD REVEAL  ".length());
+        if (english.startsWith("GLOW  ")) return "CAHAYA  " + english.substring("GLOW  ".length());
+        if (english.startsWith("WORLD TEXT  ")) return "TEKS DUNIA  " + english.substring("WORLD TEXT  ".length());
+        if (english.startsWith("PREVIOUS / NEXT LINES  ")) return "BARIS SEBELUM / SESUDAH  " + english.substring("PREVIOUS / NEXT LINES  ".length());
+        if (english.startsWith("HUD BACKDROP  ")) return "LATAR HUD  " + english.substring("HUD BACKDROP  ".length());
+        if (english.startsWith("ELYTRA LYRICS MODE  ")) return "MODE LIRIK ELYTRA  " + english.substring("ELYTRA LYRICS MODE  ".length());
+        if (english.startsWith("NOW PLAYING STYLE  ·  ")) return "GAYA SEDANG DIPUTAR  ·  " + switch (english.substring("NOW PLAYING STYLE  ·  ".length())) {
+            case "Bordered" -> "Berbingkai";
+            case "Borderless" -> "Tanpa bingkai";
+            case "Compact" -> "Ringkas";
+            default -> english.substring("NOW PLAYING STYLE  ·  ".length());
+        };
+        if (english.startsWith("LANGUAGE  ·  ")) return "BAHASA  ·  " + (SkyLyricsClient.CONFIG.isEnglish() ? "English" : "Indonesia");
         return switch (english) {
             case "SkyLyrics by Sky" -> "SkyLyrics oleh Sky";
             case "OVERVIEW" -> "RINGKASAN";
@@ -497,8 +517,6 @@ public final class SkyLyricsScreen extends Screen {
             case "OPEN HUD LAYOUT STUDIO · 5 WIDGETS  ↗" -> "BUKA EDITOR TATA LETAK HUD · 5 WIDGET  ↗";
             case "DISABLE SKY EFFECT" -> "MATIKAN EFEK LANGIT";
             case "RESTORE SELECTED SKY" -> "AKTIFKAN LANGIT PILIHAN";
-            case "LANGUAGE  ·  English" -> "BAHASA  ·  Inggris";
-            case "LANGUAGE  ·  Indonesian" -> "BAHASA  ·  Indonesia";
             case "ON" -> "AKTIF";
             case "OFF" -> "NONAKTIF";
             case "LYRICS READY" -> "LIRIK SIAP";
