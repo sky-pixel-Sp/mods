@@ -8,11 +8,11 @@
       "fragment_shader": "skylyrics:post/sky",
       "inputs": [
         {
-          "sampler_name": "Main",
+          "sampler_name": "MainSampler",
           "target": "minecraft:main"
         },
         {
-          "sampler_name": "Depth",
+          "sampler_name": "DepthSampler",
           "target": "minecraft:main",
           "use_depth_buffer": true
         }
@@ -65,7 +65,7 @@
       "fragment_shader": "skylyrics:post/copy",
       "inputs": [
         {
-          "sampler_name": "In",
+          "sampler_name": "InSampler",
           "target": "swap"
         }
       ],

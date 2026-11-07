@@ -44,14 +44,14 @@ jobs:
           java -version
           java -version 2>&1 | head -n 1 | grep -Eq 'version "25([.]|")'
           gradle --no-daemon -Dorg.gradle.java.home="${JAVA_HOME}" clean test build
-          test -s build/libs/skylyrics-0.2.0.jar
-          jar tf build/libs/skylyrics-0.2.0.jar | grep -q 'fabric.mod.json'
-          jar tf build/libs/skylyrics-0.2.0.jar | grep -q 'skylyrics/post_effect/sky_nebula_storm.json'
+          test -s build/libs/skylyrics-0.3.0.jar
+          jar tf build/libs/skylyrics-0.3.0.jar | grep -q 'fabric.mod.json'
+          jar tf build/libs/skylyrics-0.3.0.jar | grep -q 'skylyrics/post_effect/sky_nebula_storm.json'
           echo "SkyLyrics JAR and sky resources verified."
       - name: Upload SkyLyrics JAR
         uses: actions/upload-artifact@v7
         with:
           name: SkyLyrics-Minecraft-26.3
-          path: SkyLyrics-26.3/build/libs/skylyrics-0.2.0.jar
+          path: SkyLyrics-26.3/build/libs/skylyrics-0.3.0.jar
           if-no-files-found: error
           retention-days: 30
