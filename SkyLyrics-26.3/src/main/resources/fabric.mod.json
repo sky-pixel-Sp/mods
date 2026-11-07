@@ -3,9 +3,9 @@
   "id": "skylyrics",
   "version": "${version}",
   "name": "SkyLyrics",
-  "description": "Music Center with offline MP3/OGG/WAV playback, browser-connected online music controls, synchronized lyrics, and optional cinematic skies for Minecraft Java 26.3.",
+  "description": "SkyLyrics by Sky — in-game music controls, synchronized lyrics, customizable 2D/3D HUD, and cinematic sky presets for Minecraft Java 26.3.",
   "authors": [
-    "SkyRevo"
+    "Sky"
   ],
   "license": "MIT",
   "environment": "client",
@@ -22,5 +22,6 @@
     "minecraft": "~26.3",
     "java": ">=25",
     "fabric-api": ">=0.165.0"
-  }
+  },
+  "icon": "assets/skylyrics/icon.png"
 }
