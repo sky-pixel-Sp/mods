@@ -13,8 +13,12 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 
+import java.awt.Desktop;
+import java.io.IOException;
+import java.nio.file.Path;
+
 public final class SkyLyricsScreen extends Screen {
-    private enum Tab { OVERVIEW, SKIES, LYRICS, STYLES, HUD, PERFORMANCE, SETTINGS, INFORMATION }
+    private enum Tab { OVERVIEW, PLAYER, SKIES, LYRICS, STYLES, HUD, PERFORMANCE, SETTINGS, INFORMATION }
     private static boolean firstOpen = true;
     private final Tab tab;
     private int left, top, panelWidth, panelHeight, sideWidth, contentLeft, contentWidth;
@@ -39,7 +43,7 @@ public final class SkyLyricsScreen extends Screen {
         contentLeft = left + sideWidth + 18;
         contentWidth = panelWidth - sideWidth - 34;
 
-        String[] labels = {"OVERVIEW","SKIES","LYRICS","STYLES","HUD","PERFORMANCE","SETTINGS","INFORMATION"};
+        String[] labels = {"HOME","PLAYER","SKIES","LYRICS","STYLES","HUD","PERFORMANCE","SETTINGS","INFO"};
         Tab[] tabs = Tab.values();
         for (int i=0;i<tabs.length;i++) {
             Tab next = tabs[i];
@@ -53,6 +57,7 @@ public final class SkyLyricsScreen extends Screen {
         int y = top + 112;
         switch (tab) {
             case OVERVIEW -> overview(y);
+            case PLAYER -> player(y);
             case SKIES -> skies(y);
             case LYRICS -> lyrics(y);
             case STYLES -> styles(y);
@@ -77,6 +82,49 @@ public final class SkyLyricsScreen extends Screen {
                     if (SkyLyricsClient.isDemoActive()) SkyLyricsClient.stopDemo();
                     else SkyLyricsClient.startDemo();
                 }, contentLeft, y+114, contentWidth, 30);
+    }
+
+    private void player(int y) {
+        int gap = 8;
+        int half = (contentWidth - gap) / 2;
+        action("OPEN LOCAL LYRICS FOLDER", this::openLyricsFolder,
+                contentLeft, y + 8, contentWidth, 32);
+        action("PREVIOUS LINE", SkyLyricsClient.PLAYER::previousCue,
+                contentLeft, y + 52, half, 34);
+        action(SkyLyricsClient.PLAYER.isPlaying() ? "PAUSE TIMELINE" : "PLAY TIMELINE",
+                SkyLyricsClient.PLAYER::toggle, contentLeft + half + gap, y + 52, half, 34);
+        action("SEEK −10 SEC", () -> SkyLyricsClient.PLAYER.seekBy(-10_000),
+                contentLeft, y + 94, half, 30);
+        action("SEEK +10 SEC", () -> SkyLyricsClient.PLAYER.seekBy(10_000),
+                contentLeft + half + gap, y + 94, half, 30);
+        action("NEXT LINE", SkyLyricsClient.PLAYER::nextCue,
+                contentLeft, y + 132, contentWidth, 30);
+
+        java.util.List<Path> tracks = SkyLyricsClient.LIBRARY.listTracks();
+        int listTop = y + 184;
+        for (int i = 0; i < Math.min(5, tracks.size()); i++) {
+            Path track = tracks.get(i);
+            action("LOAD  ·  " + track.getFileName(),
+                    () -> SkyLyricsClient.loadTrack(track),
+                    contentLeft, listTop + i * 34, contentWidth, 28);
+        }
+        if (tracks.isEmpty()) {
+            // The library constructor creates a small sample LRC on first launch.
+            action("REFRESH LOCAL LYRICS LIST", () -> {}, contentLeft, listTop, contentWidth, 28);
+        }
+    }
+
+    private void openLyricsFolder() {
+        try {
+            if (!Desktop.isDesktopSupported()) {
+                SkyLyricsClient.MEDIA_NOTICE = "Open the lyrics folder manually: " + SkyLyricsClient.LIBRARY.directory();
+                return;
+            }
+            Desktop.getDesktop().open(SkyLyricsClient.LIBRARY.directory().toFile());
+            SkyLyricsClient.MEDIA_NOTICE = "Local lyrics folder opened.";
+        } catch (IOException | UnsupportedOperationException exception) {
+            SkyLyricsClient.MEDIA_NOTICE = "Could not open lyrics folder: " + exception.getMessage();
+        }
     }
 
     private void skies(int y) {
@@ -271,7 +319,7 @@ public final class SkyLyricsScreen extends Screen {
             }
             if(SkyLyricsClient.MEDIA_NOTICE!=null&&!SkyLyricsClient.MEDIA_NOTICE.isBlank())
                 graphics.text(font,SkyLyricsClient.MEDIA_NOTICE,contentLeft+14,top+393,0xFF9D96B3,false);
-        } else if(tab==Tab.SKIES) {
+        } else if(tab==Tab.PLAYER) {\n            graphics.text(font, "LOCAL LYRICS LIBRARY", contentLeft, top + 98, 0xFFC6A0FF, true);\n            if (SkyLyricsClient.PLAYER.hasTrack()) {\n                graphics.text(font, SkyLyricsClient.PLAYER.track().title(), contentLeft, top + 124, 0xFFFFFFFF, true);\n                graphics.text(font, SkyLyricsClient.PLAYER.track().artist(), contentLeft, top + 143, 0xFFBDB7CD, false);\n                LyricsCue cue = SkyLyricsClient.PLAYER.currentCue();\n                if (cue != null) graphics.text(font, cue.text(), contentLeft, top + 164, SkyLyricsClient.CONFIG.accentColor(), true);\n                graphics.text(font, (SkyLyricsClient.PLAYER.isPlaying() ? "TIMELINE RUNNING" : "TIMELINE PAUSED") + "  ·  " + LyricsPlayer.formatTime(SkyLyricsClient.PLAYER.positionMs()) + " / " + LyricsPlayer.formatTime(SkyLyricsClient.PLAYER.durationMs()), contentLeft, top + 184, 0xFFD4D1E2, false);\n            } else {\n                graphics.text(font, "No LRC file loaded.", contentLeft, top + 128, 0xFFD4D1E2, false);\n            }\n            graphics.text(font, "Offline: load downloaded .lrc files from the folder above.", contentLeft, top + 218, 0xFFBDB7CD, false);\n            graphics.text(font, "Online: browser media metadata can sync supported YouTube lyrics.", contentLeft, top + 238, 0xFFBDB7CD, false);\n            graphics.text(font, "Audio playback is not yet provided by this timeline controller.", contentLeft, top + 260, 0xFFFFC27A, false);\n            graphics.text(font, "Touch or click the buttons; no chat commands are needed.", contentLeft, top + 282, 0xFF9BE7BF, false);\n        } else if(tab==Tab.SKIES) {
             graphics.text(font,"20 original animated, depth-masked sky presets",contentLeft,top+98,0xFFBDB7CD,false);
             graphics.text(font,"Active: "+SkyPresetCatalog.byId(SkyLyricsClient.CONFIG.skyPreset()).name(),
                     contentLeft,top+panelHeight-28,SkyLyricsClient.CONFIG.accentColor(),true);
@@ -301,12 +349,12 @@ public final class SkyLyricsScreen extends Screen {
             graphics.text(font,"Rendering uses Minecraft's post-effect pipeline.",contentLeft,top+236,0xFFD4D1E2,false);
         } else if(tab==Tab.SETTINGS) {
             graphics.text(font,"Saved to config/skylyrics.properties",contentLeft,top+220,0xFFD4D1E2,false);
-            graphics.text(font,"Keys: O menu · H lyrics · K play/pause",contentLeft,top+244,0xFFD4D1E2,false);
+            graphics.text(font,"Open Options → Controls → SkyLyrics to rebind O, H and K.",contentLeft,top+244,0xFFD4D1E2,false);
         } else if(tab==Tab.INFORMATION) {
             graphics.text(font,"Fabric client mod · Minecraft Java 26.3",contentLeft,top+190,0xFFFFFFFF,true);
             graphics.text(font,"YouTube / YouTube Music: browser media + synced lyric lookup.",contentLeft,top+216,0xFFD4D1E2,false);
             graphics.text(font,"Spotify: Now Playing metadata only.",contentLeft,top+240,0xFFD4D1E2,false);
-            graphics.text(font,"Local .lrc files work offline.",contentLeft,top+264,0xFFD4D1E2,false);
+            graphics.text(font,"Local LRC timeline works offline; audio playback is a separate feature.",contentLeft,top+264,0xFFD4D1E2,false);
         }
     }
 }
