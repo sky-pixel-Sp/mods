@@ -43,6 +43,7 @@ dependencies {
 
 def googleFontsCommit = '86aced91de05cd4f96a06838124cca45be337b2b'
 def generatedSkyArtwork = layout.buildDirectory.dir('generated/skylyrics-artwork-resources')
+def generatedSkyOriginals = layout.buildDirectory.dir('generated/skylyrics-original-source-files')
 def skyArtworkSources = [
     [id: 'jack_o_lantern', file: 'jpegPIA23403.jpg', title: "The Jack-o'-Lantern Nebula", credit: 'NASA/JPL-Caltech', page: 'https://www.jpl.nasa.gov/images/pia23403-the-jack-o-lantern-nebula/'],
     [id: 'catspaw', file: 'jpegPIA22567.jpg', title: "Cat's Paw Nebula", credit: 'NASA/JPL-Caltech', page: 'https://www.jpl.nasa.gov/images/pia22567-cats-paw-image-2/'],
@@ -60,9 +61,10 @@ tasks.register('downloadSkyArtwork') {
     group = 'build setup'
     description = 'Downloads real NASA/JPL nebula photographs and creates in-game 16:9 preview textures.'
     outputs.dir(generatedSkyArtwork)
+    outputs.dir(generatedSkyOriginals)
     doLast {
         File root = generatedSkyArtwork.get().asFile
-        File originals = new File(root, 'assets/skylyrics/gallery/original')
+        File originals = generatedSkyOriginals.get().asFile
         File previews = new File(root, 'assets/skylyrics/textures/gui/sky_gallery')
         File notice = new File(root, 'META-INF/licenses/skylyrics-artwork/NOTICE.txt')
         originals.mkdirs()
@@ -171,9 +173,8 @@ def skyFontSources = [
 ]
 
 sourceSets.main.resources.srcDir(generatedSkyFonts)
-sourceSets.main.resources.srcDir(generatedSkyArtwork)
 
-tasks.register('downloadSkyFonts') {
+ tasks.register('downloadSkyFonts') {
     group = 'build setup'
     description = 'Downloads pinned Open Font License typefaces and their license notices.'
     outputs.dir(generatedSkyFonts)
@@ -259,7 +260,7 @@ tasks.register('verifySkyResources') {
                 throw new GradleException("Missing OFL license: ${spec.id}")
         }
         File artworkRoot = generatedSkyArtwork.get().asFile
-        File artworkOriginals = new File(artworkRoot, 'assets/skylyrics/gallery/original')
+        File artworkOriginals = generatedSkyOriginals.get().asFile
         File artworkPreviews = new File(artworkRoot, 'assets/skylyrics/textures/gui/sky_gallery')
         if (skyArtworkSources.size() != 8) throw new GradleException("Expected 8 credited gallery photographs.")
         skyArtworkSources.each { spec ->
@@ -330,19 +331,11 @@ tasks.register('verifySkyJar') {
             }
             if (effects.size() != 20) throw new GradleException("Expected 20 packaged sky presets, found ${effects.size()}.")
 
-            def galleryOriginals = entries.findAll {
-                it.name.startsWith('assets/skylyrics/gallery/original/') && it.name.endsWith('.jpg')
-            }
             def galleryPreviews = entries.findAll {
                 it.name.startsWith('assets/skylyrics/textures/gui/sky_gallery/') && it.name.endsWith('.jpg')
             }
-            if (galleryOriginals.size() != 8) throw new GradleException("Expected 8 genuine NASA/JPL original gallery photos, found ${galleryOriginals.size()}.")
-            if (galleryPreviews.size() != 8) throw new GradleException("Expected 8 in-game gallery preview textures, found ${galleryPreviews.size()}.")
+            if (galleryPreviews.size() != 8) throw new GradleException("Expected 8 genuine in-game NASA/JPL preview textures, found ${galleryPreviews.size()}.")
             long galleryBytes = 0L
-            galleryOriginals.each { entry ->
-                if (entry.size < 20000L) throw new GradleException("Original artwork is too small or incomplete: ${entry.name}")
-                galleryBytes += entry.size
-            }
             galleryPreviews.each { entry ->
                 if (entry.size < 15000L) throw new GradleException("Artwork preview is too small or incomplete: ${entry.name}")
                 def decoded = javax.imageio.ImageIO.read(zip.getInputStream(entry))
@@ -352,6 +345,7 @@ tasks.register('verifySkyJar') {
                 decoded.flush()
                 galleryBytes += entry.size
             }
+
 
             def codecNames = [
                 'META-INF/jars/mp3spi-1.9.5.4.jar',
@@ -381,7 +375,7 @@ tasks.register('verifySkyJar') {
             if (uncompressedBytes < 3_000_000L) {
                 throw new GradleException("Final JAR payload is unexpectedly small (${uncompressedBytes} uncompressed bytes); bundled resources may be missing.")
             }
-            println "Verified final JAR: Sky author, icon, 8 TTF fonts, 20 sky presets, 4 shaders, 5 audio codecs, 8 NASA/JPL photo originals + 8 preview textures (${galleryBytes} artwork bytes); ${uncompressedBytes} uncompressed bytes; ${archiveFile.length()} compressed JAR bytes."
+            println "Verified final JAR: Sky author, icon, 8 TTF fonts, 20 sky presets, 4 shaders, 5 audio codecs, and 8 genuine NASA/JPL 1600x900 preview textures (${galleryBytes} artwork bytes); ${uncompressedBytes} uncompressed bytes; ${archiveFile.length()} compressed JAR bytes."
         } finally {
             zip.close()
         }
