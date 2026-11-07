@@ -47,6 +47,47 @@ class LyricsTrackTest {
         assertNull(track.source());
     }
 
+
+    @Test
+    void parsesLrclibWordTimestampsAndTracksTheActiveKaraokeWord() throws Exception {
+        LyricsTrack track = LyricsTrack.fromLrcText(
+                "[ti:Word Sync]\n[00:10.00]<00:10.00>Good <00:10.55>morning <00:11.25>sky\n",
+                "Fallback", "Artist");
+
+        LyricsCue cue = track.cues().getFirst();
+        assertEquals("Good morning sky", cue.text());
+        assertTrue(cue.hasWordTimings());
+        assertEquals(3, cue.wordTimings().size());
+        assertEquals(0, cue.wordTimings().get(0).wordIndex());
+        assertEquals(10_550L, cue.wordTimings().get(1).timeMs());
+        assertEquals(0, cue.activeWordIndex(10_200L));
+        assertEquals(1, cue.activeWordIndex(10_900L));
+        assertEquals(2, cue.activeWordIndex(11_500L));
+    }
+
+    @Test
+    void preservesWordTimingAcrossMultipleLineTimestamps() throws Exception {
+        LyricsTrack track = LyricsTrack.fromLrcText(
+                "[00:01.00][00:05.00]<00:01.00>Hello <00:01.40>world\n",
+                "Fallback", "Artist");
+
+        assertEquals(2, track.cues().size());
+        assertEquals("Hello world", track.cues().get(0).text());
+        assertEquals(2, track.cues().get(0).wordTimings().size());
+        assertEquals(2, track.cues().get(1).wordTimings().size());
+        assertEquals(5_000L, track.cues().get(1).wordTimings().get(0).timeMs());
+        assertEquals(5_400L, track.cues().get(1).wordTimings().get(1).timeMs());
+    }
+
+    @Test
+    void ordinaryLrcRemainsLineTimedWithoutWordMarkers() throws Exception {
+        LyricsTrack track = LyricsTrack.fromLrcText(
+                "[00:00.00]Ordinary lyric line\n[00:04.00]Next line\n",
+                "Fallback", "Artist");
+        assertFalse(track.cues().getFirst().hasWordTimings());
+        assertEquals("Ordinary lyric line", track.cues().getFirst().text());
+    }
+
     @Test
     void rejectsLrcWithoutTimestamps() throws Exception {
         Path file = tempDir.resolve("invalid.lrc");

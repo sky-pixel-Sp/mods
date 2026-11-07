@@ -37,7 +37,7 @@ public final class SkyLyricsHud {
         Minecraft minecraft = Minecraft.getInstance();
         int width = graphics.guiWidth();
         int height = graphics.guiHeight();
-        int centerX = width / 2;
+        int centerX = Math.round(width * SkyLyricsClient.CONFIG.lyricsHudX());
         int accent = SkyLyricsClient.CONFIG.accentColor();
         int secondary = SkyLyricsClient.CONFIG.secondaryColor();
         int mainY = Math.round(height * SkyLyricsClient.CONFIG.verticalPosition());
@@ -56,8 +56,8 @@ public final class SkyLyricsHud {
         if (panelAlpha > 0) {
             int panelTop = mainY - Math.round(30 * scale);
             int panelBottom = mainY + Math.round(46 * scale);
-            int panelLeft = Math.max(10, width / 2 - Math.min(width / 2 - 12, 250));
-            int panelRight = Math.min(width - 10, width / 2 + Math.min(width / 2 - 12, 250));
+            int panelLeft = Math.max(10, centerX - Math.min(width / 2 - 12, 250));
+            int panelRight = Math.min(width - 10, centerX + Math.min(width / 2 - 12, 250));
             graphics.fill(panelLeft, panelTop, panelRight, panelBottom, argb(panelAlpha, 16, 13, 29));
             graphics.fill(panelLeft, panelTop, panelRight, panelTop + 2,
                     withAlpha(secondary, Math.min(180, panelAlpha + 55)));
@@ -83,7 +83,14 @@ public final class SkyLyricsHud {
             graphics.centeredText(minecraft.font, currentText, -1, 0, glow);
             graphics.centeredText(minecraft.font, currentText, 1, 0, glow);
         }
-        graphics.centeredText(minecraft.font, currentText, 0, 0, mainColor);
+        int unscaledTextWidth = minecraft.font.width(current.text());
+        int maxKaraokeWidth = Math.max(80, (int) (width * 0.84f / Math.max(0.75f, scale)));
+        if (SkyLyricsClient.CONFIG.wordByWord() && current.hasWordTimings()
+                && unscaledTextWidth <= maxKaraokeWidth) {
+            drawKaraokeLine(graphics, minecraft, current, player.positionMs(), mainColor, accent);
+        } else {
+            graphics.centeredText(minecraft.font, currentText, 0, 0, mainColor);
+        }
 
         graphics.pose().pushMatrix();
         graphics.pose().scale(0.84f, 0.84f);
@@ -172,8 +179,10 @@ public final class SkyLyricsHud {
         if (panelWidth < 220) return;
 
         int panelHeight = 58;
-        int x = (screenWidth - panelWidth) / 2;
-        int y = 12;
+        int x = Math.round(screenWidth * SkyLyricsClient.CONFIG.nowPlayingHudX()) - panelWidth / 2;
+        int y = Math.round(graphics.guiHeight() * SkyLyricsClient.CONFIG.nowPlayingHudY());
+        x = Math.max(4, Math.min(screenWidth - panelWidth - 4, x));
+        y = Math.max(4, Math.min(graphics.guiHeight() - panelHeight - 4, y));
         int accent = hasArtwork ? AlbumArtManager.dominantColor() : SkyLyricsClient.CONFIG.accentColor();
 
         // Translucent compact panel with a restrained top accent, not a large opaque HUD card.
@@ -244,6 +253,28 @@ public final class SkyLyricsHud {
         int progress = durationMs <= 0 ? 0 : (int) (progressWidth * Math.max(0.0,
                 Math.min(1.0, (double) positionMs / durationMs)));
         graphics.fill(progressX, progressY, progressX + progress, progressY + 2, accent);
+    }
+
+    private static void drawKaraokeLine(
+            GuiGraphicsExtractor graphics,
+            Minecraft minecraft,
+            LyricsCue cue,
+            long positionMs,
+            int mainColor,
+            int accent
+    ) {
+        String[] words = cue.text().split("\\s+");
+        int activeWord = cue.activeWordIndex(positionMs);
+        int cursor = -minecraft.font.width(cue.text()) / 2;
+        for (int i = 0; i < words.length; i++) {
+            int color = i < activeWord ? withAlpha(accent, 220)
+                    : i == activeWord ? 0xFFFFFFFF : mainColor;
+            graphics.text(minecraft.font, words[i], cursor, -4, color, true);
+            cursor += minecraft.font.width(words[i]);
+            if (i + 1 < words.length) {
+                cursor += minecraft.font.width(" ");
+            }
+        }
     }
 
     private static FormattedCharSequence fit(String value, Minecraft minecraft, int screenWidth, float scale) {

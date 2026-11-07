@@ -10,13 +10,16 @@ import java.util.Properties;
 
 /** Persisted settings for the SkyLyrics sky and lyric engines. */
 public final class SkyLyricsConfig {
-    private static final int CURRENT_CONFIG_VERSION = 2;
+    private static final int CURRENT_CONFIG_VERSION = 3;
 
     private final Path file;
     private int theme = 0;
     private int textStyle = 0;
     private float scale = 1.0f;
     private float verticalPosition = 0.38f;
+    private float lyricsHudX = 0.5f;
+    private float nowPlayingHudX = 0.5f;
+    private float nowPlayingHudY = 0.025f;
     private int opacity = 64;
     private boolean enabled = true;
     private boolean showContextLines = true;
@@ -50,7 +53,10 @@ public final class SkyLyricsConfig {
             theme = clamp(parseInt(p.getProperty("theme"), 0), 0, 4);
             textStyle = clamp(parseInt(p.getProperty("textStyle"), 0), 0, 5);
             scale = clamp(parseFloat(p.getProperty("scale"), 1.0f), 0.75f, 1.8f);
-            verticalPosition = clamp(parseFloat(p.getProperty("verticalPosition"), 0.38f), 0.18f, 0.72f);
+            verticalPosition = clamp(parseFloat(p.getProperty("verticalPosition"), 0.38f), 0.18f, 0.82f);
+            lyricsHudX = clamp(parseFloat(p.getProperty("lyricsHudX"), 0.5f), 0.08f, 0.92f);
+            nowPlayingHudX = clamp(parseFloat(p.getProperty("nowPlayingHudX"), 0.5f), 0.08f, 0.92f);
+            nowPlayingHudY = clamp(parseFloat(p.getProperty("nowPlayingHudY"), 0.025f), 0.0f, 0.88f);
             opacity = clamp(parseInt(p.getProperty("opacity"), 64), 0, 160);
             enabled = Boolean.parseBoolean(p.getProperty("enabled", "true"));
             showContextLines = Boolean.parseBoolean(p.getProperty("showContextLines", "true"));
@@ -71,7 +77,7 @@ public final class SkyLyricsConfig {
              * typography in the reference. Migrate old configs once, preserving
              * intentionally selected sky presets and larger custom scales.
              */
-            if (loadedVersion < CURRENT_CONFIG_VERSION) {
+            if (loadedVersion < 2) {
                 float previousScale = parseFloat(p.getProperty("worldTextScale"), 0.025f);
                 if (previousScale < 0.065f) {
                     worldTextScale = 0.115f;
@@ -80,6 +86,10 @@ public final class SkyLyricsConfig {
                     skyPreset = "golden_sunset";
                 }
                 wordByWord = true;
+            }
+            if (loadedVersion < CURRENT_CONFIG_VERSION) {
+                // Version 3 adds independent normalized positions for Now Playing
+                // and the screen-lyrics HUD. Existing verticalPosition is preserved.
                 save();
             }
         } catch (IOException exception) {
@@ -94,6 +104,9 @@ public final class SkyLyricsConfig {
         p.setProperty("textStyle", Integer.toString(textStyle));
         p.setProperty("scale", Float.toString(scale));
         p.setProperty("verticalPosition", Float.toString(verticalPosition));
+        p.setProperty("lyricsHudX", Float.toString(lyricsHudX));
+        p.setProperty("nowPlayingHudX", Float.toString(nowPlayingHudX));
+        p.setProperty("nowPlayingHudY", Float.toString(nowPlayingHudY));
         p.setProperty("opacity", Integer.toString(opacity));
         p.setProperty("enabled", Boolean.toString(enabled));
         p.setProperty("showContextLines", Boolean.toString(showContextLines));
@@ -148,7 +161,38 @@ public final class SkyLyricsConfig {
     public float scale() { return scale; }
     public void adjustScale(float delta) { scale = clamp(scale + delta, 0.75f, 1.8f); save(); }
     public float verticalPosition() { return verticalPosition; }
-    public void adjustVerticalPosition(float delta) { verticalPosition = clamp(verticalPosition + delta, 0.18f, 0.72f); save(); }
+    public void adjustVerticalPosition(float delta) { verticalPosition = clamp(verticalPosition + delta, 0.18f, 0.82f); save(); }
+    public float lyricsHudX() { return lyricsHudX; }
+    public float nowPlayingHudX() { return nowPlayingHudX; }
+    public float nowPlayingHudY() { return nowPlayingHudY; }
+
+    public void previewLyricsHudPosition(float x, float y) {
+        lyricsHudX = clamp(x, 0.08f, 0.92f);
+        verticalPosition = clamp(y, 0.18f, 0.82f);
+    }
+
+    public void previewNowPlayingHudPosition(float x, float y) {
+        nowPlayingHudX = clamp(x, 0.08f, 0.92f);
+        nowPlayingHudY = clamp(y, 0.0f, 0.88f);
+    }
+
+    public void saveHudPositions() { save(); }
+
+    public void setLyricsHudPosition(float x, float y) {
+        previewLyricsHudPosition(x, y);
+        save();
+    }
+
+    public void setNowPlayingHudPosition(float x, float y) {
+        previewNowPlayingHudPosition(x, y);
+        save();
+    }
+
+    public void resetHudPositions() {
+        previewNowPlayingHudPosition(0.5f, 0.025f);
+        previewLyricsHudPosition(0.5f, 0.38f);
+        save();
+    }
     public int opacity() { return opacity; }
     public void adjustOpacity(int delta) { opacity = clamp(opacity + delta, 0, 160); save(); }
     public boolean enabled() { return enabled; }

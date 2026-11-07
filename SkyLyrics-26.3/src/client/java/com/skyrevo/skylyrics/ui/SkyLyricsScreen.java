@@ -345,6 +345,8 @@ public final class SkyLyricsScreen extends Screen {
                 contentLeft,y+170,(contentWidth-8)/2,25);
         action("MOVE HUD DOWN",()->SkyLyricsClient.CONFIG.adjustVerticalPosition(0.025f),
                 contentLeft+(contentWidth-8)/2+8,y+170,(contentWidth-8)/2,25);
+        action("OPEN HUD LAYOUT EDITOR  ↗", () -> this.minecraft.gui.setScreen(new HudEditorScreen(this)),
+                contentLeft, y + 208, contentWidth, 30);
     }
 
     private void performance(int y) {
@@ -549,6 +551,10 @@ public final class SkyLyricsScreen extends Screen {
                     contentLeft,top+235,0xFFD4D1E2,false);
             graphics.text(font,"HUD vertical position: "+Math.round(SkyLyricsClient.CONFIG.verticalPosition()*100)+"%",
                     contentLeft,top+258,0xFFD4D1E2,false);
+            graphics.text(font,"Now Playing position: "+Math.round(SkyLyricsClient.CONFIG.nowPlayingHudX()*100)+"% X",
+                    contentLeft,top+281,0xFFD4D1E2,false);
+            graphics.text(font,"Drag and drop both HUD panels in the Layout Editor.",
+                    contentLeft,top+304,0xFFBDB7CD,false);
         } else if(tab==Tab.PERFORMANCE) {
             graphics.text(font,"Only clear background pixels are replaced by the sky shader.",contentLeft,top+190,0xFFD4D1E2,false);
             graphics.text(font,"Terrain, entities, and HUD pixels are passed through.",contentLeft,top+213,0xFFD4D1E2,false);

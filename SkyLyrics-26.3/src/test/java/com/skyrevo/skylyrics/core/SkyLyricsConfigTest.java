@@ -49,7 +49,7 @@ class SkyLyricsConfigTest {
         try (var reader = Files.newBufferedReader(settings)) {
             migrated.load(reader);
         }
-        assertEquals("2", migrated.getProperty("configVersion"));
+        assertEquals("3", migrated.getProperty("configVersion"));
         assertEquals("golden_sunset", migrated.getProperty("skyPreset"));
     }
 
