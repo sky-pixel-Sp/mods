@@ -48,7 +48,9 @@ public final class MusicHistory {
     public synchronized int uniqueTrackCount() {
         Set<String> unique = new HashSet<>();
         for (Entry entry : recent) {
-            unique.add((entry.title() + "\u0000" + entry.artist()).toLowerCase(Locale.ROOT));
+            String title = entry.title().toLowerCase(Locale.ROOT);
+            String artist = entry.artist().toLowerCase(Locale.ROOT);
+            unique.add(title.length() + ":" + title + artist);
         }
         return unique.size();
     }
