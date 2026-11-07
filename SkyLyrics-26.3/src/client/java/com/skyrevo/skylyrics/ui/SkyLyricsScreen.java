@@ -3,6 +3,8 @@ package com.skyrevo.skylyrics.ui;
 import com.skyrevo.skylyrics.SkyLyricsClient;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.KeyMapping;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonEvent;
 import com.skyrevo.skylyrics.core.LyricsCue;
 import com.skyrevo.skylyrics.core.LyricsPlayer;
 import com.skyrevo.skylyrics.core.SkyPresetCatalog;
@@ -254,9 +256,9 @@ public final class SkyLyricsScreen extends Screen {
     }
 
     @Override
-    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+    public boolean keyPressed(KeyEvent event) {
         if (pendingKeyBinding != null) {
-            if (keyCode == 256) {
+            if (event.isEscape()) {
                 pendingKeyBindingButton.setMessage(Component.literal(
                         pendingKeyBindingButton.getMessage().getString().replace(
                                 "  [PRESS KEY OR MOUSE BUTTON  ·  ESC CANCEL]", "  [CANCELLED]")));
@@ -264,19 +266,19 @@ public final class SkyLyricsScreen extends Screen {
                 pendingKeyBindingButton = null;
                 return true;
             }
-            applyPendingKeyBinding(InputConstants.getKey(keyCode, scanCode));
+            applyPendingKeyBinding(InputConstants.getKey(event));
             return true;
         }
-        return super.keyPressed(keyCode, scanCode, modifiers);
+        return super.keyPressed(event);
     }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
         if (pendingKeyBinding != null) {
-            applyPendingKeyBinding(InputConstants.Type.MOUSE.getOrCreate(button));
+            applyPendingKeyBinding(InputConstants.Type.MOUSE.getOrCreate(event.button()));
             return true;
         }
-        return super.mouseClicked(mouseX, mouseY, button);
+        return super.mouseClicked(event, doubleClick);
     }
 
     private void lyrics(int y) {
