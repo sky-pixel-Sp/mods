@@ -1,4 +1,4 @@
-# SkyLyrics 0.6.0 — Music Center
+# SkyLyrics 0.6.1 — Music Center & Interactive Keybinds
 
 SkyLyrics is a client-side Fabric mod for Minecraft Java 26.3. It combines an in-game clickable Music Center, local offline audio playback, browser-connected online music controls, synchronized lyrics, and optional cinematic sky effects.
 
@@ -12,7 +12,7 @@ Open the interface with **O**. The entire player is operated through clickable M
 - **Artwork Glow:** the Now Playing card samples a color from the current cover art and uses it for a restrained pulsing glow when GLOW is enabled.
 - **Online Music:** open YouTube Music or Spotify Web in the browser and control the active browser player from Minecraft.
 - **Lyrics Studio:** floating 3D lyrics or HUD lyrics, LRC import, word reveal, font and style controls.
-- **Keybinds:** all SkyLyrics shortcuts appear in Minecraft's Controls screen and can be rebound there.
+- **Keybinds:** change the five SkyLyrics shortcuts directly in the in-game KEYBINDS page. Click a row, press any keyboard key or mouse button, or press ESC to cancel. Restore Defaults is one click away. The same mappings remain visible in Minecraft's Controls screen.
 - **Skies / Performance:** choose a procedural sky or disable the sky effect entirely.
 
 ## Offline playback
@@ -55,7 +55,7 @@ YouTube / YouTube Music can request synchronized LRC lyrics when a matching resu
 | N | Next local library track |
 | B | Previous local library track |
 
-Every key is configurable in **Minecraft → Options → Controls → Key Binds → SkyLyrics**. The UI buttons work with the standard Minecraft screen pointer; no chat command is needed.
+Every key is configurable in **O → KEYBINDS** or **Minecraft → Options → Controls → Key Binds → SkyLyrics**. In the KEYBINDS page, click a control row and then press the keyboard key or mouse button to assign it. Press ESC to cancel capture or select **Restore Default Keys** to restore O / H / K / N / B. No chat command is needed.
 
 ## Listening history, artwork glow and visualizer
 
@@ -81,7 +81,7 @@ The Music Center, offline audio engine, online browser bridge, playlists/library
 ## Install in TLauncher
 
 1. Start the Minecraft 26.3 Fabric profile once, then close Minecraft.
-2. Put `skylyrics-0.6.0.jar` and the matching Fabric API JAR in the `mods` folder used by that Fabric profile.
+2. Put `skylyrics-0.6.1.jar` and the matching Fabric API JAR in the `mods` folder used by that Fabric profile.
 3. Start TLauncher and select the Fabric 26.3 profile.
 4. Enter a world and press **O** to open SkyLyrics Music Center.
 
