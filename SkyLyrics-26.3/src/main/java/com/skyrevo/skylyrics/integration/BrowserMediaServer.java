@@ -202,7 +202,7 @@ public final class BrowserMediaServer implements AutoCloseable {
                 + ",\"artist\":\"" + escape(media.artist()) + "\""
                 + ",\"album\":\"" + escape(media.album()) + "\""
                 + ",\"artworkUrl\":\"" + escape(media.artworkUrl()) + "\""
-                + ",\"positionMs\": + media.positionMs()
+                + ",\"positionMs\":" + media.positionMs()
                 + ",\"durationMs\":" + media.durationMs()
                 + ",\"updatedAtEpochMs\":" + media.updatedAtEpochMs() + "}";
     }
