@@ -117,7 +117,7 @@ SkyLyrics is client-side; a multiplayer server does not need this mod installed.
 
 GitHub Actions uses JDK 25 and Gradle 9.8.2. The pipeline runs unit tests, verifies sky shaders and fonts, compiles the Minecraft 26.3 Fabric client, validates browser-extension JavaScript, verifies audio/player classes, and uploads the mod JAR.
 
-GitHub Actions validation for SkyLyrics 0.8.0 must pass `clean test build`, resource verification, browser-extension syntax checks, and JAR packaging. The workflow artifact is named `SkyLyrics-Minecraft-26.3`; its build record and checksum are tracked in `QA_STATUS.md`. A green CI result does not replace the final manual audio and mouse-interaction test in TLauncher. Local MP3/OGG output and online browser controls must be smoke-tested on the target Windows PC before calling this a fully verified release.
+GitHub Actions Run #110 for SkyLyrics 0.8.0 passed `clean test build`, resource verification, browser-extension syntax checks, and JAR packaging. The verified workflow artifact is `SkyLyrics-Minecraft-26.3` (Run #110). Its build record and checksum are tracked in `QA_STATUS.md`. A green CI result does not replace the final manual audio and mouse-interaction test in TLauncher. Local MP3/OGG output and online browser controls must be smoke-tested on the target Windows PC before calling this a fully verified release.
 
 ## Licenses
 
