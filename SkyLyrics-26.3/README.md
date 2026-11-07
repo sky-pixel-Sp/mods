@@ -1,6 +1,6 @@
-# SkyLyrics 0.9.0 — Adaptive Lyrics HUD & Elytra Mode
+# SkyLyrics 0.9.1 — by Sky
 
-SkyLyrics is a client-side Fabric mod for Minecraft Java 26.3. It combines an in-game clickable Music Center, local offline audio playback, browser-connected online music controls, synchronized lyrics, and optional cinematic sky effects.
+SkyLyrics by **Sky** is a client-side Fabric mod for Minecraft Java 26.3. It combines an in-game clickable Music Center, local offline audio playback, browser-connected online music controls, synchronized lyrics, and optional cinematic sky effects.
 
 ## Music Center
 
@@ -22,6 +22,17 @@ Open the interface with **O**. The entire player is operated through clickable M
 - **Listening Stats HUD:** exposes persistent play count and recent unique-track count from the local history store. Optional cards can be enabled/disabled in the HUD Layout Studio.
 - **Keybinds:** change the five SkyLyrics shortcuts directly in the in-game KEYBINDS page. Click a row, press any keyboard key or mouse button, or press ESC to cancel. Restore Defaults is one click away. The same mappings remain visible in Minecraft's Controls screen.
 - **Skies / Performance:** choose a procedural sky or disable the sky effect entirely.
+
+
+## Quick start — in-game
+
+1. Launch Minecraft Java **26.3 + Fabric**, then press **O** to open SkyLyrics.
+2. Choose **Music Center → Import Song** and select an MP3, OGG, or WAV file. It is copied into the SkyLyrics Offline Library.
+3. Choose **Lyrics → Import / Match LRC** and select the matching \x60.lrc\x60 file to display timed lyrics.
+4. In **Lyrics**, choose **Floating World Text** for 3D lyrics or switch to **Screen HUD** for a 2D overlay.
+5. Use **Quick Guide** inside the menu whenever you need the steps again. Keybinds can be changed under **Keybinds**.
+
+Online playback is separate: open Spotify Web or YouTube Music from **Online Music**, play audio in Chrome / Edge, and install the included browser extension for metadata and controls.
 
 ## Offline playback
 
@@ -71,7 +82,7 @@ Open **O → HUD → Open HUD Layout Editor**. Drag the **Now Playing** card and
 
 The editor changes only client-side HUD placement. It does not alter the world, player position, server state, or resource packs.
 
-The HUD Layout Studio now includes VIS, RECENT, and STATS visibility switches. Every card can be dragged, independently reset by double-click, or restored to its previous position with right-click. New widget positions and visibility choices are stored in configuration schema version 4; existing settings migrate automatically. SkyLyrics 0.9.0 advances the settings schema to version 5 for the Elytra toggle and Now Playing style.
+The HUD Layout Studio now includes VIS, RECENT, and STATS visibility switches. Every card can be dragged, independently reset by double-click, or restored to its previous position with right-click. New widget positions and visibility choices are stored in configuration schema version 4; existing settings migrate automatically. SkyLyrics 0.9.1 advances the settings schema to version 5 for the Elytra toggle and Now Playing style.
 
 ## Word-synchronized lyrics
 
@@ -83,7 +94,7 @@ SkyLyrics accepts ordinary LRC line timestamps and LRCLIB-style word timestamps 
 
 When word timestamps are present and **Word-by-word reveal** is enabled, the screen HUD highlights the active word and the floating 3D lyrics reveal words in time. For LRC files without inline word timestamps, SkyLyrics falls back to its existing line-progress reveal behavior.
 
-A detailed independent architecture review of the supplied VerseFall 1.1.0 archive, its media/lyrics/HUD subsystems, compatibility limits, and the features chosen for SkyLyrics is in [`VERSEFALL_TECHNICAL_REVIEW.md`](VERSEFALL_TECHNICAL_REVIEW.md). The 0.9.0 presentation additions were also informed by the feature description of [Lyrics by QQID](https://www.curseforge.com/minecraft/mc-mods/lyrics); SkyLyrics retains its own `skylyrics` mod ID, package namespace, and branding. No third-party JAR is bundled.
+A detailed independent architecture review of the supplied VerseFall 1.1.0 archive, its media/lyrics/HUD subsystems, compatibility limits, and the features chosen for SkyLyrics is in [`VERSEFALL_TECHNICAL_REVIEW.md`](VERSEFALL_TECHNICAL_REVIEW.md). The 0.9.1 presentation additions were also informed by the feature description of [Lyrics by QQID](https://www.curseforge.com/minecraft/mc-mods/lyrics); SkyLyrics retains its own `skylyrics` mod ID, package namespace, and branding. No third-party JAR is bundled.
 
 
 ## Listening history, artwork glow and visualizer
@@ -110,7 +121,7 @@ The Music Center, offline audio engine, online browser bridge, playlists/library
 ## Install in TLauncher
 
 1. Start the Minecraft 26.3 Fabric profile once, then close Minecraft.
-2. Put `skylyrics-0.9.0.jar` and the matching Fabric API JAR in the `mods` folder used by that Fabric profile.
+2. Put `skylyrics-0.9.1.jar` and the matching Fabric API JAR in the `mods` folder used by that Fabric profile.
 3. Start TLauncher and select the Fabric 26.3 profile.
 4. Enter a world and press **O** to open SkyLyrics Music Center.
 
@@ -120,7 +131,11 @@ SkyLyrics is client-side; a multiplayer server does not need this mod installed.
 
 GitHub Actions uses JDK 25 and Gradle 9.8.2. The pipeline runs unit tests, verifies sky shaders and fonts, compiles the Minecraft 26.3 Fabric client, validates browser-extension JavaScript, verifies audio/player classes, and uploads the mod JAR.
 
-The SkyLyrics 0.8.0 baseline passed GitHub Actions Run #110. The 0.9.0 port additions are being checked in the current pull request; do not treat the older 0.8.0 artifact as the 0.9.0 release. CI cannot replace manual audio, Elytra, layout, and mouse-interaction tests in TLauncher.
+The SkyLyrics 0.8.0 baseline passed GitHub Actions Run #110. The 0.9.1 port additions are being checked in the current pull request; do not treat the older 0.8.0 artifact as the 0.9.1 release. CI cannot replace manual audio, Elytra, layout, and mouse-interaction tests in TLauncher.
+
+## Package contents and asset verification
+
+The distributable JAR carries its required runtime resources: the Sky icon, eight embedded font files with their OFL notices, 20 sky post-effect presets, four shader files, and the five nested MP3 / OGG codec libraries. The build verifies those entries inside the **final JAR**, not just in the source folders. File size is a by-product of the real packaged resources; the build does not add padding or duplicate files to imitate another mod's 20.7 MB download size.
 
 ## Licenses
 
