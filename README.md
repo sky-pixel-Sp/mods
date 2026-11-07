@@ -1,19 +1,23 @@
 # SkyLyrics — Minecraft Java 26.3
 
-Client-side Fabric mod that displays synchronized lyrics in the Minecraft sky/HUD.
+A client-side Fabric mod that displays synchronized lyrics in the Minecraft sky/HUD.
+
+## Source code
+
+The complete, readable Gradle project is stored in [`SkyLyrics-26.3/`](SkyLyrics-26.3/). The browser connector is in `SkyLyrics-26.3/browser-extension/`.
+
+The previous File Converter HTML app is preserved at the repository root. It is marked as a legacy/vendored file in `.gitattributes` so it does not dominate the repository language statistics.
 
 ## GitHub Actions build
-
-The `skylyrics-26.3` branch contains the SkyLyrics source archive and its automated build workflow.
 
 1. Open the repository's **Actions** tab.
 2. Select **Build SkyLyrics for Minecraft 26.3**.
 3. Open the latest run for branch `skylyrics-26.3`.
-4. Wait for the job to finish successfully.
-5. Download the **SkyLyrics-Minecraft-26.3** artifact from the run's Artifacts section.
+4. Confirm that the build job succeeds.
+5. Download the **SkyLyrics-Minecraft-26.3** artifact from the run.
 6. Extract the artifact ZIP. It contains `skylyrics-0.2.0.jar`.
 
-The workflow verifies the source archive SHA-256, installs JDK 25 and Gradle 9.8.2, runs `clean test build`, verifies that the built JAR contains `fabric.mod.json`, and uploads the JAR.
+The workflow verifies the source archive SHA-256, installs JDK 25 and Gradle 9.8.2, expands the source into normal `.java`, `.js`, and project files in the branch, runs `clean test build`, verifies the JAR contains `fabric.mod.json`, and uploads the JAR.
 
 ## Music integrations
 
@@ -29,4 +33,4 @@ SkyLyrics is client-side; the multiplayer server does not need it installed.
 
 ## Release status
 
-The Actions workflow is configured to compile, test, and package SkyLyrics. Do not treat the JAR as a tested release until a workflow run succeeds and the artifact has been tested in Minecraft 26.3.
+The source and CI workflow are prepared. Do not treat the JAR as a tested release until a workflow run succeeds and the artifact has been tested in Minecraft 26.3.
