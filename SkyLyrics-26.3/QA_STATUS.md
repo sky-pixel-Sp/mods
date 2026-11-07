@@ -8,6 +8,13 @@
 - The workflow checks the built JAR manifest, pinned custom fonts, font provider JSON, AlbumArtManager, font license notices, and browser-extension JavaScript/manifest.
 - A built-in original-text preview is exposed through the client command /skylyrics demo and /skylyrics stop, and through the Studio overview.
 
+## Touch-first Player UI work
+
+- Added a dedicated Player tab with on-screen previous/next cue, play/pause timeline, and ±10-second seek buttons.
+- Added an in-game button to open `config/skylyrics/lyrics` and clickable loading of available local LRC files.
+- Added explicit UI disclosure that the current timeline controller does not play audio. Browser streaming remains in the browser; the connector synchronizes metadata/position only.
+- O/H/K remain standard Minecraft key mappings and are configurable through Options → Controls → SkyLyrics. The main UI is operated with Minecraft buttons, not chat commands.
+
 ## Changes made for the visual mismatch
 
 - The default sky preset is Golden Sunset, matching the warm cinematic sky in the reference video.
@@ -16,6 +23,12 @@
 - Word-by-word lyric reveal is enabled after migration.
 - World lyrics use warm-white text with a restrained dark outline, no opaque background label, a small upward sky offset, and automatic line-width fitting.
 - The Studio overview includes an offline preview control and a current-track status panel.
+
+## Not yet implemented / verified
+
+- Actual local audio decoding/playback for downloaded MP3/OGG/WAV files is not implemented. A real audio backend and format/licensing/packaging decision are required; the current LRC clock must not be mislabeled as a music player.
+- Direct in-game online audio streaming is not implemented. YouTube / YouTube Music playback remains in the browser and the extension supplies metadata/position only; Spotify remains metadata-only.
+- The Player tab and touchscreen interaction need manual smoke testing in TLauncher at the user's display resolution.
 
 ## Not yet verified
 
