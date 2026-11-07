@@ -53,6 +53,7 @@ public final class SkyLyricsWorldText {
         Vector3f forward = facing.transform(new Vector3f(0.0F, 0.0F, -1.0F));
         Vec3 cameraPos = camera.pos;
         float distance = SkyLyricsClient.CONFIG.worldDistance();
+        float bob = (float) Math.sin(System.nanoTime() / 780_000_000.0) * 0.07F;
         String text = visibleWords(player, cue);
         var visualText = SkyLyricsTypography.ordered(text);
 
@@ -69,7 +70,7 @@ public final class SkyLyricsWorldText {
             if (SkyLyricsClient.CONFIG.followView()) {
                 poseStack.translate(
                         forward.x * distance,
-                        forward.y * distance + SKY_LIFT,
+                        forward.y * distance + SKY_LIFT + bob,
                         forward.z * distance
                 );
                 poseStack.rotate(facing);
@@ -81,7 +82,7 @@ public final class SkyLyricsWorldText {
                     anchorRotation = new Quaternionf(facing);
                     anchored = true;
                 }
-                poseStack.translate(anchorX - cameraPos.x, anchorY - cameraPos.y, anchorZ - cameraPos.z);
+                poseStack.translate(anchorX - cameraPos.x, anchorY - cameraPos.y + bob, anchorZ - cameraPos.z);
                 poseStack.rotate(anchorRotation);
             }
 
@@ -89,6 +90,17 @@ public final class SkyLyricsWorldText {
             poseStack.scale(-scale, -scale, -scale);
             poseStack.translate(-pixelWidth * 0.5F, -4.0F, 0.0F);
 
+            if (SkyLyricsClient.CONFIG.glowEnabled()) {
+                int glowColor = (52 << 24) | (SkyLyricsClient.CONFIG.accentColor() & 0x00FFFFFF);
+                collector.order(0).submitText(poseStack, -1.35F, 0.0F, visualText, false,
+                        Font.DisplayMode.SEE_THROUGH, 15728880, glowColor, 0, 0);
+                collector.order(0).submitText(poseStack, 1.35F, 0.0F, visualText, false,
+                        Font.DisplayMode.SEE_THROUGH, 15728880, glowColor, 0, 0);
+                collector.order(0).submitText(poseStack, 0.0F, -1.35F, visualText, false,
+                        Font.DisplayMode.SEE_THROUGH, 15728880, glowColor, 0, 0);
+                collector.order(0).submitText(poseStack, 0.0F, 1.35F, visualText, false,
+                        Font.DisplayMode.SEE_THROUGH, 15728880, glowColor, 0, 0);
+            }
             int outline = SkyLyricsClient.CONFIG.glowEnabled() ? 0xFF34283A : 0;
             collector.order(1).submitText(
                     poseStack,
