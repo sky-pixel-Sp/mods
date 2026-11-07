@@ -13,6 +13,8 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.URI;
+import java.util.Locale;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Map;
@@ -166,6 +168,7 @@ public final class BrowserMediaServer implements AutoCloseable {
                 clean(string(json, "title")),
                 clean(string(json, "artist")),
                 clean(string(json, "album")),
+                safeArtworkUrl(string(json, "artworkUrl")),
                 Math.max(0, number(json, "positionMs")),
                 Math.max(0, number(json, "durationMs")),
                 System.currentTimeMillis());
@@ -198,9 +201,30 @@ public final class BrowserMediaServer implements AutoCloseable {
                 + ",\"title\":\"" + escape(media.title()) + "\""
                 + ",\"artist\":\"" + escape(media.artist()) + "\""
                 + ",\"album\":\"" + escape(media.album()) + "\""
+                + ",\"artworkUrl\":\"" + escape(media.artworkUrl()) + "\""
                 + ",\"positionMs\":" + media.positionMs()
                 + ",\"durationMs\":" + media.durationMs()
                 + ",\"updatedAtEpochMs\":" + media.updatedAtEpochMs() + "}";
+    }
+
+    private static String safeArtworkUrl(String value) {
+        if (value == null || value.isBlank() || value.length() > 2_048) return "";
+        try {
+            URI uri = URI.create(value.strip());
+            if (!"https".equalsIgnoreCase(uri.getScheme()) || uri.getHost() == null
+                    || uri.getUserInfo() != null || uri.getPort() != -1) return "";
+            String host = uri.getHost().toLowerCase(Locale.ROOT);
+            boolean allowed = host.equals("i.ytimg.com")
+                    || host.endsWith(".ytimg.com")
+                    || host.equals("yt3.ggpht.com")
+                    || host.endsWith(".googleusercontent.com")
+                    || host.equals("i.scdn.co")
+                    || host.endsWith(".scdn.co")
+                    || host.endsWith(".spotifycdn.com");
+            return allowed ? uri.toASCIIString() : "";
+        } catch (IllegalArgumentException ignored) {
+            return "";
+        }
     }
 
     private static String escape(String value) {

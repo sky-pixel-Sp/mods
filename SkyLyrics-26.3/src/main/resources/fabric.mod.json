@@ -3,7 +3,7 @@
   "id": "skylyrics",
   "version": "${version}",
   "name": "SkyLyrics",
-  "description": "Animated custom skies and floating synced lyrics for Minecraft Java 26.3.",
+  "description": "Cinematic procedural skies and large synchronized 3D lyrics for Minecraft Java 26.3.",
   "authors": ["SkyRevo"],
   "license": "MIT",
   "environment": "client",

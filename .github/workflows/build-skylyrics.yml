@@ -1,4 +1,5 @@
 name: Build SkyLyrics for Minecraft 26.3
+
 on:
   pull_request:
     branches:
@@ -18,11 +19,13 @@ on:
       - ".github/workflows/build-skylyrics.yml"
       - ".gitattributes"
   workflow_dispatch:
+
 permissions:
   contents: read
 concurrency:
   group: skylyrics-build-${{ github.ref }}
   cancel-in-progress: true
+
 jobs:
   build:
     name: Compile, test, and package mod
@@ -41,17 +44,15 @@ jobs:
         with:
           gradle-version: "9.8.2"
           cache-provider: basic
-      - name: Run unit tests and build the Fabric mod
+      - name: Compile, test, and build the Fabric mod
         working-directory: SkyLyrics-26.3
         shell: bash
         run: |
           set -euo pipefail
           export JAVA_HOME="${JAVA_HOME_25_X64}"
           export PATH="${JAVA_HOME}/bin:${PATH}"
-          echo "Selected JAVA_HOME: ${JAVA_HOME}"
-          command -v java
           java -version
-          java -version 2>&1 | head -n 1 | grep -Eq 'version "25([.]|")'
+          java -version 2>&1 | head -n 1 | grep -Eq 'version "25([.]|\")'
           gradle --no-daemon -Dorg.gradle.java.home="${JAVA_HOME}" clean test build
           MOD_VERSION="$(sed -n 's/^mod_version=//p' gradle.properties | head -n 1)"
           test -n "${MOD_VERSION}"
@@ -64,7 +65,16 @@ jobs:
           jar tf "${JAR}" | grep -q 'assets/skylyrics/font/montserrat.json'
           jar tf "${JAR}" | grep -q 'AlbumArtManager.class'
           jar tf "${JAR}" | grep -q 'META-INF/licenses/skylyrics-fonts/poppins-OFL.txt'
-          echo "SkyLyrics JAR, golden sunset effect, fonts and artwork module verified."
+          echo "SkyLyrics ${MOD_VERSION} JAR and cinematic assets verified."
+      - name: Validate browser connector
+        working-directory: SkyLyrics-26.3
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check browser-extension/content.js
+          node --check browser-extension/background.js
+          python -m json.tool browser-extension/manifest.json >/dev/null
+          echo "Browser extension scripts and manifest are valid."
       - name: Upload SkyLyrics JAR
         uses: actions/upload-artifact@v7
         with:

@@ -12,7 +12,7 @@ class SkyPresetCatalogTest {
             assertTrue(preset.intensity()>0);
         }
     }
-    @Test void invalidIdFallsBackToNebulaStorm() {
-        assertEquals("nebula_storm",SkyPresetCatalog.byId("invalid").id());
+    @Test void invalidIdFallsBackToGoldenSunset() {
+        assertEquals("golden_sunset",SkyPresetCatalog.byId("invalid").id());
     }
 }

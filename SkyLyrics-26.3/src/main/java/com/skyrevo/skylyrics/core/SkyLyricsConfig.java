@@ -10,6 +10,8 @@ import java.util.Properties;
 
 /** Persisted settings for the SkyLyrics sky and lyric engines. */
 public final class SkyLyricsConfig {
+    private static final int CURRENT_CONFIG_VERSION = 2;
+
     private final Path file;
     private int theme = 0;
     private int textStyle = 0;
@@ -19,14 +21,15 @@ public final class SkyLyricsConfig {
     private boolean enabled = true;
     private boolean showContextLines = true;
     private boolean showBackdrop = true;
-    private String skyPreset = "nebula_storm";
+    private String skyPreset = "golden_sunset";
     private boolean skyEnabled = true;
     private boolean worldLyrics = true;
     private boolean followView = true;
-    private boolean wordByWord = false;
+    private boolean wordByWord = true;
     private boolean glowEnabled = true;
-    private float worldTextScale = 0.025f;
+    private float worldTextScale = 0.115f;
     private float worldDistance = 18.0f;
+    private String fontFamily = "poppins";
 
     public SkyLyricsConfig(Path configDirectory) {
         file = configDirectory.resolve("skylyrics.properties");
@@ -34,10 +37,16 @@ public final class SkyLyricsConfig {
     }
 
     public void load() {
-        if (!Files.exists(file)) { save(); return; }
+        if (!Files.exists(file)) {
+            save();
+            return;
+        }
+
         Properties p = new Properties();
         try (Reader reader = Files.newBufferedReader(file, StandardCharsets.UTF_8)) {
             p.load(reader);
+            int loadedVersion = parseInt(p.getProperty("configVersion"), 0);
+
             theme = clamp(parseInt(p.getProperty("theme"), 0), 0, 4);
             textStyle = clamp(parseInt(p.getProperty("textStyle"), 0), 0, 5);
             scale = clamp(parseFloat(p.getProperty("scale"), 1.0f), 0.75f, 1.8f);
@@ -46,19 +55,41 @@ public final class SkyLyricsConfig {
             enabled = Boolean.parseBoolean(p.getProperty("enabled", "true"));
             showContextLines = Boolean.parseBoolean(p.getProperty("showContextLines", "true"));
             showBackdrop = Boolean.parseBoolean(p.getProperty("showBackdrop", "true"));
-            skyPreset = SkyPresetCatalog.byId(p.getProperty("skyPreset", "nebula_storm")).id();
+            skyPreset = SkyPresetCatalog.byId(p.getProperty("skyPreset", "golden_sunset")).id();
             skyEnabled = Boolean.parseBoolean(p.getProperty("skyEnabled", "true"));
             worldLyrics = Boolean.parseBoolean(p.getProperty("worldLyrics", "true"));
             followView = Boolean.parseBoolean(p.getProperty("followView", "true"));
-            wordByWord = Boolean.parseBoolean(p.getProperty("wordByWord", "false"));
+            wordByWord = Boolean.parseBoolean(p.getProperty("wordByWord", "true"));
             glowEnabled = Boolean.parseBoolean(p.getProperty("glowEnabled", "true"));
-            worldTextScale = clamp(parseFloat(p.getProperty("worldTextScale"), 0.025f), 0.012f, 0.060f);
-            worldDistance = clamp(parseFloat(p.getProperty("worldDistance"), 18.0f), 5.0f, 40.0f);
-        } catch (IOException ignored) { }
+            worldTextScale = clamp(parseFloat(p.getProperty("worldTextScale"), 0.115f), 0.06f, 0.20f);
+            worldDistance = clamp(parseFloat(p.getProperty("worldDistance"), 18.0f), 8.0f, 40.0f);
+            fontFamily = SkyFontCatalog.byId(p.getProperty("fontFamily", "poppins")).id();
+
+            /*
+             * Version 0.4 used a 0.012–0.060 world-text scale. Those values make
+             * the lyrics look like tiny floating labels, unlike the large sky
+             * typography in the reference. Migrate old configs once, preserving
+             * intentionally selected sky presets and larger custom scales.
+             */
+            if (loadedVersion < CURRENT_CONFIG_VERSION) {
+                float previousScale = parseFloat(p.getProperty("worldTextScale"), 0.025f);
+                if (previousScale < 0.065f) {
+                    worldTextScale = 0.115f;
+                }
+                if ("nebula_storm".equalsIgnoreCase(p.getProperty("skyPreset", "nebula_storm"))) {
+                    skyPreset = "golden_sunset";
+                }
+                wordByWord = true;
+                save();
+            }
+        } catch (IOException exception) {
+            // Keep safe defaults if the settings file cannot be read.
+        }
     }
 
     public void save() {
         Properties p = new Properties();
+        p.setProperty("configVersion", Integer.toString(CURRENT_CONFIG_VERSION));
         p.setProperty("theme", Integer.toString(theme));
         p.setProperty("textStyle", Integer.toString(textStyle));
         p.setProperty("scale", Float.toString(scale));
@@ -75,22 +106,40 @@ public final class SkyLyricsConfig {
         p.setProperty("glowEnabled", Boolean.toString(glowEnabled));
         p.setProperty("worldTextScale", Float.toString(worldTextScale));
         p.setProperty("worldDistance", Float.toString(worldDistance));
+        p.setProperty("fontFamily", fontFamily);
         try {
             Files.createDirectories(file.getParent());
             try (Writer writer = Files.newBufferedWriter(file, StandardCharsets.UTF_8)) {
                 p.store(writer, "SkyLyrics settings - Minecraft Java 26.3");
             }
-        } catch (IOException ignored) { }
+        } catch (IOException ignored) {
+            // Settings remain active for this session even when persistence fails.
+        }
     }
 
     private static int parseInt(String value, int fallback) {
-        try { return Integer.parseInt(value); } catch (RuntimeException ex) { return fallback; }
+        try {
+            return Integer.parseInt(value);
+        } catch (RuntimeException exception) {
+            return fallback;
+        }
     }
+
     private static float parseFloat(String value, float fallback) {
-        try { return Float.parseFloat(value); } catch (RuntimeException ex) { return fallback; }
+        try {
+            return Float.parseFloat(value);
+        } catch (RuntimeException exception) {
+            return fallback;
+        }
     }
-    private static int clamp(int value, int min, int max) { return Math.max(min, Math.min(max, value)); }
-    private static float clamp(float value, float min, float max) { return Math.max(min, Math.min(max, value)); }
+
+    private static int clamp(int value, int min, int max) {
+        return Math.max(min, Math.min(max, value));
+    }
+
+    private static float clamp(float value, float min, float max) {
+        return Math.max(min, Math.min(max, value));
+    }
 
     public int theme() { return theme; }
     public void setTheme(int value) { theme = clamp(value, 0, 4); save(); }
@@ -124,9 +173,19 @@ public final class SkyLyricsConfig {
     public boolean glowEnabled() { return glowEnabled; }
     public void toggleGlow() { glowEnabled = !glowEnabled; save(); }
     public float worldTextScale() { return worldTextScale; }
-    public void adjustWorldTextScale(float delta) { worldTextScale = clamp(worldTextScale + delta, 0.012f, 0.060f); save(); }
+    public void adjustWorldTextScale(float delta) {
+        worldTextScale = clamp(worldTextScale + delta, 0.06f, 0.20f);
+        save();
+    }
     public float worldDistance() { return worldDistance; }
-    public void adjustWorldDistance(float delta) { worldDistance = clamp(worldDistance + delta, 5.0f, 40.0f); save(); }
+    public void adjustWorldDistance(float delta) {
+        worldDistance = clamp(worldDistance + delta, 8.0f, 40.0f);
+        save();
+    }
+
+    public String fontFamily() { return fontFamily; }
+    public void setFontFamily(String value) { fontFamily = SkyFontCatalog.byId(value).id(); save(); }
+    public String fontFamilyName() { return SkyFontCatalog.byId(fontFamily).name(); }
 
     public String textStyleName() {
         return switch (textStyle) {
@@ -154,7 +213,7 @@ public final class SkyLyricsConfig {
             case 1 -> 0xFFF0B8EF;
             case 2 -> 0xFFFFD166;
             case 3 -> 0xFFFFB5D8;
-            case 4 -> 0xFF8FDcff;
+            case 4 -> 0xFF8FDCFF;
             case 5 -> 0xFFFFD58A;
             default -> 0xFFC6A0FF;
         };

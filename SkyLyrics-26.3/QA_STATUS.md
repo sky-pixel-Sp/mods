@@ -1,42 +1,37 @@
-# QA STATUS — SkyLyrics 26.3 / 0.2.0
+# QA STATUS — SkyLyrics 0.5.0 / Minecraft Java 26.3
 
-## Checks completed
+## Automated checks included in this branch
 
-- Core LRC parser, cue model, and player clock compile using the Java 21 compiler available in the build environment.
-- Runtime smoke test passed: LRC metadata, multiple timestamps, fractional timestamps, local pause/seek clock, external playback clock, pause state, and manual sync offset.
-- Integration Java sources compile-checked with minimal Gson/SLF4J stubs. This checks Java syntax and the local method structure, but is not a substitute for compilation against the full Minecraft/Fabric classpath.
-- Browser extension scripts pass `node --check`.
-- Content-script simulation passed for YouTube, YouTube Music, and Spotify Web Player metadata payloads.
-- Loopback HTTP smoke test passed: `/health` returns 200, a metadata POST without a Chromium extension Origin is rejected with 403, and a valid Chromium extension Origin passes the origin check.
-- Browser extension manifest and Fabric mod JSON parse successfully.
-- Loopback server source only binds to `127.0.0.1:38173`; supported POST sources are allow-listed as `youtube`, `youtube_music`, and `spotify_web`.
-- POST endpoint checks Chromium extension `Origin` (`chrome-extension://` + 32-character extension ID); ordinary website origins are rejected.
-- Extension uses `text/plain` JSON payload to avoid a cross-origin JSON preflight request.
+- JUnit tests cover LRC parsing, lyric timing, preset catalog behavior, clean-install cinematic defaults, and migration from the 0.4 settings format.
+- The Gradle verification task checks all 20 procedural sky post-effect definitions and the four shader stages.
+- The GitHub Actions workflow is configured to use Temurin JDK 25 and Gradle 9.8.2, then run clean test build. The default-branch workflow now reads the JAR version from gradle.properties so feature branches are not incorrectly checked for the old 0.3.0 filename.
+- The workflow checks the built JAR manifest, pinned custom fonts, font provider JSON, AlbumArtManager, font license notices, and browser-extension JavaScript/manifest.
+- A built-in original-text preview is exposed through the client command /skylyrics demo and /skylyrics stop, and through the Studio overview.
+
+## Changes made for the visual mismatch
+
+- The default sky preset is Golden Sunset, matching the warm cinematic sky in the reference video.
+- The sky effect is applied on the first client-world entry, rather than waiting for the user to open SkyLyrics Studio.
+- Old 0.4 configurations with a 0.012–0.060 lyric scale are migrated once to a larger 0.115 default. A custom sky preset and an already larger custom scale are preserved.
+- Word-by-word lyric reveal is enabled after migration.
+- World lyrics use warm-white text with a restrained dark outline, no opaque background label, a small upward sky offset, and automatic line-width fitting.
+- The Studio overview includes an offline preview control and a current-track status panel.
 
 ## Not yet verified
 
-- Fabric Loom build against Minecraft 26.3 / Fabric Loader / Fabric API was not run. The environment only has Java 21; Minecraft 26.3 requires JDK 25. Gradle dependencies cannot be downloaded from this environment.
-- The browser extension has not been loaded into Chrome/Edge here.
-- No real media-session test has been performed with YouTube, YouTube Music, or Spotify Web Player on Windows.
-- No in-game render test has been performed in TLauncher or on a multiplayer server.
+- The 0.5.0 GitHub Actions run must finish successfully before the JAR is treated as a build artifact.
+- The mod has not yet been manually launched in the user's TLauncher installation after these changes.
+- The in-game appearance of the new world-text scale, depth behavior, custom font rendering, and sky preset still needs a visual smoke test on the target GPU.
+- Browser media integration still requires the unpacked Chrome/Edge extension. Spotify Web Player remains metadata/artwork only; synchronized Spotify lyrics are not enabled.
 
-## Known behavior / guardrails
+## Manual release gate
 
-- YouTube / YouTube Music: extension sends track metadata, duration, playback state, and browser player position. SkyLyrics attempts a matching synced-LRC lookup through LRCLIB and checks exact title/artist plus duration where available. If no synced result is found, a local `.lrc` file can be loaded instead.
-- Spotify Web Player: Now Playing metadata is supported. Synchronized lyrics are intentionally disabled because Spotify's Developer Policy prohibits synchronizing sound recordings with visual media.
-- No Spotify API, OAuth, account credentials, audio capture, download, or playback control is used.
-- The browser extension sends only metadata to the mod's loopback endpoint. No endpoint is exposed to the LAN.
-- Client-side only; no server-side mod/plugin is required.
+1. Confirm GitHub Actions completes clean test build with exit code 0.
+2. Extract the uploaded skylyrics-0.5.0.jar and confirm Fabric Loader 0.20.1+ and Fabric API 0.165.2+26.3 are installed in the same 26.3 client profile.
+3. Enter a single-player world. Golden Sunset should apply automatically without opening the O menu first.
+4. Run /skylyrics demo. Large 3D lyrics should appear above the horizon, reveal word by word, and remain readable without a dark rectangular panel.
+5. Run /skylyrics stop, open O → Styles, and verify Poppins/Montserrat and the other bundled font families still render.
+6. Join a multiplayer server. SkyLyrics should remain client-only and must not require a server-side mod or resource pack.
+7. If YouTube / YouTube Music is used, load the included browser extension and verify media metadata and the synced-LRC lookup. A missing LRCLIB match should be reported clearly rather than displaying fake lyrics.
 
-## Release gate
-
-Do not label this as a tested JAR release until all of the following pass on the target Windows PC:
-
-1. JDK 25 `build.bat` completes `clean test build` with exit code 0.
-2. A valid `skylyrics-0.2.0.jar` is produced.
-3. Chrome/Edge extension loads without errors and connects to the mod endpoint.
-4. `http://127.0.0.1:38173/health` returns `ok: true` while Minecraft is running.
-5. YouTube and YouTube Music send metadata and the playhead advances; synced lyrics load only when a suitable LRCLIB result exists.
-6. Spotify Web Player displays Now Playing metadata but does not activate synchronized lyrics.
-7. Closing the music tab or stopping playback does not freeze or crash Minecraft.
-8. Joining a multiplayer server does not require installing SkyLyrics server-side.
+Do not mark this branch as visually verified until the manual in-game check is completed.
