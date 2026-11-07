@@ -129,7 +129,7 @@ public final class SkyLyricsScreen extends Screen {
     }
 
     @Override
-    protected void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {
+    public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {
         super.extractBackground(graphics, mouseX, mouseY, delta);
         int left = width / 2 - 190;
         int top = Math.max(8, (height - 320) / 2);
