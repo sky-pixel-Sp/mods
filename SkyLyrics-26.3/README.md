@@ -32,7 +32,7 @@ Open the interface with **O**. The entire player is operated through clickable M
 4. In **Lyrics**, choose **Floating World Text** for 3D lyrics or switch to **Screen HUD** for a 2D overlay.
 5. Use **Quick Guide** inside the menu whenever you need the steps again. Keybinds can be changed under **Keybinds**.
 
-Online playback is separate: open Spotify Web or YouTube Music from **Online Music**, play audio in Chrome / Edge, and install the included browser extension for metadata and controls.
+Online playback is separate: open Spotify Web or YouTube Music from **Online Music**, play audio in Chrome / Edge, and install the included `browser-extension` folder in Chrome / Edge for metadata and controls.
 
 ## Offline playback
 
