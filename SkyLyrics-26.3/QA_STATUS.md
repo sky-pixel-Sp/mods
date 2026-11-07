@@ -1,4 +1,4 @@
-# QA STATUS — SkyLyrics 0.6.0 / Music Center
+# QA STATUS — SkyLyrics 0.6.1 / Interactive Keybind Editor
 
 ## Added in this branch
 
@@ -7,6 +7,8 @@
 - Local library import/copy for MP3, OGG, WAV, AIFF and AU; matching LRC discovery by basename.
 - Browser extension command polling for play/pause, pause, next, previous, seek and volume; command endpoint is loopback-only and extension-origin checked.
 - Configurable Minecraft key mappings for menu, lyric visibility, playback, next and previous.
+- In-game keybinding editor: click one of five key rows, press a keyboard key or mouse button, and use ESC to cancel capture.
+- One-click restore of the default O / H / K / N / B shortcuts; changed mappings are saved through Minecraft Options.
 - Mini-player HUD support for local offline audio.
 - Local-only listening history and stats for offline selections and observed online playback sessions; latest 100 sessions persist in `history.json`.
 - Offline mini-player waveform uses measured PCM amplitude; online mode remains a transport animation because audio is not captured.
@@ -29,7 +31,10 @@
 - [ ] Offline waveform responds to real PCM level changes; online waveform does not claim to be an audio analyser.
 - [ ] Artwork glow uses the current cover accent when artwork is available and falls back cleanly when it is absent.
 - [ ] Spotify Web metadata and best-effort controls work; no Spotify lyric sync is exposed.
-- [ ] Minecraft Options → Controls can rebind all SkyLyrics key mappings.
+- [ ] In-game KEYBINDS page can rebind all five SkyLyrics shortcuts with keyboard input.
+- [ ] In-game KEYBINDS page can assign mouse buttons and cancel capture with ESC.
+- [ ] Restore Defaults restores O / H / K / N / B and persists after restarting the game.
+- [ ] Minecraft Options → Controls reflects the in-game keybinding changes.
 - [ ] Disabling the sky shader does not stop local or online music.
 - [ ] Multiplayer server does not require SkyLyrics or a resource pack.
 
