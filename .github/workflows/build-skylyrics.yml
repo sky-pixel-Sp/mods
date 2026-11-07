@@ -4,15 +4,14 @@ on:
   push:
     branches:
       - main
-      - skylyrics-26.3
     paths:
-      - "source-archive.tar.gz.b64.part*"
+      - "SkyLyrics-26.3/**"
       - ".github/workflows/build-skylyrics.yml"
-      - "README.md"
+      - ".gitattributes"
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: skylyrics-build-${{ github.ref }}
@@ -22,70 +21,47 @@ jobs:
   build:
     name: Compile, test, and package mod
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 40
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
-        with:
-          persist-credentials: true
 
-      - name: Set up JDK 25
+      - name: Install JDK 25
         uses: actions/setup-java@v6
         with:
           distribution: temurin
           java-version: "25"
 
-      - name: Reconstruct and verify source archive
+      - name: Force JDK 25 for all following steps
         shell: bash
         run: |
           set -euo pipefail
-          cat source-archive.tar.gz.b64.part0[1-5] > /tmp/skylyrics-source.tar.gz.b64
-          base64 --decode /tmp/skylyrics-source.tar.gz.b64 > /tmp/skylyrics-source.tar.gz
-          echo "b25c656f2a020175ade39420693ee57831922b5e4c3f04a4c2d170701e30a86a  /tmp/skylyrics-source.tar.gz" | sha256sum --check -
-          mkdir -p .build-src
-          tar -xzf /tmp/skylyrics-source.tar.gz -C .build-src
-          test -f .build-src/SkyLyrics-26.3/build.gradle
-          test -f .build-src/SkyLyrics-26.3/src/main/resources/fabric.mod.json
-          echo "Source archive verified and extracted."
+          test -x "${JAVA_HOME_25_X64}/bin/java"
+          echo "JAVA_HOME=${JAVA_HOME_25_X64}" >> "${GITHUB_ENV}"
+          echo "${JAVA_HOME_25_X64}/bin" >> "${GITHUB_PATH}"
+          "${JAVA_HOME_25_X64}/bin/java" -version
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v6
         with:
           gradle-version: "9.8.2"
           cache-provider: basic
-          build-root-directory: .build-src/SkyLyrics-26.3
 
-      - name: Publish readable source tree to this branch
+      - name: Verify Java and Gradle environment
         shell: bash
         run: |
           set -euo pipefail
-          mkdir -p SkyLyrics-26.3
-          rsync -a --delete .build-src/SkyLyrics-26.3/ SkyLyrics-26.3/
-
-          cat > .gitattributes <<'EOF'
-          # Preserve the previous converter, but exclude this legacy HTML app from language statistics.
-          PembuatFileapapun.html linguist-vendored=true
-          EOF
-
-          git rm --ignore-unmatch source-archive.tar.gz.b64.part01 source-archive.tar.gz.b64.part02 source-archive.tar.gz.b64.part03 source-archive.tar.gz.b64.part04 source-archive.tar.gz.b64.part05 || true
-          git add -A -- SkyLyrics-26.3 .gitattributes
-
-          if ! git diff --cached --quiet; then
-            git config user.name "github-actions[bot]"
-            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git commit -m "Add readable SkyLyrics source tree"
-            git push origin "HEAD:${GITHUB_REF_NAME}"
-          else
-            echo "Readable source tree is already up to date."
-          fi
-
-      - name: Run tests and build remapped mod JAR
-        working-directory: .build-src/SkyLyrics-26.3
-        shell: bash
-        run: |
-          set -euo pipefail
+          echo "JAVA_HOME=$JAVA_HOME"
+          command -v java
           java -version
+          test "$(java -version 2>&1 | head -n 1)" = 'openjdk version "25.0.5" 2026-10-20'
+
+      - name: Run unit tests and build the Fabric mod
+        working-directory: SkyLyrics-26.3
+        shell: bash
+        run: |
+          set -euo pipefail
           gradle --no-daemon clean test build
           test -s build/libs/skylyrics-0.2.0.jar
           jar tf build/libs/skylyrics-0.2.0.jar | grep -q 'fabric.mod.json'
@@ -95,6 +71,6 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: SkyLyrics-Minecraft-26.3
-          path: .build-src/SkyLyrics-26.3/build/libs/skylyrics-0.2.0.jar
+          path: SkyLyrics-26.3/build/libs/skylyrics-0.2.0.jar
           if-no-files-found: error
           retention-days: 30
