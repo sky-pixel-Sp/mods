@@ -107,3 +107,4 @@ class SkyLyricsConfigTest {
         assertEquals(0.08f, config.listeningStatsHudX(), 0.0001f);
         assertEquals(0.88f, config.listeningStatsHudY(), 0.0001f);
     }
+}
