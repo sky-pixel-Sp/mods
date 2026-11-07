@@ -108,10 +108,6 @@ public final class SkyLyricsScreen extends Screen {
                     () -> SkyLyricsClient.loadTrack(track),
                     contentLeft, listTop + i * 34, contentWidth, 28);
         }
-        if (tracks.isEmpty()) {
-            // The library constructor creates a small sample LRC on first launch.
-            action("REFRESH LOCAL LYRICS LIST", () -> {}, contentLeft, listTop, contentWidth, 28);
-        }
     }
 
     private void openLyricsFolder() {
