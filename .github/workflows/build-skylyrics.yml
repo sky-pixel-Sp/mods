@@ -45,6 +45,7 @@ jobs:
           gradle --no-daemon -Dorg.gradle.java.home="${JAVA_HOME}" clean test build
           test -s build/libs/skylyrics-0.5.0.jar
           jar tf build/libs/skylyrics-0.5.0.jar | grep -q 'fabric.mod.json'
+          jar tf build/libs/skylyrics-0.5.0.jar | grep -q 'skylyrics/post_effect/sky_golden_sunset.json'
           jar tf build/libs/skylyrics-0.5.0.jar | grep -q 'assets/skylyrics/font/poppins.ttf'
           jar tf build/libs/skylyrics-0.5.0.jar | grep -q 'assets/skylyrics/font/montserrat.json'
           jar tf build/libs/skylyrics-0.5.0.jar | grep -q 'AlbumArtManager.class'
