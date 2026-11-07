@@ -50,7 +50,7 @@ public final class SkyLyricsScreen extends Screen {
         navStep = Math.min(34, Math.max(24, (panelHeight - 78) / Tab.values().length));
         navHeight = Math.max(20, Math.min(27, navStep - 4));
 
-        String[] labels = {"OVERVIEW","MUSIC CENTER","OFFLINE LIBRARY","HISTORY & STATS","ONLINE MUSIC","LYRICS","STYLES","SKIES","HUD","KEYBINDS","PERFORMANCE","SETTINGS","QUICK GUIDE"};
+        String[] labels = {"OVERVIEW","MUSIC CENTER","OFFLINE LIBRARY","HISTORY & STATS","ONLINE MUSIC","LYRICS","STYLES","SKIES","HUD","KEYBINDS","PERFORMANCE","SETTINGS","PANDUAN CEPAT"};
         Tab[] tabs = Tab.values();
         for (int i=0;i<tabs.length;i++) {
             Tab next = tabs[i];
@@ -382,9 +382,11 @@ public final class SkyLyricsScreen extends Screen {
     }
 
     private void guide(int y) {
-        navigate("OPEN MUSIC CENTER",Tab.MUSIC,contentLeft,y+22,contentWidth,29);
-        navigate("OPEN LYRICS & DISPLAY",Tab.LYRICS,contentLeft,y+62,contentWidth,29);
-        navigate("OPEN ONLINE MUSIC",Tab.ONLINE,contentLeft,y+102,contentWidth,29);
+        int gap = 8;
+        int width = (contentWidth - 2 * gap) / 3;
+        navigate("MUSIC CENTER",Tab.MUSIC,contentLeft,y+18,width,30);
+        navigate("LYRICS",Tab.LYRICS,contentLeft+width+gap,y+18,width,30);
+        navigate("ONLINE MUSIC",Tab.ONLINE,contentLeft+2*(width+gap),y+18,width,30);
     }
 
     private void navigate(String label,Tab next,int x,int y,int w,int h) {
@@ -450,7 +452,7 @@ public final class SkyLyricsScreen extends Screen {
         super.extractRenderState(graphics,mouseX,mouseY,delta);
         graphics.text(font,"SKYLYRICS",left+16,top+16,0xFFFFFFFF,true);
         graphics.text(font,"BY SKY  ·  CINEMATIC MUSIC EXPERIENCE",left+16,top+33,0xFFC7B9E8,false);
-        graphics.text(font,tab.name(),contentLeft,top+78,0xFFFFFFFF,true);
+        graphics.text(font,tab == Tab.GUIDE ? "PANDUAN CEPAT" : tab.name(),contentLeft,top+78,0xFFFFFFFF,true);
         int activeY = top + 70 + tab.ordinal() * navStep;
         graphics.fill(left + 10, activeY + 2, left + 13, activeY + navHeight - 2, 0xFFB58BFF);
         boolean ready = SkyLyricsClient.PLAYER.hasTrack();
@@ -589,14 +591,15 @@ public final class SkyLyricsScreen extends Screen {
             graphics.text(font,"Saved to config/skylyrics.properties",contentLeft,top+220,0xFFD4D1E2,false);
             graphics.text(font,"Keys: O menu · H lyrics · K play/pause",contentLeft,top+244,0xFFD4D1E2,false);
         } else if(tab==Tab.GUIDE) {
-            graphics.text(font,"QUICK START  ·  SKYLYRICS BY SKY",contentLeft,top+190,0xFFFFFFFF,true);
-            graphics.text(font,"1. Open Music Center, choose Import Song, and select your audio file.",contentLeft,top+218,0xFFD4D1E2,false);
-            graphics.text(font,"2. Open Lyrics and import a matching .LRC file for timed lyrics.",contentLeft,top+242,0xFFD4D1E2,false);
-            graphics.text(font,"3. Choose Floating World Text or Screen HUD in Lyrics settings.",contentLeft,top+266,0xFFD4D1E2,false);
-            graphics.text(font,"4. Online: open Spotify / YouTube Music in Chrome or Edge and load the extension.",contentLeft,top+290,0xFFD4D1E2,false);
-            graphics.text(font,"Keys: O menu · H lyric HUD · K play/pause · N next · B previous.",contentLeft,top+329,0xFFC6A0FF,true);
-            graphics.text(font,"Local files play inside Minecraft; browser music continues in the browser.",contentLeft,top+355,0xFFBDB7CD,false);
-            graphics.text(font,"Spotify Web supplies track metadata and controls; synced Spotify lyrics stay disabled.",contentLeft,top+379,0xFF9690A8,false);
+            graphics.text(font,"PANDUAN CEPAT  ·  SKYLYRICS BY SKY",contentLeft,top+190,0xFFFFFFFF,true);
+            graphics.text(font,"1. Music Center → Import Song → pilih MP3 / OGG / WAV.",contentLeft,top+218,0xFFD4D1E2,false);
+            graphics.text(font,"2. Lyrics → Import / Match LRC → pilih file .LRC yang sesuai.",contentLeft,top+242,0xFFD4D1E2,false);
+            graphics.text(font,"3. Pilih Floating World Text (lirik 3D) atau Screen HUD (2D).",contentLeft,top+266,0xFFD4D1E2,false);
+            graphics.text(font,"4. Online: buka Spotify Web / YouTube Music lewat Chrome atau Edge.",contentLeft,top+290,0xFFD4D1E2,false);
+            graphics.text(font,"5. Pasang ekstensi dari folder browser-extension di Chrome / Edge.",contentLeft,top+314,0xFFD4D1E2,false);
+            graphics.text(font,"Tombol: O menu · H lirik · K play/pause · N berikutnya · B sebelumnya.",contentLeft,top+350,0xFFC6A0FF,true);
+            graphics.text(font,"Audio lokal diputar oleh player SkyLyrics; audio online tetap dari browser.",contentLeft,top+376,0xFFBDB7CD,false);
+            graphics.text(font,"Spotify Web hanya metadata dan kontrol; sinkronisasi lirik Spotify nonaktif.",contentLeft,top+400,0xFF9690A8,false);
         }
     }
 }
