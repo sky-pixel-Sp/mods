@@ -3,6 +3,7 @@ package com.skyrevo.skylyrics.ui;
 import net.minecraft.client.Minecraft;
 
 import java.awt.FileDialog;
+import java.awt.EventQueue;
 import java.awt.Frame;
 import java.nio.file.Path;
 import java.util.function.Consumer;
@@ -20,7 +21,7 @@ public final class MusicFilePicker {
     }
 
     private static void choose(String title, String type, Consumer<Path> callback) {
-        Thread picker = new Thread(() -> {
+        EventQueue.invokeLater(() -> {
             Path selected = null;
             try {
                 FileDialog dialog = new FileDialog((Frame) null, title, FileDialog.LOAD);
@@ -40,8 +41,6 @@ public final class MusicFilePicker {
             }
             Path result = selected;
             Minecraft.getInstance().execute(() -> callback.accept(result));
-        }, "SkyLyrics-File-Picker");
-        picker.setDaemon(true);
-        picker.start();
+        });
     }
 }
