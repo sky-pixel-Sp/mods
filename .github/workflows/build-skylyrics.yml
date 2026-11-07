@@ -14,6 +14,7 @@ on:
       - skylyrics-video-parity
       - skylyrics-0.4-fonts-album-player
       - skylyrics-0.5-cinematic-overhaul
+      - skylyrics-0.6-music-center
     paths:
       - "SkyLyrics-26.3/**"
       - ".github/workflows/build-skylyrics.yml"
