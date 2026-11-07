@@ -1,8 +1,17 @@
 name: Build SkyLyrics for Minecraft 26.3
+
 on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "SkyLyrics-26.3/**"
+      - ".github/workflows/build-skylyrics.yml"
+      - ".gitattributes"
   push:
     branches:
       - main
+      - skylyrics-video-parity
       - skylyrics-0.4-fonts-album-player
       - skylyrics-0.5-cinematic-overhaul
     paths:
@@ -10,11 +19,13 @@ on:
       - ".github/workflows/build-skylyrics.yml"
       - ".gitattributes"
   workflow_dispatch:
+
 permissions:
   contents: read
 concurrency:
   group: skylyrics-build-${{ github.ref }}
   cancel-in-progress: true
+
 jobs:
   build:
     name: Compile, test, and package mod
@@ -33,7 +44,7 @@ jobs:
         with:
           gradle-version: "9.8.2"
           cache-provider: basic
-      - name: Download pinned fonts, compile, test and build
+      - name: Compile, test, and build the Fabric mod
         working-directory: SkyLyrics-26.3
         shell: bash
         run: |
@@ -41,16 +52,20 @@ jobs:
           export JAVA_HOME="${JAVA_HOME_25_X64}"
           export PATH="${JAVA_HOME}/bin:${PATH}"
           java -version
-          java -version 2>&1 | head -n 1 | grep -Eq 'version "25([.]|")'
+          java -version 2>&1 | head -n 1 | grep -Eq 'version "25([.]|\")'
           gradle --no-daemon -Dorg.gradle.java.home="${JAVA_HOME}" clean test build
-          test -s build/libs/skylyrics-0.5.0.jar
-          jar tf build/libs/skylyrics-0.5.0.jar | grep -q 'fabric.mod.json'
-          jar tf build/libs/skylyrics-0.5.0.jar | grep -q 'skylyrics/post_effect/sky_golden_sunset.json'
-          jar tf build/libs/skylyrics-0.5.0.jar | grep -q 'assets/skylyrics/font/poppins.ttf'
-          jar tf build/libs/skylyrics-0.5.0.jar | grep -q 'assets/skylyrics/font/montserrat.json'
-          jar tf build/libs/skylyrics-0.5.0.jar | grep -q 'AlbumArtManager.class'
-          jar tf build/libs/skylyrics-0.5.0.jar | grep -q 'META-INF/licenses/skylyrics-fonts/poppins-OFL.txt'
-          echo "SkyLyrics 0.5.0 JAR, custom fonts and album-art module verified."
+          MOD_VERSION="$(sed -n 's/^mod_version=//p' gradle.properties | head -n 1)"
+          test -n "${MOD_VERSION}"
+          JAR="build/libs/skylyrics-${MOD_VERSION}.jar"
+          test -s "${JAR}"
+          jar tf "${JAR}" | grep -q 'fabric.mod.json'
+          jar tf "${JAR}" | grep -q 'skylyrics/post_effect/sky_nebula_storm.json'
+          jar tf "${JAR}" | grep -q 'skylyrics/post_effect/sky_golden_sunset.json'
+          jar tf "${JAR}" | grep -q 'assets/skylyrics/font/poppins.ttf'
+          jar tf "${JAR}" | grep -q 'assets/skylyrics/font/montserrat.json'
+          jar tf "${JAR}" | grep -q 'AlbumArtManager.class'
+          jar tf "${JAR}" | grep -q 'META-INF/licenses/skylyrics-fonts/poppins-OFL.txt'
+          echo "SkyLyrics ${MOD_VERSION} JAR and cinematic assets verified."
       - name: Validate browser connector
         working-directory: SkyLyrics-26.3
         shell: bash
@@ -64,6 +79,6 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: SkyLyrics-Minecraft-26.3
-          path: SkyLyrics-26.3/build/libs/skylyrics-0.5.0.jar
+          path: SkyLyrics-26.3/build/libs/skylyrics-*.jar
           if-no-files-found: error
           retention-days: 30
