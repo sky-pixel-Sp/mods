@@ -15,6 +15,8 @@ import com.skyrevo.skylyrics.render.SkyLyricsTypography;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.resources.Identifier;
 import net.minecraft.network.chat.Component;
 
 public final class SkyLyricsScreen extends Screen {
@@ -109,7 +111,7 @@ public final class SkyLyricsScreen extends Screen {
                 SkyLyricsClient.CONFIG.setSkyEnabled(true);
                 SkyEffectController.refreshFromConfig();
                 open(Tab.SKIES);
-            }).bounds(contentLeft+(i%cols)*(w+gap),y+39+(i/cols)*(h+7),w,h).build());
+            }).bounds(contentLeft+(i%cols)*(w+gap),y+118+(i/cols)*50,w,h).build());
             card.active=!preset.id().equals(SkyLyricsClient.CONFIG.skyPreset());
         }
     }
@@ -582,10 +584,19 @@ public final class SkyLyricsScreen extends Screen {
             graphics.fill(contentLeft, cardTop, contentLeft + 3, cardBottom, 0xFFB38BFF);
         }
         if(tab==Tab.SKIES) {
-            int cols=4,gap=6,w=(contentWidth-gap*(cols-1))/cols,h=43, y=top+112+39;
+            String artwork = SkyPresetCatalog.artworkFor(SkyLyricsClient.CONFIG.skyPreset());
+            Identifier preview = Identifier.fromNamespaceAndPath(
+                    SkyLyricsClient.MOD_ID, "textures/gui/sky_gallery/" + artwork + ".jpg");
+            int previewY = top + 146;
+            graphics.blit(RenderPipelines.GUI_TEXTURED, preview,
+                    contentLeft, previewY, 0.0F, 0.0F, contentWidth, 72, 1600, 900);
+            graphics.fill(contentLeft, previewY, contentLeft + contentWidth, previewY + 72, 0x3A080711);
+            graphics.fill(contentLeft, previewY, contentLeft + contentWidth, previewY + 3,
+                    SkyPresetCatalog.byId(SkyLyricsClient.CONFIG.skyPreset()).horizonColor() | 0xFF000000);
+            int cols=4,gap=6,w=(contentWidth-gap*(cols-1))/cols,h=43, gridY=top+112+118;
             for(int i=0;i<SkyPresetCatalog.ALL.size();i++) {
                 SkyPresetCatalog.Preset p=SkyPresetCatalog.ALL.get(i);
-                int x=contentLeft+(i%cols)*(w+gap), cy=y+(i/cols)*(h+7);
+                int x=contentLeft+(i%cols)*(w+gap), cy=gridY+(i/cols)*50;
                 graphics.fill(x,cy,x+w,cy+4,p.topColor()|0xFF000000);
                 graphics.fill(x,cy+4,x+w,cy+7,p.nebulaColor()|0xFF000000);
             }
@@ -697,9 +708,10 @@ public final class SkyLyricsScreen extends Screen {
             graphics.text(font,ui("Press ESC while capturing to cancel. Defaults can be restored above."),
                     contentLeft, top + 406, 0xFFBDB7CD, false);
         } else if(tab==Tab.SKIES) {
-            graphics.text(font,ui("20 original animated, depth-masked sky presets"),contentLeft,top+98,0xFFBDB7CD,false);
-            graphics.text(font,ui("Active: ")+SkyPresetCatalog.byId(SkyLyricsClient.CONFIG.skyPreset()).name(),
-                    contentLeft,top+panelHeight-28,SkyLyricsClient.CONFIG.accentColor(),true);
+            graphics.text(font,ui("20 SKY PRESETS · AUTHENTIC NASA/JPL PHOTO PREVIEWS"),
+                    contentLeft,top+138,0xFFE8DFFF,true);
+            graphics.text(font,ui("ACTIVE PRESET: ")+SkyPresetCatalog.byId(SkyLyricsClient.CONFIG.skyPreset()).name(),
+                    contentLeft,top+panelHeight-18,SkyLyricsClient.CONFIG.accentColor(),true);
         } else if(tab==Tab.LYRICS) {
             String title=SkyLyricsClient.PLAYER.hasTrack()?SkyLyricsClient.PLAYER.track().title():"No track loaded";
             graphics.text(font,title,contentLeft,top+302,0xFFFFFFFF,true);
