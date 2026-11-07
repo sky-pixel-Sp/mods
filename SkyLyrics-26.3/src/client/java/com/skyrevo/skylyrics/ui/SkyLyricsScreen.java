@@ -260,8 +260,7 @@ public final class SkyLyricsScreen extends Screen {
         if (pendingKeyBinding != null) {
             if (event.isEscape()) {
                 pendingKeyBindingButton.setMessage(Component.literal(
-                        pendingKeyBindingButton.getMessage().getString().replace(
-                                "  [PRESS KEY OR MOUSE BUTTON  ·  ESC CANCEL]", "  [CANCELLED]")));
+                        "  [" + ui("CANCELLED") + "]"));
                 pendingKeyBinding = null;
                 pendingKeyBindingButton = null;
                 return true;
@@ -430,7 +429,6 @@ public final class SkyLyricsScreen extends Screen {
             case "LYRIC DISPLAY  ON" -> "TAMPILAN LIRIK  AKTIF";
             case "LYRIC DISPLAY  OFF" -> "TAMPILAN LIRIK  NONAKTIF";
             case "OPEN MUSIC CENTER" -> "BUKA PUSAT MUSIK";
-            case "OFFLINE LIBRARY" -> "PUSTAKA OFFLINE";
             case "OPEN OFFLINE LIBRARY" -> "BUKA PUSTAKA OFFLINE";
             case "LYRICS STUDIO" -> "STUDIO LIRIK";
             case "PLAY VISUAL PREVIEW" -> "PUTAR PRATINJAU";
@@ -454,7 +452,6 @@ public final class SkyLyricsScreen extends Screen {
             case "NEXT TRACK ▶" -> "LAGU BERIKUTNYA ▶";
             case "PREVIOUS ◀" -> "LAGU SEBELUMNYA ◀";
             case "PAUSE ONLINE PLAYER" -> "JEDA PEMUTAR ONLINE";
-            case "OPEN MUSIC CENTER" -> "BUKA PUSAT MUSIK";
             case "TOGGLE LYRIC HUD" -> "UBAH HUD LIRIK";
             case "NEXT TRACK" -> "LAGU BERIKUTNYA";
             case "PREVIOUS TRACK" -> "LAGU SEBELUMNYA";
@@ -478,6 +475,9 @@ public final class SkyLyricsScreen extends Screen {
             case "GLOW  OFF" -> "CAHAYA  NONAKTIF";
             case "TEXT SIZE  −" -> "UKURAN TEKS  −";
             case "TEXT SIZE  +" -> "UKURAN TEKS  +";
+            case "NOW PLAYING STYLE  ·  Bordered" -> "GAYA SEDANG DIPUTAR  ·  Berbingkai";
+            case "NOW PLAYING STYLE  ·  Borderless" -> "GAYA SEDANG DIPUTAR  ·  Tanpa bingkai";
+            case "NOW PLAYING STYLE  ·  Compact" -> "GAYA SEDANG DIPUTAR  ·  Ringkas";
             case "WORLD TEXT  ON" -> "TEKS DUNIA  AKTIF";
             case "WORLD TEXT  OFF" -> "TEKS DUNIA  NONAKTIF";
             case "PREVIOUS / NEXT LINES  ON" -> "BARIS SEBELUM / SESUDAH  AKTIF";
@@ -497,24 +497,40 @@ public final class SkyLyricsScreen extends Screen {
             case "OFF" -> "NONAKTIF";
             case "LYRICS READY" -> "LIRIK SIAP";
             case "WAITING FOR MUSIC" -> "MENUNGGU MUSIK";
+            case "CINEMATIC MUSIC EXPERIENCE" -> "PENGALAMAN MUSIK SINEMATIK";
+            case "BY SKY  ·  CINEMATIC MUSIC EXPERIENCE" -> "OLEH SKY  ·  MUSIK SINEMATIK";
             case "CINEMATIC PREVIEW" -> "PRATINJAU SINEMATIK";
-            case "CHOOSE A LOCAL SONG OR OPEN AN ONLINE PROVIDER." -> "PILIH LAGU LOKAL ATAU BUKA PENYEDIA ONLINE.";
+            case "Choose a local song or open an online provider." -> "Pilih lagu lokal atau buka penyedia online.";
+            case "OFFLINE LIBRARY" -> "PUSTAKA OFFLINE";
             case "SUPPORTED: MP3 · OGG · WAV · AIFF · AU" -> "FORMAT: MP3 · OGG · WAV · AIFF · AU";
-            case "MATCHING .LRC FILES ARE LOADED AUTOMATICALLY BY FILENAME." -> "FILE .LRC YANG COCOK DIMUAT OTOMATIS BERDASARKAN NAMA.";
+            case "Matching .lrc files are loaded automatically by filename." -> "File .lrc yang cocok dimuat otomatis berdasarkan nama.";
             case "LISTENING OVERVIEW" -> "RINGKASAN PEMUTARAN";
+            case "PLAY SESSIONS" -> "SESI PEMUTARAN";
+            case "UNIQUE TRACKS IN RECENT HISTORY" -> "LAGU UNIK DI RIWAYAT TERBARU";
             case "RECENTLY PLAYED" -> "BARU DIPUTAR";
-            case "NO LISTENING SESSIONS YET. PLAY A LOCAL OR SUPPORTED ONLINE TRACK." -> "BELUM ADA RIWAYAT. PUTAR LAGU LOKAL ATAU ONLINE.";
+            case "No listening sessions yet. Play a local or supported online track." -> "Belum ada riwayat. Putar lagu lokal atau online.";
+            case "CONNECTED" -> "TERHUBUNG";
             case "WAITING FOR BROWSER PLAYER" -> "MENUNGGU PEMUTAR BROWSER";
+            case "Browser extension required for remote controls and synced metadata." -> "Ekstensi browser diperlukan untuk kontrol jarak jauh dan metadata.";
             case "EDIT CONTROLS DIRECTLY FROM THIS SCREEN" -> "UBAH KONTROL LANGSUNG DARI LAYAR INI";
-            case "CLICK A CONTROL ABOVE, THEN PRESS A KEYBOARD KEY OR MOUSE BUTTON." -> "KLIK KONTROL DI ATAS, LALU TEKAN TOMBOL KEYBOARD ATAU MOUSE.";
-            case "PRESS ESC WHILE CAPTURING TO CANCEL. DEFAULTS CAN BE RESTORED ABOVE." -> "TEKAN ESC UNTUK BATAL. PENGATURAN DEFAULT BISA DIPULIHKAN DI ATAS.";
-            case "20 ORIGINAL ANIMATED, DEPTH-MASKED SKY PRESETS" -> "20 PRESET LANGIT ANIMASI DENGAN MASK KEDALAMAN";
-            case "NO TRACK LOADED" -> "BELUM ADA LAGU";
-            case "DRAG AND DROP HUD PANELS IN THE LAYOUT EDITOR." -> "GESER PANEL HUD DI EDITOR TATA LETAK.";
-            case "ONLY CLEAR BACKGROUND PIXELS ARE REPLACED BY THE SKY SHADER." -> "HANYA PIXEL LATAR KOSONG YANG DIGANTI SHADER LANGIT.";
-            case "TERRAIN, ENTITIES, AND HUD PIXELS ARE PASSED THROUGH." -> "TERRAIN, ENTITAS, DAN HUD TETAP DITAMPILKAN.";
-            case "RENDERING USES MINECRAFT'S POST-EFFECT PIPELINE." -> "RENDERING MENGGUNAKAN PIPELINE POST-EFFECT MINECRAFT.";
-            case "SAVED TO CONFIG/SK​​YLYRICS.PROPERTIES" -> "TERSIMPAN DI CONFIG/SK​​YLYRICS.PROPERTIES";
+            case "Click a control above, then press a keyboard key or mouse button." -> "Klik kontrol di atas, lalu tekan tombol keyboard atau mouse.";
+            case "Press ESC while capturing to cancel. Defaults can be restored above." -> "Tekan ESC untuk batal. Tombol default dapat dipulihkan di atas.";
+            case "20 original animated, depth-masked sky presets" -> "20 preset langit animasi dengan mask kedalaman";
+            case "No track loaded" -> "Belum ada lagu";
+            case "SYNC " -> "SINKRON ";
+            case "Manual sync offset: " -> "Offset sinkron manual: ";
+            case "Style: " -> "Gaya: ";
+            case "Font: " -> "Font: ";
+            case "World text distance: " -> "Jarak teks dunia: ";
+            case "HUD vertical position: " -> "Posisi vertikal HUD: ";
+            case "Now Playing position: " -> "Posisi Now Playing: ";
+            case "Elytra lyrics mode: " -> "Mode lirik Elytra: ";
+            case "Drag and drop HUD panels in the Layout Editor." -> "Geser panel HUD di Editor Tata Letak.";
+            case "Only clear background pixels are replaced by the sky shader." -> "Hanya piksel latar kosong yang diganti shader langit.";
+            case "Terrain, entities, and HUD pixels are passed through." -> "Terrain, entitas, dan piksel HUD tetap ditampilkan.";
+            case "Rendering uses Minecraft's post-effect pipeline." -> "Rendering memakai pipeline post-effect Minecraft.";
+            case "Saved to config/skylyrics.properties" -> "Tersimpan di config/skylyrics.properties";
+            case "Keys: O menu · H lyrics · K play/pause" -> "Tombol: O menu · H lirik · K putar/jeda";
             case "QUICK GUIDE · SKYLYRICS BY SKY" -> "PANDUAN CEPAT · SKYLYRICS OLEH SKY";
             case "1. MUSIC CENTER → IMPORT SONG → CHOOSE MP3 / OGG / WAV." -> "1. PUSAT MUSIK → IMPOR LAGU → PILIH MP3 / OGG / WAV.";
             case "2. LYRICS → IMPORT / MATCH LRC → CHOOSE THE MATCHING .LRC FILE." -> "2. LIRIK → IMPOR / COCOKKAN LRC → PILIH FILE .LRC YANG SESUAI.";
@@ -524,21 +540,10 @@ public final class SkyLyricsScreen extends Screen {
             case "KEYS: O MENU · H LYRICS · K PLAY/PAUSE · N NEXT · B PREVIOUS." -> "TOMBOL: O MENU · H LIRIK · K PUTAR/JEDA · N BERIKUTNYA · B SEBELUMNYA.";
             case "LOCAL AUDIO PLAYS THROUGH SKYLYRICS; ONLINE AUDIO STAYS IN THE BROWSER." -> "AUDIO LOKAL DIPUTAR OLEH SKYLYRICS; AUDIO ONLINE TETAP DI BROWSER.";
             case "SPOTIFY WEB PROVIDES METADATA AND CONTROLS ONLY; LYRICS SYNC IS OFF." -> "SPOTIFY WEB HANYA MEMBERI METADATA DAN KONTROL; SINKRON LIRIK NONAKTIF.";
-            case "CONNECTED" -> "TERHUBUNG";
-            case "SYNC " -> "SINKRON ";
-            case "Manual sync offset: " -> "Offset sinkron manual: ";
-            case "Style: " -> "Gaya: ";
-            case "World text distance: " -> "Jarak teks dunia: ";
-            case "HUD vertical position: " -> "Posisi vertikal HUD: ";
-            case "Now Playing position: " -> "Posisi Now Playing: ";
-            case "Elytra lyrics mode: " -> "Mode lirik Elytra: ";
-            case "OFFLINE LIBRARY" -> "PUSTAKA OFFLINE";
-            case "PLAY SESSIONS" -> "SESI PEMUTARAN";
-            case "UNIQUE TRACKS IN RECENT HISTORY" -> "LAGU UNIK DI RIWAYAT TERBARU";
-            case "SKY PRESET" -> "PRESET LANGIT";
             default -> english;
         };
     }
+
 
     private static int mixColor(int a, int b, float t) {
         int alpha = (a >>> 24) & 255;
@@ -630,25 +635,25 @@ public final class SkyLyricsScreen extends Screen {
                 graphics.text(font, SkyLyricsClient.CURRENT_MEDIA.displaySource() + " · "
                         + SkyLyricsClient.CURRENT_MEDIA.artist(), contentLeft, top + 309, 0xFFC6A0FF, false);
             } else {
-                graphics.text(font, "Choose a local song or open an online provider.", contentLeft, top + 300, 0xFFD4D1E2, false);
+                graphics.text(font,ui("Choose a local song or open an online provider."), contentLeft, top + 300, 0xFFD4D1E2, false);
             }
             graphics.text(font, SkyLyricsClient.MEDIA_NOTICE, contentLeft, top + 388, 0xFF9D96B3, false);
         } else if (tab == Tab.LIBRARY) {
             graphics.text(font, ui("OFFLINE LIBRARY") + "  ·  " + SkyLyricsClient.MUSIC_LIBRARY.listAudio().size() + " audio files",
                     contentLeft, top + 218, 0xFFC6A0FF, true);
-            graphics.text(font, "Supported: MP3 · OGG · WAV · AIFF · AU", contentLeft, top + 241, 0xFFD4D1E2, false);
-            graphics.text(font, "Matching .lrc files are loaded automatically by filename.", contentLeft, top + 263, 0xFFBDB7CD, false);
+            graphics.text(font,ui("Supported: MP3 · OGG · WAV · AIFF · AU"), contentLeft, top + 241, 0xFFD4D1E2, false);
+            graphics.text(font,ui("Matching .lrc files are loaded automatically by filename."), contentLeft, top + 263, 0xFFBDB7CD, false);
             graphics.text(font, SkyLyricsClient.MUSIC_LIBRARY.musicDirectory().toString(), contentLeft, top + 286, 0xFF9690A8, false);
         } else if (tab == Tab.HISTORY) {
-            graphics.text(font, "LISTENING OVERVIEW", contentLeft, top + 112, 0xFFC6A0FF, true);
+            graphics.text(font,ui("LISTENING OVERVIEW"), contentLeft, top + 112, 0xFFC6A0FF, true);
             graphics.text(font, ui("PLAY SESSIONS") + "  ·  " + SkyLyricsClient.HISTORY.totalPlays(),
                     contentLeft, top + 141, 0xFFFFFFFF, true);
             graphics.text(font, ui("UNIQUE TRACKS IN RECENT HISTORY") + "  ·  " + SkyLyricsClient.HISTORY.uniqueTrackCount(),
                     contentLeft, top + 164, 0xFFD4D1E2, false);
-            graphics.text(font, "RECENTLY PLAYED", contentLeft, top + 210, 0xFFC6A0FF, true);
+            graphics.text(font,ui("RECENTLY PLAYED"), contentLeft, top + 210, 0xFFC6A0FF, true);
             var entries = SkyLyricsClient.HISTORY.recent(7);
             if (entries.isEmpty()) {
-                graphics.text(font, "No listening sessions yet. Play a local or supported online track.",
+                graphics.text(font,ui("No listening sessions yet. Play a local or supported online track."),
                         contentLeft, top + 238, 0xFFBDB7CD, false);
             } else {
                 for (int i = 0; i < entries.size(); i++) {
@@ -662,7 +667,7 @@ public final class SkyLyricsScreen extends Screen {
                     graphics.text(font, subtitle, contentLeft + 12, rowY + 13, 0xFFBDB7CD, false);
                 }
             }
-            graphics.text(font, "History stays in config/skylyrics/history.json; audio is never stored here.",
+            graphics.text(font,ui("History stays in config/skylyrics/history.json; audio is never stored here."),
                     contentLeft, top + panelHeight - 28, 0xFF9690A8, false);
         } else if (tab == Tab.ONLINE) {
             var media = SkyLyricsClient.CURRENT_MEDIA;
@@ -674,19 +679,19 @@ public final class SkyLyricsScreen extends Screen {
                 graphics.text(font, LyricsPlayer.formatTime(media.positionMs()) + " / "
                         + LyricsPlayer.formatTime(media.durationMs()), contentLeft, top + 315, 0xFFD4D1E2, false);
             }
-            graphics.text(font, "Browser extension required for remote controls and synced metadata.",
+            graphics.text(font,ui("Browser extension required for remote controls and synced metadata."),
                     contentLeft, top + 354, 0xFFD4D1E2, false);
             graphics.text(font, SkyLyricsClient.MEDIA_NOTICE, contentLeft, top + 378, 0xFF9D96B3, false);
         } else if (tab == Tab.KEYBINDS) {
-            graphics.text(font, "EDIT CONTROLS DIRECTLY FROM THIS SCREEN",
+            graphics.text(font,ui("EDIT CONTROLS DIRECTLY FROM THIS SCREEN"),
                     contentLeft, top + 360, 0xFFFFFFFF, true);
-            graphics.text(font, "Click a control above, then press a keyboard key or mouse button.",
+            graphics.text(font,ui("Click a control above, then press a keyboard key or mouse button."),
                     contentLeft, top + 383, 0xFFD4D1E2, false);
-            graphics.text(font, "Press ESC while capturing to cancel. Defaults can be restored above.",
+            graphics.text(font,ui("Press ESC while capturing to cancel. Defaults can be restored above."),
                     contentLeft, top + 406, 0xFFBDB7CD, false);
         } else if(tab==Tab.SKIES) {
             graphics.text(font,ui("20 original animated, depth-masked sky presets"),contentLeft,top+98,0xFFBDB7CD,false);
-            graphics.text(font,ui("Active: "+SkyPresetCatalog.byId(SkyLyricsClient.CONFIG.skyPreset()).name(),
+            graphics.text(font,"Active: "+SkyPresetCatalog.byId(SkyLyricsClient.CONFIG.skyPreset()).name(),
                     contentLeft,top+panelHeight-28,SkyLyricsClient.CONFIG.accentColor(),true);
         } else if(tab==Tab.LYRICS) {
             String title=SkyLyricsClient.PLAYER.hasTrack()?SkyLyricsClient.PLAYER.track().title():"No track loaded";
