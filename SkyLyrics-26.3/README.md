@@ -141,9 +141,9 @@ The SkyLyrics 0.8.0 baseline passed GitHub Actions Run #110. The 0.9.2 port addi
 
 ## Package contents and asset verification
 
-The Skies selector displays genuine astronomy photographs as UI previews for the procedural sky presets. The original NASA/JPL JPGs and generated 1600×900 game textures are bundled separately, with source page, credit line, and JPL image-use policy in `META-INF/licenses/skylyrics-artwork/NOTICE.txt`.
+The Skies selector displays genuine NASA/JPL astronomy photographs as previews for the procedural sky presets. The build downloads the full-resolution source JPGs, validates them, and generates optimized 1600×900 preview textures. The source masters stay in the build workspace; the **eight preview textures actually used by the in-game selector** are bundled in the runtime JAR. Source page URLs, per-image credit lines, and the JPL image-use policy are included in `META-INF/licenses/skylyrics-artwork/NOTICE.txt`.
 
-The distributable JAR carries its required runtime resources: the Sky icon, eight embedded font files with their OFL notices, 20 sky post-effect presets, four shader files, and the five nested MP3 / OGG codec libraries. The build verifies those entries inside the **final JAR**, not just in the source folders. Eight credited NASA/JPL astronomy photographs are also bundled as original gallery JPGs plus 1600×900 preview textures used by the in-game Skies selector; their credits and image-use notice are embedded in the JAR. File size is a by-product of the real packaged resources; the build does not add padding or duplicate files to imitate another mod's 20.7 MB download size.
+The distributable JAR carries the Sky icon, eight embedded font files with their OFL notices, 20 sky post-effect presets, four shader files, five nested audio codec libraries, and eight 1600×900 NASA/JPL preview textures. The build verifies all of those entries inside the **final JAR**, not just in the source folders. The verified SkyLyrics 0.9.2 JAR is **7,874,042 bytes (7.51 MiB)**. The build also enforces a hard **5,000,000-byte minimum**; no padding, duplicate images, empty files, or dummy assets are used.
 
 ## Licenses
 
