@@ -1,0 +1,2 @@
+# Preserve the previous converter, but exclude this legacy HTML app from language statistics.
+PembuatFileapapun.html linguist-vendored=true

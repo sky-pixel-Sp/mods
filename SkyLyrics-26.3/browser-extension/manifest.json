@@ -1,0 +1,28 @@
+{
+  "manifest_version": 3,
+  "name": "SkyLyrics Media Connector",
+  "version": "0.2.0",
+  "description": "Passes YouTube, YouTube Music, and Spotify Web Player metadata to the local SkyLyrics bridge without capturing audio.",
+  "host_permissions": [
+    "https://music.youtube.com/*",
+    "https://www.youtube.com/*",
+    "https://open.spotify.com/*",
+    "http://127.0.0.1:38173/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://music.youtube.com/*",
+        "https://www.youtube.com/watch*",
+        "https://open.spotify.com/*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ]
+}
