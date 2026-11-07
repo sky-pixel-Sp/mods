@@ -29,7 +29,7 @@ public final class HudEditorScreen extends Screen {
         addRenderableWidget(Button.builder(Component.literal("DONE"),b->onClose()).bounds(ax+aw+ag,ay,aw,22).build());
     }
     private void addToggle(String label,int x,int y,int w,Runnable action){
-        addRenderableWidget(Button.builder(Component.literal(label),b->{action.run();if(minecraft!=null)minecraft.setScreen(new HudEditorScreen(parent));}).bounds(x,y,w,22).build());
+        addRenderableWidget(Button.builder(Component.literal(label),b->{action.run();if(minecraft!=null)minecraft.gui.setScreen(new HudEditorScreen(parent));}).bounds(x,y,w,22).build());
     }
 
     @Override public void extractBackground(GuiGraphicsExtractor g,int mx,int my,float delta){
