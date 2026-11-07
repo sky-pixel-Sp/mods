@@ -1,37 +1,35 @@
 # SkyLyrics — Minecraft Java 26.3
 
-A client-side Fabric mod that displays synchronized lyrics in the Minecraft sky/HUD.
+**SkyLyrics 0.5.0 — Cinematic Edition** is a client-side Fabric mod that renders large synchronized lyrics as live 3D text in the Minecraft sky, with procedural sky presets and a configurable studio menu.
 
-## Source code
+## Project
 
-The complete, readable Gradle project is in [`SkyLyrics-26.3/`](SkyLyrics-26.3/), including its Java source, browser connector, sample LRC, resources, and tests.
+The complete Gradle project is in the SkyLyrics-26.3/ directory. It includes Java source, bundled fonts and OFL notices, browser media connector, shader resources, automated tests, and build scripts.
 
-The old File Converter HTML app remains at the repository root. It is marked as a legacy/vendored file in `.gitattributes` so it does not dominate GitHub language statistics.
+## Build on GitHub
 
-## Automated build
-
-GitHub Actions builds this project on every relevant push to `main`.
+The workflow **Build SkyLyrics for Minecraft 26.3** uses JDK 25 and Gradle 9.8.2. It runs unit tests, compiles the Fabric mod, checks the JAR contents and bundled font resources, validates the browser connector, and uploads the build artifact.
 
 1. Open the repository's **Actions** tab.
 2. Select **Build SkyLyrics for Minecraft 26.3**.
-3. Open a successful run.
-4. Download the **SkyLyrics-Minecraft-26.3** artifact.
-5. Extract the ZIP. It contains `skylyrics-0.2.0.jar`.
+3. Open a successful run on the skylyrics-0.5-cinematic-overhaul branch.
+4. Download the artifact named **SkyLyrics-Minecraft-26.3**.
+5. Extract the ZIP. The mod file is skylyrics-0.5.0.jar.
 
-The workflow installs Temurin JDK 25, explicitly selects it for Gradle, configures Gradle 9.8.2, runs `clean test build`, verifies the JAR contains `fabric.mod.json`, and uploads the artifact.
+Do not treat a JAR as a verified release until its workflow run succeeds. CI does not replace an in-game visual test on the target Windows PC.
 
-## Music integrations
+## Install
 
-- **YouTube and YouTube Music:** the browser extension sends playback metadata and position; SkyLyrics attempts a synced-LRC lookup.
-- **Spotify Web Player:** Now Playing metadata only. Spotify synchronized lyrics are not enabled.
-- **Local LRC:** load a local `.lrc` file as a fallback.
+Use Minecraft Java 26.3 with Fabric Loader 0.20.1+ and Fabric API 0.165.2+26.3. Put the SkyLyrics JAR and Fabric API JAR in the same client mods folder.
 
-## Install in TLauncher
+SkyLyrics is client-side. The multiplayer server does not need the mod installed.
 
-Use a Minecraft Java 26.3 Fabric profile. Place the SkyLyrics JAR and the matching Fabric API JAR in that profile's `mods` folder. Load the included `browser-extension` folder as an unpacked extension in Chrome or Edge to connect browser music metadata.
+## Quick preview
 
-SkyLyrics is client-side; the multiplayer server does not need it installed.
+Enter a world and run:
 
-## Release status
+    /skylyrics demo
 
-The source project is maintained in this repository. Treat the JAR as a tested build only after the corresponding GitHub Actions run succeeds and the mod has been launched in Minecraft 26.3.
+The built-in preview uses original sample text and does not need a browser extension, song file, account, or server. Run /skylyrics stop to end it.
+
+See SkyLyrics-26.3/README.md for all settings, music integration, requirements, and troubleshooting.
