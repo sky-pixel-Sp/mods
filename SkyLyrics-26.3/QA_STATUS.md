@@ -2,7 +2,8 @@
 
 ## 0.9.1 branding, navigation, and final-package checks
 - Fabric metadata author is exactly `Sky`; the mod now declares its custom `assets/skylyrics/icon.png` icon.
-- Added an in-game Quick Guide with direct buttons to Music Center, Lyrics, and Online Music.
+- Added an Indonesian in-game PANDUAN CEPAT with direct buttons to Music Center, Lyrics, and Online Music.
+- The GitHub artifact now bundles the JAR, installation README, MIT license, and the complete Chrome / Edge extension folder.
 - Fixed navigation actions that previously opened a destination screen and then immediately refreshed the old tab; tab navigation and HUD editor navigation now use dedicated non-refreshing actions.
 - Added a final-JAR verification task: author and Minecraft/Java metadata, icon, all eight TTF fonts and OFL notices, 20 sky presets, four shaders, and all five bundled audio codec JARs must be present.
 - The JAR is checked for complete contents, not artificially inflated to match the 20.7 MB reference download. Runtime assets and dependencies must be genuine and loadable.
