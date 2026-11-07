@@ -51,7 +51,16 @@ public final class HudEditorScreen extends Screen {
             g.centeredText(font,"♪",b.x+28,b.y+23,0xFFFFD9FC);
         }
         g.text(font,ui("NOW PLAYING · SKYLYRICS"),b.x+56,b.y+10,0xFFCDBAF7,true);
-        String title=SkyLyricsClient.PLAYER.hasTrack()?SkyLyricsClient.PLAYER.track().title():ui("Drag this card to move it");
+        String title;
+        if(SkyLyricsClient.AUDIO.hasFile() && SkyLyricsClient.AUDIO.currentFile()!=null) {
+            title=SkyLyricsClient.AUDIO.currentFile().getFileName().toString();
+        } else if(SkyLyricsClient.CURRENT_MEDIA!=null && SkyLyricsClient.CURRENT_MEDIA.available()) {
+            title=SkyLyricsClient.CURRENT_MEDIA.title();
+        } else if(SkyLyricsClient.PLAYER.hasTrack()) {
+            title=SkyLyricsClient.PLAYER.track().title();
+        } else {
+            title=ui("Drag this card to move it");
+        }
         g.text(font,title,b.x+56,b.y+24,0xFFFFFCF7,true);g.text(font,ui("Player / artwork / waveform"),b.x+56,b.y+39,0xFFBDB7CD,false);
     }
     private void drawLyrics(GuiGraphicsExtractor g){
@@ -137,6 +146,9 @@ public final class HudEditorScreen extends Screen {
     private static String onOff(boolean v){return ui(v?"ON":"OFF");}
     private static String ui(String english){
         if(SkyLyricsClient.CONFIG==null||SkyLyricsClient.CONFIG.isEnglish())return english;
+        if(english.startsWith("VIS "))return "VISUALISASI "+english.substring("VIS ".length());
+        if(english.startsWith("RECENT "))return "TERBARU "+english.substring("RECENT ".length());
+        if(english.startsWith("STATS "))return "STATISTIK "+english.substring("STATS ".length());
         return switch(english){
             case "SkyLyrics HUD Layout Studio" -> "Studio Tata Letak HUD SkyLyrics";
             case "RESET ALL" -> "ATUR ULANG SEMUA";
