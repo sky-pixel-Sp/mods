@@ -9,6 +9,24 @@
 - Listening Stats displays total plays and unique tracks represented in the bounded recent history.
 - Unit tests cover v4 widget defaults, persisted positions, visibility flags, and normalized position clamping.
 
+## Native in-game music requirement — user-reported blocker (2026-11-07)
+The user confirms that the SkyLyrics menu opens in Minecraft 26.3, but reports that the song list is not appearing and audio is not playing as expected. This is an observed manual-test failure and blocks declaring local playback verified.
+
+Required behavior:
+- Music playback must run natively while Minecraft remains open, through SkyLyrics' in-process audio engine and the system audio output.
+- Do not launch Spotify, YouTube Music, VLC, a browser, or another third-party media player for local/offline playback.
+- Imported audio files must appear as selectable rows in the in-game Offline Library.
+- Selecting a track must start playback inside Minecraft and update title, playback status, elapsed time, duration, and visualizer.
+- Play/Pause, Stop, Previous, Next, Seek, and Volume must operate on the local in-game player.
+- The native OS file picker may be used only to choose a local file for import; it must not be used as the playback engine.
+
+Acceptance checks for the next fix:
+- Import MP3, OGG, WAV, AIFF, and AU files and confirm each supported file is copied into config/skylyrics/music/ and shown in Offline Library after the screen is reopened.
+- Select a listed track and confirm audible output while Minecraft remains the foreground application, with no external media player launched.
+- Verify Pause/Resume, Stop, Previous/Next, Seek, Volume, Now Playing metadata, and PCM visualizer against a real local audio file.
+- Verify empty-library, unsupported-format, missing-file, and audio-device-unavailable states show a readable in-game message rather than failing silently.
+- Keep the browser integration optional and separate; it must not be a dependency for native offline playback.
+
 ## Automated release checks
 - [x] Existing v3 position and preference fields remain loaded by the migration path.
 - [x] New widget positions and visibility settings are saved and restored.
@@ -30,8 +48,8 @@
 ## Manual release gates — still required
 - [ ] Manual in-game TLauncher 26.3 verification of all five widget positions and overlap handling.
 - [ ] Manual verification of drag, release-save, right-click cancel, double-click reset, Reset All, and visibility switches.
-- [ ] Verify PCM bars react to a real local MP3/OGG/WAV in-game; browser mode must show transport-only labelling.
+- [ ] Resolve the native offline playback blocker above, then verify MP3/OGG/WAV output and that no external media player is launched.
 - [ ] Verify Recently Played and Listening Stats update after playback and persist after restart.
-- [ ] Manual audio, online-browser bridge, and visual-effects smoke tests remain required.
+- [ ] Manual audio, optional online-browser bridge, and visual-effects smoke tests remain required.
 
-CI success confirms compilation, automated tests, resource verification and packaging only. It does not confirm mouse interaction or audio output inside TLauncher.
+CI success confirms compilation, automated tests, resource verification and packaging only. It does not confirm mouse interaction or audio output inside TLauncher. Native in-game playback remains unverified and is currently blocked by the user's report that the song list and audio do not work as expected.
