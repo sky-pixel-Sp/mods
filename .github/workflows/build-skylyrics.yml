@@ -3,6 +3,7 @@ name: Build SkyLyrics for Minecraft 26.3
 on:
   push:
     branches:
+      - main
       - skylyrics-26.3
     paths:
       - "source-archive.tar.gz.b64.part*"
@@ -11,7 +12,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: skylyrics-build-${{ github.ref }}
@@ -25,7 +26,9 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: true
 
       - name: Set up JDK 25
         uses: actions/setup-java@v6
@@ -37,6 +40,7 @@ jobs:
         uses: gradle/actions/setup-gradle@v6
         with:
           gradle-version: "9.8.2"
+          cache-provider: basic
 
       - name: Reconstruct and verify source archive
         shell: bash
@@ -48,7 +52,32 @@ jobs:
           mkdir -p .build-src
           tar -xzf /tmp/skylyrics-source.tar.gz -C .build-src
           test -f .build-src/SkyLyrics-26.3/build.gradle
+          test -f .build-src/SkyLyrics-26.3/src/main/resources/fabric.mod.json
           echo "Source archive verified and extracted."
+
+      - name: Publish readable source tree to this branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p SkyLyrics-26.3
+          rsync -a --delete .build-src/SkyLyrics-26.3/ SkyLyrics-26.3/
+
+          cat > .gitattributes <<'EOF'
+          # Preserve the previous converter, but exclude this legacy HTML app from language statistics.
+          PembuatFileapapun.html linguist-vendored=true
+          EOF
+
+          git rm --ignore-unmatch source-archive.tar.gz.b64.part01 source-archive.tar.gz.b64.part02 source-archive.tar.gz.b64.part03 source-archive.tar.gz.b64.part04 source-archive.tar.gz.b64.part05 || true
+          git add -A -- SkyLyrics-26.3 .gitattributes
+
+          if ! git diff --cached --quiet; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git commit -m "Add readable SkyLyrics source tree"
+            git push origin "HEAD:${GITHUB_REF_NAME}"
+          else
+            echo "Readable source tree is already up to date."
+          fi
 
       - name: Run tests and build remapped mod JAR
         working-directory: .build-src/SkyLyrics-26.3
