@@ -55,7 +55,7 @@ jobs:
           echo "JAVA_HOME=$JAVA_HOME"
           command -v java
           java -version
-          test "$(java -version 2>&1 | head -n 1)" = 'openjdk version "25.0.5" 2026-10-20'
+          java -version 2>&1 | head -n 1 | grep -Eq 'version "25([.]|")'
 
       - name: Run unit tests and build the Fabric mod
         working-directory: SkyLyrics-26.3
