@@ -59,7 +59,12 @@ jobs:
           test -s "${JAR}"
           jar tf "${JAR}" | grep -q 'fabric.mod.json'
           jar tf "${JAR}" | grep -q 'skylyrics/post_effect/sky_nebula_storm.json'
-          echo "SkyLyrics JAR and sky resources verified."
+          jar tf "${JAR}" | grep -q 'skylyrics/post_effect/sky_golden_sunset.json'
+          jar tf "${JAR}" | grep -q 'assets/skylyrics/font/poppins.ttf'
+          jar tf "${JAR}" | grep -q 'assets/skylyrics/font/montserrat.json'
+          jar tf "${JAR}" | grep -q 'AlbumArtManager.class'
+          jar tf "${JAR}" | grep -q 'META-INF/licenses/skylyrics-fonts/poppins-OFL.txt'
+          echo "SkyLyrics JAR, golden sunset effect, fonts and artwork module verified."
       - name: Upload SkyLyrics JAR
         uses: actions/upload-artifact@v7
         with:
