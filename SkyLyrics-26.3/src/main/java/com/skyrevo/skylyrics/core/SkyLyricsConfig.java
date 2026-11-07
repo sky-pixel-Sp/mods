@@ -27,6 +27,7 @@ public final class SkyLyricsConfig {
     private boolean glowEnabled = true;
     private float worldTextScale = 0.025f;
     private float worldDistance = 18.0f;
+    private String fontFamily = "poppins";
 
     public SkyLyricsConfig(Path configDirectory) {
         file = configDirectory.resolve("skylyrics.properties");
@@ -54,6 +55,7 @@ public final class SkyLyricsConfig {
             glowEnabled = Boolean.parseBoolean(p.getProperty("glowEnabled", "true"));
             worldTextScale = clamp(parseFloat(p.getProperty("worldTextScale"), 0.025f), 0.012f, 0.060f);
             worldDistance = clamp(parseFloat(p.getProperty("worldDistance"), 18.0f), 5.0f, 40.0f);
+            fontFamily = SkyFontCatalog.byId(p.getProperty("fontFamily", "poppins")).id();
         } catch (IOException ignored) { }
     }
 
@@ -75,6 +77,7 @@ public final class SkyLyricsConfig {
         p.setProperty("glowEnabled", Boolean.toString(glowEnabled));
         p.setProperty("worldTextScale", Float.toString(worldTextScale));
         p.setProperty("worldDistance", Float.toString(worldDistance));
+        p.setProperty("fontFamily", fontFamily);
         try {
             Files.createDirectories(file.getParent());
             try (Writer writer = Files.newBufferedWriter(file, StandardCharsets.UTF_8)) {
@@ -127,6 +130,10 @@ public final class SkyLyricsConfig {
     public void adjustWorldTextScale(float delta) { worldTextScale = clamp(worldTextScale + delta, 0.012f, 0.060f); save(); }
     public float worldDistance() { return worldDistance; }
     public void adjustWorldDistance(float delta) { worldDistance = clamp(worldDistance + delta, 5.0f, 40.0f); save(); }
+
+    public String fontFamily() { return fontFamily; }
+    public void setFontFamily(String value) { fontFamily = SkyFontCatalog.byId(value).id(); save(); }
+    public String fontFamilyName() { return SkyFontCatalog.byId(fontFamily).name(); }
 
     public String textStyleName() {
         return switch (textStyle) {

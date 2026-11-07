@@ -18,16 +18,30 @@
     const title = (metadata?.title || (source === "youtube_music" ? ytmusicTitle : youtubeTitle) || pageTitle || "").trim();
     const artist = (metadata?.artist || (source === "youtube_music" ? ytmusicArtist : youtubeArtist) || "").trim();
     const album = (metadata?.album || "").trim();
-    const durationMs = isYouTube && Number.isFinite(media?.duration)
-      ? Math.max(0, Math.round(media.duration * 1000)) : 0;
-    const positionMs = isYouTube && media && Number.isFinite(media.currentTime)
-      ? Math.max(0, Math.round(media.currentTime * 1000)) : 0;
+    const artworkEntries = Array.isArray(metadata?.artwork)
+      ? metadata.artwork.filter(item => typeof item?.src === "string" && item.src.startsWith("https://"))
+      : [];
+    const artworkUrl = artworkEntries
+      .sort((a, b) => {
+        const area = value => {
+          const match = /^\\s*(\\d+)x(\\d+)\\s*$/.exec(value?.sizes || "");
+          return match ? Number(match[1]) * Number(match[2]) : 0;
+        };
+        return area(b) - area(a);
+      })[0]?.src || "";
+    const positionState = navigator.mediaSession?.positionState;
+    const durationSeconds = media && Number.isFinite(media.duration) && media.duration > 0
+      ? media.duration : (Number.isFinite(positionState?.duration) ? positionState.duration : 0);
+    const positionSeconds = media && Number.isFinite(media.currentTime)
+      ? media.currentTime : (Number.isFinite(positionState?.position) ? positionState.position : 0);
+    const durationMs = Math.max(0, Math.round(durationSeconds * 1000));
+    const positionMs = Math.max(0, Math.round(positionSeconds * 1000));
     const playing = isYouTube
       ? !!media && !media.paused && !media.ended
       : navigator.mediaSession?.playbackState === "playing";
 
     if (!title || title === "YouTube Music" || title === "YouTube" || title === "Spotify") return;
-    chrome.runtime.sendMessage({ source, title, artist, album, playing, positionMs, durationMs });
+    chrome.runtime.sendMessage({ source, title, artist, album, artworkUrl, playing, positionMs, durationMs });
   }
 
   readSession();

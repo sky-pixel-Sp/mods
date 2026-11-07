@@ -9,6 +9,7 @@ import com.skyrevo.skylyrics.integration.LyricsLookupClient;
 import com.skyrevo.skylyrics.integration.MediaStatus;
 import com.skyrevo.skylyrics.integration.BrowserMediaServer;
 import com.skyrevo.skylyrics.render.SkyLyricsHud;
+import com.skyrevo.skylyrics.render.AlbumArtManager;
 import com.skyrevo.skylyrics.ui.SkyLyricsScreen;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -85,6 +86,7 @@ public final class SkyLyricsClient implements ClientModInitializer {
     private static void updateMediaIntegration() {
         MediaStatus media = MEDIA_BRIDGE.latest();
         CURRENT_MEDIA = media;
+        AlbumArtManager.update(media);
         if (media == null) {
             if (!activeMediaIdentity.isEmpty()) {
                 lookupGeneration++;

@@ -1,6 +1,6 @@
 package com.skyrevo.skylyrics.integration;
 
-/** Snapshot of the currently active supported browser media session. */
+/** Snapshot of a supported browser media session. Audio data is never included. */
 public record MediaStatus(
         boolean available,
         boolean playing,
@@ -8,6 +8,7 @@ public record MediaStatus(
         String title,
         String artist,
         String album,
+        String artworkUrl,
         long positionMs,
         long durationMs,
         long updatedAtEpochMs
