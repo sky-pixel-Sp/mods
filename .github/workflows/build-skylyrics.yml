@@ -44,12 +44,12 @@ jobs:
           java -version 2>&1 | head -n 1 | grep -Eq 'version "25([.]|")'
           gradle --no-daemon -Dorg.gradle.java.home="${JAVA_HOME}" clean test build
           test -s build/libs/skylyrics-0.5.0.jar
-          jar tf build/libs/skylyrics-0.4.0.jar | grep -q 'fabric.mod.json'
-          jar tf build/libs/skylyrics-0.4.0.jar | grep -q 'assets/skylyrics/font/poppins.ttf'
-          jar tf build/libs/skylyrics-0.4.0.jar | grep -q 'assets/skylyrics/font/montserrat.json'
-          jar tf build/libs/skylyrics-0.4.0.jar | grep -q 'AlbumArtManager.class'
-          jar tf build/libs/skylyrics-0.4.0.jar | grep -q 'META-INF/licenses/skylyrics-fonts/poppins-OFL.txt'
-          echo "SkyLyrics 0.4.0 JAR, custom fonts and album-art module verified."
+          jar tf build/libs/skylyrics-0.5.0.jar | grep -q 'fabric.mod.json'
+          jar tf build/libs/skylyrics-0.5.0.jar | grep -q 'assets/skylyrics/font/poppins.ttf'
+          jar tf build/libs/skylyrics-0.5.0.jar | grep -q 'assets/skylyrics/font/montserrat.json'
+          jar tf build/libs/skylyrics-0.5.0.jar | grep -q 'AlbumArtManager.class'
+          jar tf build/libs/skylyrics-0.5.0.jar | grep -q 'META-INF/licenses/skylyrics-fonts/poppins-OFL.txt'
+          echo "SkyLyrics 0.5.0 JAR, custom fonts and album-art module verified."
       - name: Validate browser connector
         working-directory: SkyLyrics-26.3
         shell: bash
@@ -63,6 +63,6 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: SkyLyrics-Minecraft-26.3
-          path: SkyLyrics-26.3/build/libs/skylyrics-0.4.0.jar
+          path: SkyLyrics-26.3/build/libs/skylyrics-0.5.0.jar
           if-no-files-found: error
           retention-days: 30
