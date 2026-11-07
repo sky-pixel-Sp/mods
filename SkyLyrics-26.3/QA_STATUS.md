@@ -34,7 +34,10 @@
 - [ ] Config version 2 migrates to version 3 while preserving user-selected sky preset, lyric style and vertical position.
 
 - [x] Previous 0.6.0 baseline `clean test build` passed with JDK 25 (Run #92, commit `c6b41e3`).
-- [ ] SkyLyrics 0.7.0 `clean test build` passes with JDK 25 (pending this branch's CI run).
+- [x] SkyLyrics 0.7.0 `clean test build` passes with JDK 25 (GitHub Actions Run #104, commit `09995fc`).
+- [x] Browser extension JS syntax and manifest validation pass in the same run.
+- [x] Packaged JAR contains `HudEditorScreen`, word-synced lyric classes, and bundled MP3/OGG codecs.
+- [ ] Manual Minecraft/TLauncher 26.3 tests for drag/drop, karaoke timing and audio output remain outstanding.
 - [x] Built JAR includes LocalAudioEngine, MusicLibrary, MusicHistory and bundled MP3SPI / VorbisSPI nested dependencies (verified by the release workflow).
 - [ ] TLauncher Minecraft 26.3 can import and play a downloaded MP3 without internet.
 - [ ] OGG and WAV playback are checked separately.
@@ -52,5 +55,7 @@
 - [ ] Minecraft Options → Controls reflects the in-game keybinding changes.
 - [ ] Disabling the sky shader does not stop local or online music.
 - [ ] Multiplayer server does not require SkyLyrics or a resource pack.
+
+CI artifact: `SkyLyrics-Minecraft-26.3` (Run #104, artifact ID `13570839253`, expires 2026-12-07). JAR SHA-256: `dd173340f41270db12de35695fb8e1c5ba2a9e13c8ee53ee6c677525aa99f622`.
 
 CI success is not an in-game audio or visual-interaction test. Do not publish a verified release before the manual TLauncher checks pass.
