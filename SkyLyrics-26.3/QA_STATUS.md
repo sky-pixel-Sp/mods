@@ -33,7 +33,8 @@
 - [ ] HUD positions persist after game restart and stay within the visible screen after changing resolution.
 - [ ] Config version 2 migrates to version 3 while preserving user-selected sky preset, lyric style and vertical position.
 
-- [x] GitHub Actions `clean test build` succeeds with JDK 25 (Run #92, commit `c6b41e3`).
+- [x] Previous 0.6.0 baseline `clean test build` passed with JDK 25 (Run #92, commit `c6b41e3`).
+- [ ] SkyLyrics 0.7.0 `clean test build` passes with JDK 25 (pending this branch's CI run).
 - [x] Built JAR includes LocalAudioEngine, MusicLibrary, MusicHistory and bundled MP3SPI / VorbisSPI nested dependencies (verified by the release workflow).
 - [ ] TLauncher Minecraft 26.3 can import and play a downloaded MP3 without internet.
 - [ ] OGG and WAV playback are checked separately.

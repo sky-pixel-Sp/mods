@@ -162,7 +162,7 @@ public final class HudEditorScreen extends Screen {
             float nextX = clamp(SkyLyricsClient.CONFIG.nowPlayingHudX() + (float) deltaX / Math.max(1, width),
                     minX, 1.0f - minX);
             float nextY = clamp(SkyLyricsClient.CONFIG.nowPlayingHudY() + (float) deltaY / Math.max(1, height),
-                    0.0f, Math.max(0.0f, 1.0f - 58.0f / Math.max(1, height)));
+                    0.0f, Math.max(0.0f, 1.0f - 110.0f / Math.max(1, height)));
             SkyLyricsClient.CONFIG.previewNowPlayingHudPosition(nextX, nextY);
         } else {
             float panelWidth = Math.min(520, width - 32);
