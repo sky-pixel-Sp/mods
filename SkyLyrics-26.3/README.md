@@ -1,73 +1,75 @@
-# SkyLyrics 0.4.0 — Minecraft Java 26.3
+# SkyLyrics 0.5.0 — Cinematic Edition
 
-SkyLyrics adalah Fabric client mod untuk custom animated sky, lirik tersinkron, dan dashboard bergaya studio di Minecraft Java 26.3.
+A client-side Fabric mod for Minecraft Java 26.3. SkyLyrics turns music into large, timed 3D typography in the Minecraft sky, with procedural sky effects and a configurable studio menu.
 
-## Fitur 0.4.0
+## What changed in 0.5.0
 
-- Delapan keluarga font yang dapat dipilih dari menu **O → STYLES**: Poppins, Montserrat, Kanit, Fredoka, Unbounded, Bebas Neue, Pacifico, dan Caveat.
-- Font pilihan diterapkan ke lirik world-space 3D dan lyrics HUD.
-- Mini-player Now Playing permanen dengan artwork cover album, judul, artis, sumber musik, status playback, dan progress bar.
-- Cover art diperoleh dari metadata Media Session browser; mod hanya mengunduh gambar HTTPS dari CDN YouTube/Spotify yang diizinkan, tanpa redirect, maksimal 1,5 MB dan 1024 × 1024.
-- Animasi aksen ungu-pink yang halus pada dashboard dan indikator status play.
-- Spotify Web Player: Now Playing + cover metadata saja; sinkronisasi lirik Spotify tetap dinonaktifkan.
+- **Cinematic 3D lyrics:** larger world-space type, word-by-word reveal by default, soft dark outline, and no opaque box behind the lyric.
+- **Automatic line fitting:** long lines scale down to stay inside a comfortable field of view instead of stretching across the whole world.
+- **Golden Sunset is the new default sky:** the sky effect is applied automatically when a world is entered; it no longer waits for the settings screen to be opened.
+- **Legacy settings migration:** existing 0.4 settings are upgraded once, replacing the old tiny 3D text scale with a cinematic default while preserving a custom sky preset and a deliberately larger text size.
+- **Offline preview:** use /skylyrics demo to play an original built-in lyric preview without a music account, browser connector, server, or resource pack. Use /skylyrics stop to stop it.
+- **Studio overview:** a dedicated preview control, live lyric status, expanded workspace, and clearer active-tab indicator.
+- **Bundled typography and mini-player:** eight bundled OFL font families and allow-listed album artwork remain available from 0.4.0.
 
-## Sky dan lirik
+## Visual direction
 
-- 20 preset sky: Aurora, Galaxy, Nebula Storm, Nebula, Sunset, Golden Sunset, Pink Sunset, Saturn, Meteors, Star Trails, Comet, Hyperspace, Blood Moon, Solar Flare, Dreamscape, Prism, Synthwave, Black Hole, Thunderstorm, dan Ocean.
-- Efek GLSL prosedural: nebula bergerak, bintang berkedip, aurora, horizon glow, matahari, Saturn ring, comet, hyperspace streaks, black hole, dan lightning.
-- Dashboard 8 tab: Overview, Skies, Lyrics, Styles, HUD, Performance, Settings, dan Information.
-- Lirik dapat tampil sebagai floating text di dunia 3D atau HUD layar, dengan pilihan follow camera, fixed position, word reveal, glow, skala, dan sync offset.
-- File LRC lokal dan sinkronisasi otomatis dari YouTube/YouTube Music.
+The visual target is a cinematic sunset scene with warm sky gradients, very large warm-white lyrics floating above the horizon, subtle shadow/outline, and a compact now-playing pill. Sky backgrounds are generated procedurally by GLSL; there are no baked landscape photographs used as the in-game sky. Lyrics are rendered as live 3D text in the world.
 
-## Font dan lisensi
+The video reference is used as a visual guide, not as an asset to copy. Text, animation, and sky effects are drawn at runtime.
 
-Font diambil dari Google Fonts pada commit tetap `86aced91de05cd4f96a06838124cca45be337b2b`. Build Gradle mengunduh delapan file TTF dan delapan pemberitahuan SIL Open Font License (OFL). Lisensi disimpan di dalam JAR pada `META-INF/licenses/skylyrics-fonts/`.
+## Features
 
-Build pertama membutuhkan koneksi internet untuk mengunduh berkas font. Font tidak diunduh saat game berjalan.
+- 20 procedural sky presets: Aurora, Galaxy, Nebula Storm, Nebula, Sunset, Golden Sunset, Pink Sunset, Saturn, Meteors, Star Trails, Comet, Hyperspace, Blood Moon, Solar Flare, Dreamscape, Prism, Synthwave, Black Hole, Thunderstorm, and Ocean.
+- Eight font families: Poppins, Montserrat, Kanit, Fredoka, Unbounded, Bebas Neue, Pacifico, and Caveat.
+- Three-dimensional world lyrics or an on-screen HUD.
+- Word reveal, camera follow/fixed placement, automatic line fitting, text glow/outline, size and distance controls.
+- Local LRC library and automatic synchronized lyric lookup for YouTube / YouTube Music.
+- Now-playing metadata and artwork for supported browser media sessions.
+- Client-only operation; a multiplayer server does not need SkyLyrics installed.
 
-## Persyaratan
+## Requirements
 
 - Minecraft Java 26.3.
-- Fabric Loader 0.20.1 atau lebih baru.
+- Fabric Loader 0.20.1 or newer.
 - Fabric API 0.165.2+26.3.
-- Java Runtime 25 atau lebih baru.
-- Chrome atau Edge untuk integrasi media browser.
+- Java Runtime 25 or newer.
+- Windows 10/11 for browser media integration.
+- Chrome or Edge for YouTube / YouTube Music metadata integration.
 
-## Instalasi
+## Install in TLauncher
 
-1. Pasang Fabric Loader untuk Minecraft 26.3 dan jalankan profil Fabric sekali.
-2. Tutup Minecraft.
-3. Letakkan `skylyrics-0.4.0.jar` dan Fabric API yang sesuai pada folder `mods` di direktori game TLauncher.
-4. Jalankan kembali profil Fabric 26.3.
-5. Untuk koneksi browser, buka `chrome://extensions` atau `edge://extensions`, aktifkan Developer mode, lalu pilih **Load unpacked** dan arahkan ke folder `browser-extension`.
-6. Putar musik di YouTube, YouTube Music, atau Spotify Web Player.
+1. Install Fabric Loader for Minecraft 26.3 and start the Fabric profile once.
+2. Close Minecraft.
+3. Put skylyrics-0.5.0.jar and the matching Fabric API JAR in the same mods folder used by that Fabric profile.
+4. Start the Fabric 26.3 profile again.
+5. Press O to open SkyLyrics Studio. The selected sky is also applied automatically after entering a world.
+6. Press O → Overview → Play Cinematic Preview, or run /skylyrics demo to verify the 3D lyric rendering.
 
-## Shortcut
+No SkyLyrics JAR or resource pack is installed on the multiplayer server. This mod runs on the player's client.
 
-| Tombol | Fungsi |
+## Controls
+
+| Key / command | Function |
 |---|---|
-| `O` | Buka dashboard SkyLyrics |
-| `H` | Tampilkan/sembunyikan lyrics HUD |
-| `K` | Play/pause timer lirik lokal |
+| O | Open SkyLyrics Studio |
+| H | Show / hide lyric display |
+| K | Play / pause a local LRC or demo track |
+| /skylyrics demo | Start the offline cinematic preview |
+| /skylyrics stop | Stop the preview |
 
-## Library LRC
+## Music integration
 
-Simpan file `.lrc` di folder `config/skylyrics/lyrics/`. Gunakan file lirik yang memang kamu punya hak atau izin untuk digunakan.
+For YouTube and YouTube Music, load the included browser-extension folder as an unpacked extension in Chrome or Edge. The extension sends playback metadata and position to the local SkyLyrics bridge; it does not capture audio.
 
-## Privasi dan artwork
+Spotify Web Player provides Now Playing metadata and artwork only. Synchronized Spotify lyrics are not enabled. A local .lrc file can be placed in config/skylyrics/lyrics/ and loaded through the Lyrics screen.
 
-Ekstensi mengirim metadata musik ke server lokal `127.0.0.1:38173`. Tidak ada audio yang direkam, diunduh, atau dikirim. Artwork hanya diterima dari host CDN HTTPS yang diizinkan; download gambar dibatasi ukuran, tipe konten, dan waktu respons. Server lokal tidak menerima perintah kontrol pemutar.
+## Build and QA
 
-- YouTube dan YouTube Music: metadata, posisi pemutaran, dan pencarian lirik tersinkron.
-- Spotify Web Player: metadata Now Playing serta cover art; sinkronisasi lirik Spotify dinonaktifkan.
-- SkyLyrics adalah client-side mod. Server multiplayer tidak perlu memasangnya.
+GitHub Actions uses JDK 25 and Gradle 9.8.2. The workflow runs unit tests and a full Fabric Loom build, validates the JAR metadata, bundled fonts, font licenses, and browser-extension scripts, then publishes the JAR as a workflow artifact.
 
-## Build dan pemeriksaan
+A green CI build confirms source compilation and automated checks. It does not replace the final visual smoke test in TLauncher on the target GPU. The cinematic preview is included to make that manual check repeatable and independent of a real song.
 
-CI menggunakan JDK 25 dan Gradle 9.8.2. CI memeriksa kompilasi, unit tests, 20 file sky post-effect, empat shader stages, delapan definisi font, delapan file TTF hasil unduhan, delapan lisensi OFL, serta sintaks ekstensi browser.
+## Licensing and privacy
 
-Build CI yang sukses belum menggantikan uji visual langsung dalam TLauncher/Minecraft 26.3. Tampilan dapat berbeda tergantung GPU, resolusi, dan kombinasi resource pack.
-
-## Lisensi
-
-Kode SkyLyrics: MIT. Delapan keluarga font memiliki lisensi SIL Open Font License masing-masing dan pemberitahuan lisensinya disertakan di JAR. SkyLyrics tidak berafiliasi dengan Mojang/Microsoft, TLauncher, YouTube, Spotify, atau LRCLIB.
+SkyLyrics code is MIT. Bundled font families are distributed under their respective SIL Open Font License notices included in the JAR. The browser connector sends only media metadata and artwork URLs to localhost. Audio is not recorded, downloaded, or uploaded.
