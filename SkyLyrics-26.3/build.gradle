@@ -42,6 +42,122 @@ dependencies {
 }
 
 def googleFontsCommit = '86aced91de05cd4f96a06838124cca45be337b2b'
+def generatedSkyArtwork = layout.buildDirectory.dir('generated/skylyrics-artwork-resources')
+def skyArtworkSources = [
+    [id: 'jack_o_lantern', file: 'jpegPIA23403.jpg', title: "The Jack-o'-Lantern Nebula", credit: 'NASA/JPL-Caltech', page: 'https://www.jpl.nasa.gov/images/pia23403-the-jack-o-lantern-nebula/'],
+    [id: 'catspaw', file: 'jpegPIA22567.jpg', title: "Cat's Paw Nebula", credit: 'NASA/JPL-Caltech', page: 'https://www.jpl.nasa.gov/images/pia22567-cats-paw-image-2/'],
+    [id: 'eagle', file: 'jpegPIA25433.jpg', title: 'The Eagle Nebula Observed by WISE', credit: 'NASA/JPL-Caltech', page: 'https://www.jpl.nasa.gov/images/pia25433-the-eagle-nebula-observed-by-wise/'],
+    [id: 'north_america', file: 'jpegPIA13845.jpg', title: 'North America Nebula in Different Lights', credit: 'NASA/JPL-Caltech', page: 'https://www.jpl.nasa.gov/images/pia13845-north-america-nebula-in-different-lights/'],
+    [id: 'blue_ring', file: 'jpegPIA23867.jpg', title: 'The Blue Ring Nebula', credit: 'NASA/JPL-Caltech, M. Seibert (Carnegie Institution for Science), K. Hoadley (Caltech), GALEX Team', page: 'https://www.jpl.nasa.gov/images/pia23867-the-blue-ring-nebula/'],
+    [id: 'lynds_bright', file: 'jpegPIA13127.jpg', title: 'A Nebula by Any Other Name (LBN 114.55+00.22)', credit: 'NASA/JPL-Caltech/UCLA', page: 'https://www.jpl.nasa.gov/images/pia13127-a-nebula-by-any-other-name/'],
+    [id: 'audience_favorite', file: 'jpegPIA15413.jpg', title: 'An Audience Favorite Nebula', credit: 'NASA/JPL-Caltech/University of Wisconsin', page: 'https://www.jpl.nasa.gov/images/pia15413-an-audience-favorite-nebula/'],
+    [id: 'w51', file: 'jpegPIA23865.jpg', title: 'Spitzer Image of Star Factory W51', credit: 'NASA/JPL-Caltech', page: 'https://www.jpl.nasa.gov/images/pia23865-spitzer-image-of-star-factory-w51/']
+]
+
+sourceSets.main.resources.srcDir(generatedSkyArtwork)
+
+tasks.register('downloadSkyArtwork') {
+    group = 'build setup'
+    description = 'Downloads real NASA/JPL nebula photographs and creates in-game 16:9 preview textures.'
+    outputs.dir(generatedSkyArtwork)
+    doLast {
+        File root = generatedSkyArtwork.get().asFile
+        File originals = new File(root, 'assets/skylyrics/gallery/original')
+        File previews = new File(root, 'assets/skylyrics/textures/gui/sky_gallery')
+        File notice = new File(root, 'META-INF/licenses/skylyrics-artwork/NOTICE.txt')
+        originals.mkdirs()
+        previews.mkdirs()
+        notice.parentFile.mkdirs()
+
+        skyArtworkSources.each { spec ->
+            File original = new File(originals, "${spec.id}.jpg")
+            URL url = new URL("https://d2pn8kiwq2w21t.cloudfront.net/original_images/${spec.file}")
+            URLConnection connection = url.openConnection()
+            connection.connectTimeout = 20000
+            connection.readTimeout = 60000
+            connection.setRequestProperty('User-Agent', 'SkyLyrics-build/0.9.2')
+            connection.inputStream.withCloseable { input ->
+                original.withOutputStream { output -> input.transferTo(output) }
+            }
+            if (!original.isFile() || original.length() < 20000L) {
+                throw new GradleException("NASA/JPL artwork is missing or incomplete: ${spec.file}")
+            }
+
+            java.awt.image.BufferedImage source = javax.imageio.ImageIO.read(original)
+            if (source == null || source.width < 600 || source.height < 400) {
+                throw new GradleException("NASA/JPL artwork is not a valid high-resolution image: ${spec.file}")
+            }
+
+            int targetWidth = 1600
+            int targetHeight = 900
+            double sourceAspect = source.width / (double) source.height
+            double targetAspect = targetWidth / (double) targetHeight
+            int cropWidth = source.width
+            int cropHeight = source.height
+            if (sourceAspect > targetAspect) {
+                cropWidth = Math.max(1, (int) Math.round(source.height * targetAspect))
+            } else {
+                cropHeight = Math.max(1, (int) Math.round(source.width / targetAspect))
+            }
+            int cropX = (source.width - cropWidth) / 2
+            int cropY = (source.height - cropHeight) / 2
+            java.awt.image.BufferedImage preview = new java.awt.image.BufferedImage(
+                targetWidth, targetHeight, java.awt.image.BufferedImage.TYPE_INT_RGB
+            )
+            java.awt.Graphics2D graphics = preview.createGraphics()
+            try {
+                graphics.setRenderingHint(java.awt.RenderingHints.KEY_INTERPOLATION,
+                    java.awt.RenderingHints.VALUE_INTERPOLATION_BICUBIC)
+                graphics.setRenderingHint(java.awt.RenderingHints.KEY_RENDERING,
+                    java.awt.RenderingHints.VALUE_RENDER_QUALITY)
+                graphics.setRenderingHint(java.awt.RenderingHints.KEY_ANTIALIASING,
+                    java.awt.RenderingHints.VALUE_ANTIALIAS_ON)
+                graphics.drawImage(source, 0, 0, targetWidth, targetHeight,
+                    cropX, cropY, cropX + cropWidth, cropY + cropHeight, null)
+            } finally {
+                graphics.dispose()
+            }
+
+            File previewFile = new File(previews, "${spec.id}.jpg")
+            javax.imageio.ImageWriter writer = javax.imageio.ImageIO.getImageWritersByFormatName('jpg').next()
+            javax.imageio.stream.ImageOutputStream imageOutput = javax.imageio.ImageIO.createImageOutputStream(previewFile)
+            try {
+                writer.setOutput(imageOutput)
+                javax.imageio.ImageWriteParam parameters = writer.getDefaultWriteParam()
+                parameters.setCompressionMode(javax.imageio.ImageWriteParam.MODE_EXPLICIT)
+                parameters.setCompressionQuality(0.96f)
+                writer.write(null, new javax.imageio.IIOImage(preview, null, null), parameters)
+                imageOutput.flush()
+            } finally {
+                writer.dispose()
+                imageOutput.close()
+                source.flush()
+                preview.flush()
+            }
+            if (!previewFile.isFile() || previewFile.length() < 15000L) {
+                throw new GradleException("Generated preview is missing or incomplete: ${previewFile}")
+            }
+        }
+
+        notice.text = """SkyLyrics by Sky — NASA/JPL gallery artwork
+
+The following original astronomy photographs are bundled as optional UI preview artwork.
+The full-resolution source JPG is kept under assets/skylyrics/gallery/original/.
+A 1600x900 center-cropped JPEG preview is used by the in-game Skies selector.
+
+${skyArtworkSources.collect { spec -> "- ${spec.title} | ${spec.credit}\n  Source: ${spec.page}" }.join('\n')}
+
+JPL Image Use Policy:
+https://www.jpl.nasa.gov/jpl-image-use-policy/
+
+Credit lines are retained here for each image. SkyLyrics is an independent mod and is not endorsed by NASA, JPL, or Caltech.
+"""
+        long originalsBytes = skyArtworkSources.sum { new File(originals, "${it.id}.jpg").length() } as long
+        long previewBytes = skyArtworkSources.sum { new File(previews, "${it.id}.jpg").length() } as long
+        println "Downloaded ${skyArtworkSources.size()} NASA/JPL photographs: ${originalsBytes} original bytes + ${previewBytes} preview bytes."
+    }
+}
+
 def generatedSkyFonts = layout.buildDirectory.dir('generated/skylyrics-font-resources')
 def skyFontSources = [
     [id: 'poppins', file: 'poppins/Poppins-Regular.ttf'],
@@ -55,6 +171,7 @@ def skyFontSources = [
 ]
 
 sourceSets.main.resources.srcDir(generatedSkyFonts)
+sourceSets.main.resources.srcDir(generatedSkyArtwork)
 
 tasks.register('downloadSkyFonts') {
     group = 'build setup'
@@ -90,7 +207,7 @@ tasks.register('downloadSkyFonts') {
 }
 
 processResources {
-    dependsOn tasks.named('downloadSkyFonts')
+    dependsOn tasks.named('downloadSkyFonts'), tasks.named('downloadSkyArtwork')
     inputs.property 'version', project.version
     filesMatching('fabric.mod.json') { expand 'version': project.version }
 }
@@ -108,7 +225,7 @@ java {
 
 tasks.register('verifySkyResources') {
     group = 'verification'
-    dependsOn tasks.named('downloadSkyFonts')
+    dependsOn tasks.named('downloadSkyFonts'), tasks.named('downloadSkyArtwork')
     doLast {
         def effectDir = file('src/main/resources/assets/skylyrics/post_effect')
         def effects = effectDir.exists() ? effectDir.listFiles().findAll { it.name.endsWith('.json') } : []
@@ -141,13 +258,29 @@ tasks.register('verifySkyResources') {
             if (!new File(generatedRoot, "META-INF/licenses/skylyrics-fonts/${spec.id}-OFL.txt").isFile())
                 throw new GradleException("Missing OFL license: ${spec.id}")
         }
-        println "Verified 20 sky effects, four shaders, eight TTF families, and eight OFL notices."
+        File artworkRoot = generatedSkyArtwork.get().asFile
+        File artworkOriginals = new File(artworkRoot, 'assets/skylyrics/gallery/original')
+        File artworkPreviews = new File(artworkRoot, 'assets/skylyrics/textures/gui/sky_gallery')
+        if (skyArtworkSources.size() != 8) throw new GradleException("Expected 8 credited gallery photographs.")
+        skyArtworkSources.each { spec ->
+            File original = new File(artworkOriginals, "${spec.id}.jpg")
+            File preview = new File(artworkPreviews, "${spec.id}.jpg")
+            if (!original.isFile() || original.length() < 20000L) throw new GradleException("Missing original gallery photo: ${spec.id}")
+            if (!preview.isFile() || preview.length() < 15000L) throw new GradleException("Missing gallery preview texture: ${spec.id}")
+            def decoded = javax.imageio.ImageIO.read(preview)
+            if (decoded == null || decoded.width != 1600 || decoded.height != 900) throw new GradleException("Invalid 1600x900 preview: ${spec.id}")
+            decoded.flush()
+        }
+        if (!new File(artworkRoot, 'META-INF/licenses/skylyrics-artwork/NOTICE.txt').isFile()) {
+            throw new GradleException("Missing NASA/JPL artwork credits and usage notice.")
+        }
+        println "Verified 20 sky effects, four shaders, eight TTF families, eight OFL notices, and 8 NASA/JPL photo originals + previews."
     }
 }
 
 tasks.test {
     useJUnitPlatform()
-    dependsOn 'verifySkyResources'
+    dependsOn 'verifySkyResources', 'downloadSkyArtwork'
 }
 
 tasks.register('verifySkyJar') {
@@ -174,7 +307,8 @@ tasks.register('verifySkyJar') {
                 'assets/skylyrics/shaders/post/sky.fsh',
                 'assets/skylyrics/shaders/post/copy.vsh',
                 'assets/skylyrics/shaders/post/copy.fsh',
-                'META-INF/licenses/skylyrics-audio/NOTICE.txt'
+                'META-INF/licenses/skylyrics-audio/NOTICE.txt',
+                'META-INF/licenses/skylyrics-artwork/NOTICE.txt'
             ]
             required.each { name ->
                 if (!names.contains(name)) throw new GradleException("Final JAR is missing required resource: ${name}")
@@ -195,6 +329,29 @@ tasks.register('verifySkyJar') {
                 it.name.startsWith('assets/skylyrics/post_effect/') && it.name.endsWith('.json')
             }
             if (effects.size() != 20) throw new GradleException("Expected 20 packaged sky presets, found ${effects.size()}.")
+
+            def galleryOriginals = entries.findAll {
+                it.name.startsWith('assets/skylyrics/gallery/original/') && it.name.endsWith('.jpg')
+            }
+            def galleryPreviews = entries.findAll {
+                it.name.startsWith('assets/skylyrics/textures/gui/sky_gallery/') && it.name.endsWith('.jpg')
+            }
+            if (galleryOriginals.size() != 8) throw new GradleException("Expected 8 genuine NASA/JPL original gallery photos, found ${galleryOriginals.size()}.")
+            if (galleryPreviews.size() != 8) throw new GradleException("Expected 8 in-game gallery preview textures, found ${galleryPreviews.size()}.")
+            long galleryBytes = 0L
+            galleryOriginals.each { entry ->
+                if (entry.size < 20000L) throw new GradleException("Original artwork is too small or incomplete: ${entry.name}")
+                galleryBytes += entry.size
+            }
+            galleryPreviews.each { entry ->
+                if (entry.size < 15000L) throw new GradleException("Artwork preview is too small or incomplete: ${entry.name}")
+                def decoded = javax.imageio.ImageIO.read(zip.getInputStream(entry))
+                if (decoded == null || decoded.width != 1600 || decoded.height != 900) {
+                    throw new GradleException("Invalid packaged artwork preview: ${entry.name}")
+                }
+                decoded.flush()
+                galleryBytes += entry.size
+            }
 
             def codecNames = [
                 'META-INF/jars/mp3spi-1.9.5.4.jar',
@@ -224,7 +381,7 @@ tasks.register('verifySkyJar') {
             if (uncompressedBytes < 3_000_000L) {
                 throw new GradleException("Final JAR payload is unexpectedly small (${uncompressedBytes} uncompressed bytes); bundled resources may be missing.")
             }
-            println "Verified final JAR: Sky author, icon, 8 TTF fonts and licenses, 20 sky presets, 4 shaders, and 5 audio codec libraries; ${uncompressedBytes} uncompressed bytes."
+            println "Verified final JAR: Sky author, icon, 8 TTF fonts, 20 sky presets, 4 shaders, 5 audio codecs, 8 NASA/JPL photo originals + 8 preview textures (${galleryBytes} artwork bytes); ${uncompressedBytes} uncompressed bytes; ${archiveFile.length()} compressed JAR bytes."
         } finally {
             zip.close()
         }
@@ -237,7 +394,7 @@ tasks.named('build') {
 
 // The generated TTF files are also included in the sources archive.
 tasks.named('sourcesJar') {
-    dependsOn tasks.named('downloadSkyFonts')
+    dependsOn tasks.named('downloadSkyFonts'), tasks.named('downloadSkyArtwork')
 }
 
 jar {
