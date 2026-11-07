@@ -3,15 +3,12 @@
   "id": "skylyrics",
   "version": "${version}",
   "name": "SkyLyrics",
-  "description": "A client-side lyric HUD with browser media integration for Minecraft Java 26.3.",
+  "description": "Animated custom skies and floating synced lyrics for Minecraft Java 26.3.",
   "authors": ["SkyRevo"],
   "license": "MIT",
   "environment": "client",
-  "entrypoints": {
-    "client": [
-      "com.skyrevo.skylyrics.SkyLyricsClient"
-    ]
-  },
+  "entrypoints": { "client": ["com.skyrevo.skylyrics.SkyLyricsClient"] },
+  "mixins": ["skylyrics.mixins.json"],
   "depends": {
     "fabricloader": ">=0.20.1",
     "minecraft": "~26.3",

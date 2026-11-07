@@ -1,0 +1,10 @@
+{
+  "required": true,
+  "package": "com.skyrevo.skylyrics.mixin",
+  "compatibilityLevel": "JAVA_25",
+  "client": [
+    "GameRendererPostEffectAccessor",
+    "SkyLyricsLevelRendererMixin"
+  ],
+  "injectors": { "defaultRequire": 1 }
+}

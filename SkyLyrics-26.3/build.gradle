@@ -2,19 +2,13 @@ plugins {
     id 'net.fabricmc.fabric-loom' version "${loom_version}"
     id 'maven-publish'
 }
-
 version = project.mod_version
 group = project.maven_group
-
-base {
-    archivesName = project.archives_base_name
-}
-
+base { archivesName = project.archives_base_name }
 repositories {
     maven { url = 'https://maven.fabricmc.net/' }
     mavenCentral()
 }
-
 loom {
     splitEnvironmentSourceSets()
     mods {
@@ -24,49 +18,53 @@ loom {
         }
     }
 }
-
 dependencies {
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
     implementation "net.fabricmc:fabric-loader:${project.loader_version}"
     implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
-
     testImplementation platform('org.junit:junit-bom:5.11.4')
     testImplementation 'org.junit.jupiter:junit-jupiter'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
-
 processResources {
     inputs.property 'version', project.version
-    filesMatching('fabric.mod.json') {
-        expand 'version': project.version
-    }
+    filesMatching('fabric.mod.json') { expand 'version': project.version }
 }
-
 tasks.withType(JavaCompile).configureEach {
     options.release = 25
     options.encoding = 'UTF-8'
 }
-
 java {
     sourceCompatibility = JavaVersion.VERSION_25
     targetCompatibility = JavaVersion.VERSION_25
     withSourcesJar()
 }
-
+tasks.register('verifySkyResources') {
+    group = 'verification'
+    doLast {
+        def dir = file('src/main/resources/assets/skylyrics/post_effect')
+        def effects = dir.exists() ? dir.listFiles().findAll { it.name.endsWith('.json') } : []
+        if (effects.size() != 20) throw new GradleException("Expected 20 sky presets, found ${effects.size()}.")
+        def parser = new groovy.json.JsonSlurper()
+        effects.each {
+            def data = parser.parse(it)
+            if (!(data.passes instanceof List) || data.passes.size() != 2)
+                throw new GradleException("Invalid post-effect JSON: ${it.name}")
+        }
+        def shaderDir = file('src/main/resources/assets/skylyrics/shaders/post')
+        ['sky.vsh','sky.fsh','copy.vsh','copy.fsh'].each {
+            if (!new File(shaderDir,it).isFile()) throw new GradleException("Missing shader ${it}")
+        }
+        println "Verified ${effects.size()} sky post effects and four shader stages."
+    }
+}
 tasks.test {
     useJUnitPlatform()
+    dependsOn 'verifySkyResources'
 }
-
 jar {
-    from('LICENSE') {
-        rename { "${it}_${project.base.archivesName.get()}" }
-    }
+    from('LICENSE') { rename { "${it}_${project.base.archivesName.get()}" } }
 }
-
 publishing {
-    publications {
-        create('mavenJava', MavenPublication) {
-            from components.java
-        }
-    }
+    publications { create('mavenJava', MavenPublication) { from components.java } }
 }
