@@ -6,7 +6,7 @@
 - The Gradle verification task checks all 20 procedural sky post-effect definitions and the four shader stages.
 - The GitHub Actions workflow is configured to use Temurin JDK 25 and Gradle 9.8.2, then run clean test build. The default-branch workflow now reads the JAR version from gradle.properties so feature branches are not incorrectly checked for the old 0.3.0 filename.
 - The workflow checks the built JAR manifest, pinned custom fonts, font provider JSON, AlbumArtManager, font license notices, and browser-extension JavaScript/manifest.
-- A built-in original-text preview is exposed through the client command /skylyrics demo and /skylyrics stop, and through the Studio overview.
+- A built-in original-text preview is exposed through the Studio Home screen; the 0.6 touch-first branch removes the chat-command dependency.
 
 ## Touch-first Player UI work
 
@@ -29,6 +29,7 @@
 - Actual local audio decoding/playback for downloaded MP3/OGG/WAV files is not implemented. A real audio backend and format/licensing/packaging decision are required; the current LRC clock must not be mislabeled as a music player.
 - Direct in-game online audio streaming is not implemented. YouTube / YouTube Music playback remains in the browser and the extension supplies metadata/position only; Spotify remains metadata-only.
 - The Player tab and touchscreen interaction need manual smoke testing in TLauncher at the user's display resolution.
+- Chat commands are not required for normal operation; the 0.6 branch removes the `/skylyrics` command registration.
 
 ## Not yet verified
 
