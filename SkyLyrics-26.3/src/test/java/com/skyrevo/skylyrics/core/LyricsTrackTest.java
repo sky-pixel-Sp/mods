@@ -73,8 +73,10 @@ class LyricsTrackTest {
 
         assertEquals(2, track.cues().size());
         assertEquals("Hello world", track.cues().get(0).text());
-        assertEquals(track.cues().get(0).wordTimings(), track.cues().get(1).wordTimings());
+        assertEquals(2, track.cues().get(0).wordTimings().size());
         assertEquals(2, track.cues().get(1).wordTimings().size());
+        assertEquals(5_000L, track.cues().get(1).wordTimings().get(0).timeMs());
+        assertEquals(5_400L, track.cues().get(1).wordTimings().get(1).timeMs());
     }
 
     @Test

@@ -89,8 +89,14 @@ public final class LyricsTrack {
                 String body = META_TAG.matcher(line.substring(contentStart)).replaceAll("");
                 ParsedWords words = parseWordTimings(body);
                 if (!words.text().isEmpty()) {
+                    long primaryTime = times.getFirst();
                     for (long time : times) {
-                        parsed.add(new LyricsCue(time, words.text(), words.timings()));
+                        long shift = time - primaryTime;
+                        List<LyricsCue.WordTiming> shiftedTimings = words.timings().stream()
+                                .map(timing -> new LyricsCue.WordTiming(
+                                        Math.max(0L, timing.timeMs() + shift), timing.wordIndex()))
+                                .toList();
+                        parsed.add(new LyricsCue(time, words.text(), shiftedTimings));
                     }
                 }
             }
