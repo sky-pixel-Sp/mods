@@ -17,8 +17,8 @@
 
 ## Release gates — not yet verified
 
-- [ ] GitHub Actions `clean test build` succeeds with JDK 25.
-- [ ] Built JAR includes LocalAudioEngine, MusicLibrary, MusicHistory and bundled MP3SPI / VorbisSPI nested dependencies.
+- [x] GitHub Actions `clean test build` succeeds with JDK 25 (Run #92, commit `c6b41e3`).
+- [x] Built JAR includes LocalAudioEngine, MusicLibrary, MusicHistory and bundled MP3SPI / VorbisSPI nested dependencies (verified by the release workflow).
 - [ ] TLauncher Minecraft 26.3 can import and play a downloaded MP3 without internet.
 - [ ] OGG and WAV playback are checked separately.
 - [ ] Matching `<song name>.lrc` is synchronized to local playback and lyrics stop at end of track.
