@@ -14,7 +14,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 
 public final class SkyLyricsScreen extends Screen {
-    private enum Tab { OVERVIEW, MUSIC, LIBRARY, ONLINE, LYRICS, STYLES, SKIES, HUD, KEYBINDS, PERFORMANCE, SETTINGS, INFORMATION }
+    private enum Tab { OVERVIEW, MUSIC, LIBRARY, HISTORY, ONLINE, LYRICS, STYLES, SKIES, HUD, KEYBINDS, PERFORMANCE, SETTINGS, INFORMATION }
     private static boolean firstOpen = true;
     private final Tab tab;
     private int left, top, panelWidth, panelHeight, sideWidth, contentLeft, contentWidth;
@@ -44,7 +44,7 @@ public final class SkyLyricsScreen extends Screen {
         navStep = Math.min(34, Math.max(24, (panelHeight - 78) / Tab.values().length));
         navHeight = Math.max(20, Math.min(27, navStep - 4));
 
-        String[] labels = {"OVERVIEW","MUSIC CENTER","OFFLINE LIBRARY","ONLINE MUSIC","LYRICS","STYLES","SKIES","HUD","KEYBINDS","PERFORMANCE","SETTINGS","INFORMATION"};
+        String[] labels = {"OVERVIEW","MUSIC CENTER","OFFLINE LIBRARY","HISTORY & STATS","ONLINE MUSIC","LYRICS","STYLES","SKIES","HUD","KEYBINDS","PERFORMANCE","SETTINGS","INFORMATION"};
         Tab[] tabs = Tab.values();
         for (int i=0;i<tabs.length;i++) {
             Tab next = tabs[i];
@@ -60,6 +60,7 @@ public final class SkyLyricsScreen extends Screen {
             case OVERVIEW -> overview(y);
             case MUSIC -> music(y);
             case LIBRARY -> library(y);
+            case HISTORY -> history(y);
             case ONLINE -> online(y);
             case LYRICS -> lyrics(y);
             case STYLES -> styles(y);
@@ -166,6 +167,17 @@ public final class SkyLyricsScreen extends Screen {
                 contentLeft, y + 90 + pageSize * 38, half, 27);
         action("NEXT ▶", () -> { libraryPage = Math.min(pages - 1, libraryPage + 1); open(Tab.LIBRARY); },
                 contentLeft + half + gap, y + 90 + pageSize * 38, half, 27);
+    }
+
+    private void history(int y) {
+        int gap = 8;
+        int half = (contentWidth - gap) / 2;
+        action("OPEN OFFLINE LIBRARY", () -> open(Tab.LIBRARY),
+                contentLeft, y + 10, half, 30);
+        action("CLEAR HISTORY", SkyLyricsClient.HISTORY::clear,
+                contentLeft + half + gap, y + 10, half, 30);
+        action("HISTORY IS STORED LOCALLY ON THIS COMPUTER",
+                () -> {}, contentLeft, y + 52, contentWidth, 27);
     }
 
     private void online(int y) {
@@ -396,6 +408,31 @@ public final class SkyLyricsScreen extends Screen {
             graphics.text(font, "Supported: MP3 · OGG · WAV · AIFF · AU", contentLeft, top + 241, 0xFFD4D1E2, false);
             graphics.text(font, "Matching .lrc files are loaded automatically by filename.", contentLeft, top + 263, 0xFFBDB7CD, false);
             graphics.text(font, SkyLyricsClient.MUSIC_LIBRARY.musicDirectory().toString(), contentLeft, top + 286, 0xFF9690A8, false);
+        } else if (tab == Tab.HISTORY) {
+            graphics.text(font, "LISTENING OVERVIEW", contentLeft, top + 112, 0xFFC6A0FF, true);
+            graphics.text(font, "PLAY SESSIONS  ·  " + SkyLyricsClient.HISTORY.totalPlays(),
+                    contentLeft, top + 141, 0xFFFFFFFF, true);
+            graphics.text(font, "UNIQUE TRACKS IN RECENT HISTORY  ·  " + SkyLyricsClient.HISTORY.uniqueTrackCount(),
+                    contentLeft, top + 164, 0xFFD4D1E2, false);
+            graphics.text(font, "RECENTLY PLAYED", contentLeft, top + 210, 0xFFC6A0FF, true);
+            var entries = SkyLyricsClient.HISTORY.recent(7);
+            if (entries.isEmpty()) {
+                graphics.text(font, "No listening sessions yet. Play a local or supported online track.",
+                        contentLeft, top + 238, 0xFFBDB7CD, false);
+            } else {
+                for (int i = 0; i < entries.size(); i++) {
+                    var entry = entries.get(i);
+                    int rowY = top + 238 + i * 27;
+                    String title = entry.title();
+                    if (title.length() > 48) title = title.substring(0, 45) + "...";
+                    String subtitle = entry.artist() + "  ·  " + entry.source();
+                    if (subtitle.length() > 64) subtitle = subtitle.substring(0, 61) + "...";
+                    graphics.text(font, (i + 1) + ". " + title, contentLeft, rowY, 0xFFFFFFFF, true);
+                    graphics.text(font, subtitle, contentLeft + 12, rowY + 13, 0xFFBDB7CD, false);
+                }
+            }
+            graphics.text(font, "History stays in config/skylyrics/history.json; audio is never stored here.",
+                    contentLeft, top + panelHeight - 28, 0xFF9690A8, false);
         } else if (tab == Tab.ONLINE) {
             var media = SkyLyricsClient.CURRENT_MEDIA;
             graphics.text(font, media != null ? "CONNECTED  ·  " + media.displaySource() : "WAITING FOR BROWSER PLAYER",
