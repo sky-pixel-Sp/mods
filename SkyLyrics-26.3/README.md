@@ -8,7 +8,7 @@ A client-side Fabric mod for Minecraft Java 26.3. SkyLyrics turns music into lar
 - **Automatic line fitting:** long lines scale down to stay inside a comfortable field of view instead of stretching across the whole world.
 - **Golden Sunset is the new default sky:** the sky effect is applied automatically when a world is entered; it no longer waits for the settings screen to be opened.
 - **Legacy settings migration:** existing 0.4 settings are upgraded once, replacing the old tiny 3D text scale with a cinematic default while preserving a custom sky preset and a deliberately larger text size.
-- **Offline preview:** use /skylyrics demo to play an original built-in lyric preview without a music account, browser connector, server, or resource pack. Use /skylyrics stop to stop it.
+- **Offline preview:** use Home → Play Cinematic Preview inside SkyLyrics Studio to play an original built-in lyric-timeline preview without a music account, browser connector, server, or resource pack.
 - **Studio overview:** a dedicated preview control, live lyric status, expanded workspace, and clearer active-tab indicator.
 - **Bundled typography and mini-player:** eight bundled OFL font families and allow-listed album artwork remain available from 0.4.0.
 
@@ -47,7 +47,7 @@ The video reference is used as a visual guide, not as an asset to copy. Text, an
 3. Put skylyrics-0.5.0.jar and the matching Fabric API JAR in the same mods folder used by that Fabric profile.
 4. Start the Fabric 26.3 profile again.
 5. Press O to open SkyLyrics Studio. The selected sky is also applied automatically after entering a world.
-6. Open the Player tab to load local LRC files and control the lyric timeline with on-screen buttons. The cinematic preview is available from Home.
+6. Open the Player tab to load local LRC files and control the lyric timeline with on-screen buttons. The cinematic preview is available from Home. No chat commands are required.
 
 No SkyLyrics JAR or resource pack is installed on the multiplayer server. This mod runs on the player's client.
 
@@ -58,8 +58,7 @@ No SkyLyrics JAR or resource pack is installed on the multiplayer server. This m
 | O | Open SkyLyrics Studio |
 | H | Show / hide lyric display |
 | K | Play / pause a local LRC or demo track |
-| /skylyrics demo | Start the offline cinematic preview |
-| /skylyrics stop | Stop the preview |
+
 
 ## Music integration
 
