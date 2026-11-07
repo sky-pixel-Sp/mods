@@ -23,6 +23,8 @@ public final class SkyLyricsHud {
             drawNowPlaying(graphics, media);
         } else if (SkyLyricsClient.isDemoActive() && SkyLyricsClient.PLAYER.hasTrack()) {
             drawDemoNowPlaying(graphics);
+        } else if (SkyLyricsClient.AUDIO.hasFile()) {
+            drawOfflineNowPlaying(graphics);
         }
 
         LyricsPlayer player = SkyLyricsClient.PLAYER;
@@ -122,6 +124,21 @@ public final class SkyLyricsHud {
                 media.durationMs(),
                 media.playing(),
                 AlbumArtManager.hasTexture()
+        );
+    }
+
+    private static void drawOfflineNowPlaying(GuiGraphicsExtractor graphics) {
+        var file = SkyLyricsClient.AUDIO.currentFile();
+        String title = file == null ? "Offline track" : file.getFileName().toString();
+        drawPlayerPill(
+                graphics,
+                "OFFLINE LIBRARY",
+                title,
+                SkyLyricsClient.AUDIO.status(),
+                SkyLyricsClient.AUDIO.positionMs(),
+                SkyLyricsClient.AUDIO.durationMs(),
+                SkyLyricsClient.AUDIO.isPlaying(),
+                false
         );
     }
 
