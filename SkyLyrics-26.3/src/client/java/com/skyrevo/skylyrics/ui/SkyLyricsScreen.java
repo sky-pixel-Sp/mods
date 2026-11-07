@@ -345,7 +345,7 @@ public final class SkyLyricsScreen extends Screen {
                 contentLeft,y+170,(contentWidth-8)/2,25);
         action("MOVE HUD DOWN",()->SkyLyricsClient.CONFIG.adjustVerticalPosition(0.025f),
                 contentLeft+(contentWidth-8)/2+8,y+170,(contentWidth-8)/2,25);
-        action("OPEN HUD LAYOUT EDITOR  ↗", () -> this.minecraft.gui.setScreen(new HudEditorScreen(this)),
+        action("OPEN HUD LAYOUT STUDIO · 5 WIDGETS  ↗", () -> this.minecraft.gui.setScreen(new HudEditorScreen(this)),
                 contentLeft, y + 208, contentWidth, 30);
     }
 

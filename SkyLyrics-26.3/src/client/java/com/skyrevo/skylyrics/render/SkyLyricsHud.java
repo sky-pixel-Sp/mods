@@ -27,6 +27,8 @@ public final class SkyLyricsHud {
             drawOfflineNowPlaying(graphics);
         }
 
+        SkyLyricsHudWidgets.extract(graphics);
+
         LyricsPlayer player = SkyLyricsClient.PLAYER;
         if (!player.hasTrack() || SkyLyricsClient.CONFIG.worldLyrics()) return;
 

@@ -10,7 +10,7 @@ import java.util.Properties;
 
 /** Persisted settings for the SkyLyrics sky and lyric engines. */
 public final class SkyLyricsConfig {
-    private static final int CURRENT_CONFIG_VERSION = 3;
+    private static final int CURRENT_CONFIG_VERSION = 4;
 
     private final Path file;
     private int theme = 0;
@@ -20,8 +20,17 @@ public final class SkyLyricsConfig {
     private float lyricsHudX = 0.5f;
     private float nowPlayingHudX = 0.5f;
     private float nowPlayingHudY = 0.025f;
+    private float visualizerHudX = 0.5f;
+    private float visualizerHudY = 0.80f;
+    private float recentTracksHudX = 0.15f;
+    private float recentTracksHudY = 0.66f;
+    private float listeningStatsHudX = 0.85f;
+    private float listeningStatsHudY = 0.66f;
     private int opacity = 64;
     private boolean enabled = true;
+    private boolean visualizerHudEnabled = true;
+    private boolean recentTracksHudEnabled = false;
+    private boolean listeningStatsHudEnabled = false;
     private boolean showContextLines = true;
     private boolean showBackdrop = true;
     private String skyPreset = "golden_sunset";
@@ -57,8 +66,17 @@ public final class SkyLyricsConfig {
             lyricsHudX = clamp(parseFloat(p.getProperty("lyricsHudX"), 0.5f), 0.08f, 0.92f);
             nowPlayingHudX = clamp(parseFloat(p.getProperty("nowPlayingHudX"), 0.5f), 0.08f, 0.92f);
             nowPlayingHudY = clamp(parseFloat(p.getProperty("nowPlayingHudY"), 0.025f), 0.0f, 0.88f);
+            visualizerHudX = clamp(parseFloat(p.getProperty("visualizerHudX"), 0.5f), 0.08f, 0.92f);
+            visualizerHudY = clamp(parseFloat(p.getProperty("visualizerHudY"), 0.80f), 0.0f, 0.92f);
+            recentTracksHudX = clamp(parseFloat(p.getProperty("recentTracksHudX"), 0.15f), 0.08f, 0.92f);
+            recentTracksHudY = clamp(parseFloat(p.getProperty("recentTracksHudY"), 0.66f), 0.0f, 0.88f);
+            listeningStatsHudX = clamp(parseFloat(p.getProperty("listeningStatsHudX"), 0.85f), 0.08f, 0.92f);
+            listeningStatsHudY = clamp(parseFloat(p.getProperty("listeningStatsHudY"), 0.66f), 0.0f, 0.88f);
             opacity = clamp(parseInt(p.getProperty("opacity"), 64), 0, 160);
             enabled = Boolean.parseBoolean(p.getProperty("enabled", "true"));
+            visualizerHudEnabled = Boolean.parseBoolean(p.getProperty("visualizerHudEnabled", "true"));
+            recentTracksHudEnabled = Boolean.parseBoolean(p.getProperty("recentTracksHudEnabled", "false"));
+            listeningStatsHudEnabled = Boolean.parseBoolean(p.getProperty("listeningStatsHudEnabled", "false"));
             showContextLines = Boolean.parseBoolean(p.getProperty("showContextLines", "true"));
             showBackdrop = Boolean.parseBoolean(p.getProperty("showBackdrop", "true"));
             skyPreset = SkyPresetCatalog.byId(p.getProperty("skyPreset", "golden_sunset")).id();
@@ -107,8 +125,17 @@ public final class SkyLyricsConfig {
         p.setProperty("lyricsHudX", Float.toString(lyricsHudX));
         p.setProperty("nowPlayingHudX", Float.toString(nowPlayingHudX));
         p.setProperty("nowPlayingHudY", Float.toString(nowPlayingHudY));
+        p.setProperty("visualizerHudX", Float.toString(visualizerHudX));
+        p.setProperty("visualizerHudY", Float.toString(visualizerHudY));
+        p.setProperty("recentTracksHudX", Float.toString(recentTracksHudX));
+        p.setProperty("recentTracksHudY", Float.toString(recentTracksHudY));
+        p.setProperty("listeningStatsHudX", Float.toString(listeningStatsHudX));
+        p.setProperty("listeningStatsHudY", Float.toString(listeningStatsHudY));
         p.setProperty("opacity", Integer.toString(opacity));
         p.setProperty("enabled", Boolean.toString(enabled));
+        p.setProperty("visualizerHudEnabled", Boolean.toString(visualizerHudEnabled));
+        p.setProperty("recentTracksHudEnabled", Boolean.toString(recentTracksHudEnabled));
+        p.setProperty("listeningStatsHudEnabled", Boolean.toString(listeningStatsHudEnabled));
         p.setProperty("showContextLines", Boolean.toString(showContextLines));
         p.setProperty("showBackdrop", Boolean.toString(showBackdrop));
         p.setProperty("skyPreset", skyPreset);
@@ -166,6 +193,37 @@ public final class SkyLyricsConfig {
     public float nowPlayingHudX() { return nowPlayingHudX; }
     public float nowPlayingHudY() { return nowPlayingHudY; }
 
+    public float visualizerHudX() { return visualizerHudX; }
+    public float visualizerHudY() { return visualizerHudY; }
+    public void previewVisualizerHudPosition(float x, float y) {
+        visualizerHudX = clamp(x, 0.08f, 0.92f);
+        visualizerHudY = clamp(y, 0.0f, 0.92f);
+    }
+    public void setVisualizerHudPosition(float x, float y) { previewVisualizerHudPosition(x, y); save(); }
+
+    public float recentTracksHudX() { return recentTracksHudX; }
+    public float recentTracksHudY() { return recentTracksHudY; }
+    public void previewRecentTracksHudPosition(float x, float y) {
+        recentTracksHudX = clamp(x, 0.08f, 0.92f);
+        recentTracksHudY = clamp(y, 0.0f, 0.88f);
+    }
+    public void setRecentTracksHudPosition(float x, float y) { previewRecentTracksHudPosition(x, y); save(); }
+
+    public float listeningStatsHudX() { return listeningStatsHudX; }
+    public float listeningStatsHudY() { return listeningStatsHudY; }
+    public void previewListeningStatsHudPosition(float x, float y) {
+        listeningStatsHudX = clamp(x, 0.08f, 0.92f);
+        listeningStatsHudY = clamp(y, 0.0f, 0.88f);
+    }
+    public void setListeningStatsHudPosition(float x, float y) { previewListeningStatsHudPosition(x, y); save(); }
+
+    public boolean visualizerHudEnabled() { return visualizerHudEnabled; }
+    public void toggleVisualizerHudEnabled() { visualizerHudEnabled = !visualizerHudEnabled; save(); }
+    public boolean recentTracksHudEnabled() { return recentTracksHudEnabled; }
+    public void toggleRecentTracksHudEnabled() { recentTracksHudEnabled = !recentTracksHudEnabled; save(); }
+    public boolean listeningStatsHudEnabled() { return listeningStatsHudEnabled; }
+    public void toggleListeningStatsHudEnabled() { listeningStatsHudEnabled = !listeningStatsHudEnabled; save(); }
+
     public void previewLyricsHudPosition(float x, float y) {
         lyricsHudX = clamp(x, 0.08f, 0.92f);
         verticalPosition = clamp(y, 0.18f, 0.82f);
@@ -191,6 +249,9 @@ public final class SkyLyricsConfig {
     public void resetHudPositions() {
         previewNowPlayingHudPosition(0.5f, 0.025f);
         previewLyricsHudPosition(0.5f, 0.38f);
+        previewVisualizerHudPosition(0.5f, 0.80f);
+        previewRecentTracksHudPosition(0.15f, 0.66f);
+        previewListeningStatsHudPosition(0.85f, 0.66f);
         save();
     }
     public int opacity() { return opacity; }
