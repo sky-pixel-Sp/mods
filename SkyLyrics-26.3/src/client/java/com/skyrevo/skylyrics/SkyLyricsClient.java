@@ -1,9 +1,8 @@
 package com.skyrevo.skylyrics;
 
-import com.mojang.brigadier.Command;
-import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.skyrevo.skylyrics.core.LyricsLibrary;
+import com.skyrevo.skylyrics.core.MusicLibrary;
 import com.skyrevo.skylyrics.core.LyricsPlayer;
 import com.skyrevo.skylyrics.core.LyricsTrack;
 import com.skyrevo.skylyrics.core.SkyLyricsConfig;
@@ -13,10 +12,9 @@ import com.skyrevo.skylyrics.integration.BrowserMediaServer;
 import com.skyrevo.skylyrics.render.SkyLyricsHud;
 import com.skyrevo.skylyrics.render.SkyEffectController;
 import com.skyrevo.skylyrics.render.AlbumArtManager;
+import com.skyrevo.skylyrics.audio.LocalAudioEngine;
 import com.skyrevo.skylyrics.ui.SkyLyricsScreen;
 import net.fabricmc.api.ClientModInitializer;
-import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
-import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
@@ -27,6 +25,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.awt.Desktop;
+import java.net.URI;
 import java.nio.file.Path;
 import java.util.concurrent.CompletableFuture;
 
@@ -35,6 +35,8 @@ public final class SkyLyricsClient implements ClientModInitializer {
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
     public static SkyLyricsConfig CONFIG;
     public static LyricsLibrary LIBRARY;
+    public static MusicLibrary MUSIC_LIBRARY;
+    public static final LocalAudioEngine AUDIO = new LocalAudioEngine();
     public static final LyricsPlayer PLAYER = new LyricsPlayer();
     public static final BrowserMediaServer MEDIA_BRIDGE = new BrowserMediaServer();
     public static volatile MediaStatus CURRENT_MEDIA;
@@ -68,12 +70,15 @@ public final class SkyLyricsClient implements ClientModInitializer {
     private static KeyMapping openMenuKey;
     private static KeyMapping toggleHudKey;
     private static KeyMapping playPauseKey;
+    private static KeyMapping nextTrackKey;
+    private static KeyMapping previousTrackKey;
 
     @Override
     public void onInitializeClient() {
         Path configDirectory = net.fabricmc.loader.api.FabricLoader.getInstance().getConfigDir();
         CONFIG = new SkyLyricsConfig(configDirectory);
         LIBRARY = new LyricsLibrary(configDirectory);
+        MUSIC_LIBRARY = new MusicLibrary(configDirectory);
         loadFirstAvailableTrack();
         MEDIA_BRIDGE.start();
 
@@ -86,6 +91,10 @@ public final class SkyLyricsClient implements ClientModInitializer {
                 "key.skylyrics.toggle_hud", InputConstants.Type.KEYBOARD, InputConstants.KEY_H, category));
         playPauseKey = KeyMappingHelper.registerKeyMapping(new KeyMapping(
                 "key.skylyrics.play_pause", InputConstants.Type.KEYBOARD, InputConstants.KEY_K, category));
+        nextTrackKey = KeyMappingHelper.registerKeyMapping(new KeyMapping(
+                "key.skylyrics.next_track", InputConstants.Type.KEYBOARD, InputConstants.KEY_N, category));
+        previousTrackKey = KeyMappingHelper.registerKeyMapping(new KeyMapping(
+                "key.skylyrics.previous_track", InputConstants.Type.KEYBOARD, InputConstants.KEY_B, category));
 
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             if (client.level == null) {
@@ -96,6 +105,7 @@ public final class SkyLyricsClient implements ClientModInitializer {
                 LOGGER.info("Applied SkyLyrics sky preset: {}", CONFIG.skyPreset());
             }
             if (!demoActive) updateMediaIntegration();
+            syncLocalAudioClock();
             while (openMenuKey.consumeClick()) {
                 client.gui.setScreen(new SkyLyricsScreen());
             }
@@ -103,27 +113,15 @@ public final class SkyLyricsClient implements ClientModInitializer {
                 CONFIG.toggleEnabled();
             }
             while (playPauseKey.consumeClick()) {
-                PLAYER.toggle();
+                togglePlayback();
             }
+            while (nextTrackKey.consumeClick()) nextLocalTrack();
+            while (previousTrackKey.consumeClick()) previousLocalTrack();
         });
 
         HudElementRegistry.addLast(
                 Identifier.fromNamespaceAndPath(MOD_ID, "lyrics_hud"),
                 SkyLyricsHud::extract
-        );
-
-        ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) ->
-                dispatcher.register(
-                        LiteralArgumentBuilder.<FabricClientCommandSource>literal("skylyrics")
-                                .then(LiteralArgumentBuilder.<FabricClientCommandSource>literal("demo").executes(context -> {
-                                    startDemo();
-                                    return Command.SINGLE_SUCCESS;
-                                }))
-                                .then(LiteralArgumentBuilder.<FabricClientCommandSource>literal("stop").executes(context -> {
-                                    stopDemo();
-                                    return Command.SINGLE_SUCCESS;
-                                }))
-                )
         );
 
         LOGGER.info("SkyLyrics loaded: {} local LRC track(s) found.", LIBRARY.listTracks().size());
@@ -224,7 +222,7 @@ public final class SkyLyricsClient implements ClientModInitializer {
                     "SkyLyrics Studio"
             ));
             PLAYER.play();
-            MEDIA_NOTICE = "Cinematic preview playing. Press K to pause or /skylyrics stop to exit.";
+            MEDIA_NOTICE = "Cinematic preview playing. Use the Music Center buttons to stop it.";
             LOGGER.info("Started built-in SkyLyrics cinematic preview.");
         } catch (IOException exception) {
             demoActive = false;
@@ -244,6 +242,132 @@ public final class SkyLyricsClient implements ClientModInitializer {
 
     public static boolean isDemoActive() {
         return demoActive;
+    }
+
+    private static void syncLocalAudioClock() {
+        if (AUDIO.hasFile() && PLAYER.hasTrack() && !demoActive) {
+            PLAYER.syncExternal(AUDIO.positionMs(), AUDIO.durationMs(), AUDIO.isPlaying());
+        }
+    }
+
+    public static boolean importAndPlayAudio(Path source) {
+        try {
+            Path imported = MUSIC_LIBRARY.importAudio(source);
+            playLocalTrack(imported);
+            return true;
+        } catch (IOException exception) {
+            MEDIA_NOTICE = exception.getMessage();
+            LOGGER.warn("Could not import audio file: {}", exception.getMessage());
+            return false;
+        }
+    }
+
+    public static boolean importLyricsFile(Path source) {
+        try {
+            Path imported = MUSIC_LIBRARY.importLyrics(source);
+            boolean loaded = loadTrack(imported);
+            MEDIA_NOTICE = loaded ? "Offline lyrics imported." : MEDIA_NOTICE;
+            return loaded;
+        } catch (IOException exception) {
+            MEDIA_NOTICE = exception.getMessage();
+            LOGGER.warn("Could not import LRC file: {}", exception.getMessage());
+            return false;
+        }
+    }
+
+    public static void playLocalTrack(Path file) {
+        if (file == null) return;
+        stopDemo();
+        AUDIO.play(file);
+        Path matchingLyrics = MUSIC_LIBRARY.matchingLyrics(file);
+        if (matchingLyrics != null) {
+            try {
+                PLAYER.load(LyricsTrack.load(matchingLyrics));
+                MEDIA_NOTICE = "Offline audio + matching LRC loaded.";
+            } catch (IOException exception) {
+                PLAYER.clear();
+                MEDIA_NOTICE = "Audio loaded; matching LRC could not be read: " + exception.getMessage();
+            }
+        } else {
+            PLAYER.clear();
+            MEDIA_NOTICE = "Offline audio playing. Import a matching .lrc file to show synchronized lyrics.";
+        }
+    }
+
+    public static void togglePlayback() {
+        if (AUDIO.hasFile()) {
+            AUDIO.toggle();
+            return;
+        }
+        if (CURRENT_MEDIA != null && CURRENT_MEDIA.available()) {
+            MEDIA_BRIDGE.enqueueControl("play_pause");
+            return;
+        }
+        PLAYER.toggle();
+    }
+
+    public static void stopPlayback() {
+        AUDIO.stop();
+        if (CURRENT_MEDIA != null && CURRENT_MEDIA.available()) MEDIA_BRIDGE.enqueueControl("play_pause");
+        if (demoActive) stopDemo();
+    }
+
+    public static void seekPlayback(long deltaMs) {
+        if (AUDIO.hasFile()) AUDIO.seekBy(deltaMs);
+        else if (CURRENT_MEDIA != null && CURRENT_MEDIA.available()) {
+            MEDIA_BRIDGE.enqueueControl(deltaMs >= 0 ? "seek_forward" : "seek_back");
+        } else PLAYER.seekBy(deltaMs);
+    }
+
+    public static void adjustPlaybackVolume(float delta) {
+        if (AUDIO.hasFile()) AUDIO.adjustVolume(delta);
+        else if (CURRENT_MEDIA != null && CURRENT_MEDIA.available()) {
+            MEDIA_BRIDGE.enqueueControl(delta >= 0 ? "volume_up" : "volume_down");
+        }
+    }
+
+    public static void nextLocalTrack() { moveLocalTrack(1); }
+    public static void previousLocalTrack() { moveLocalTrack(-1); }
+
+    private static void moveLocalTrack(int direction) {
+        var tracks = MUSIC_LIBRARY.listAudio();
+        if (tracks.isEmpty()) {
+            MEDIA_NOTICE = "Offline library is empty. Import a song first.";
+            return;
+        }
+        Path current = AUDIO.currentFile();
+        int index = current == null ? -1 : tracks.indexOf(current);
+        int next = index < 0 ? (direction > 0 ? 0 : tracks.size() - 1)
+                : Math.floorMod(index + direction, tracks.size());
+        playLocalTrack(tracks.get(next));
+    }
+
+    public static void controlOnline(String command) {
+        if (!MEDIA_BRIDGE.enqueueControl(command)) {
+            MEDIA_NOTICE = "Open YouTube Music or Spotify in the browser and connect the SkyLyrics extension first.";
+        }
+    }
+
+    public static void openOnlineProvider(String provider) {
+        String url = switch (provider) {
+            case "spotify" -> "https://open.spotify.com/";
+            default -> "https://music.youtube.com/";
+        };
+        try {
+            if (!Desktop.isDesktopSupported()) throw new IOException("Desktop browser launching is unavailable.");
+            Desktop.getDesktop().browse(URI.create(url));
+            MEDIA_NOTICE = "Opened " + ("spotify".equals(provider) ? "Spotify" : "YouTube Music") + " in your browser.";
+        } catch (Exception exception) {
+            MEDIA_NOTICE = "Could not open browser: " + exception.getMessage();
+        }
+    }
+
+    public static void openMusicFolder() {
+        try {
+            if (Desktop.isDesktopSupported()) Desktop.getDesktop().open(MUSIC_LIBRARY.musicDirectory().toFile());
+        } catch (Exception exception) {
+            MEDIA_NOTICE = "Music folder: " + MUSIC_LIBRARY.musicDirectory();
+        }
     }
 
     public static boolean loadTrack(Path path) {
