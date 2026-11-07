@@ -20,6 +20,9 @@ The video reference is used as a visual guide, not as an asset to copy. Text, an
 
 ## Features
 
+- **Touch-friendly Studio:** all major controls are clickable in-game; the new Player tab opens the local lyrics folder, loads LRC tracks, and controls the lyric timeline without chat commands.
+- **Rebindable controls:** O (Studio), H (lyrics visibility), and K (timeline play/pause) are registered as normal Minecraft key mappings and can be changed in Options → Controls → SkyLyrics.
+
 - 20 procedural sky presets: Aurora, Galaxy, Nebula Storm, Nebula, Sunset, Golden Sunset, Pink Sunset, Saturn, Meteors, Star Trails, Comet, Hyperspace, Blood Moon, Solar Flare, Dreamscape, Prism, Synthwave, Black Hole, Thunderstorm, and Ocean.
 - Eight font families: Poppins, Montserrat, Kanit, Fredoka, Unbounded, Bebas Neue, Pacifico, and Caveat.
 - Three-dimensional world lyrics or an on-screen HUD.
@@ -44,7 +47,7 @@ The video reference is used as a visual guide, not as an asset to copy. Text, an
 3. Put skylyrics-0.5.0.jar and the matching Fabric API JAR in the same mods folder used by that Fabric profile.
 4. Start the Fabric 26.3 profile again.
 5. Press O to open SkyLyrics Studio. The selected sky is also applied automatically after entering a world.
-6. Press O → Overview → Play Cinematic Preview, or run /skylyrics demo to verify the 3D lyric rendering.
+6. Open the Player tab to load local LRC files and control the lyric timeline with on-screen buttons. The cinematic preview is available from Home.
 
 No SkyLyrics JAR or resource pack is installed on the multiplayer server. This mod runs on the player's client.
 
@@ -59,6 +62,9 @@ No SkyLyrics JAR or resource pack is installed on the multiplayer server. This m
 | /skylyrics stop | Stop the preview |
 
 ## Music integration
+
+**Important playback distinction:** the current Player tab controls the synchronized lyric timeline, not an audio decoder. Offline `.lrc` files work without internet, but the current build does not yet decode/play downloaded MP3/OGG/WAV audio inside Minecraft. YouTube / YouTube Music audio continues playing in the browser; the extension supplies metadata and position for lyric synchronization. Spotify currently supplies metadata/artwork only. These limits are shown in the in-game Player/Information screens rather than being presented as working audio playback.
+
 
 For YouTube and YouTube Music, load the included browser-extension folder as an unpacked extension in Chrome or Edge. The extension sends playback metadata and position to the local SkyLyrics bridge; it does not capture audio.
 
