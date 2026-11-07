@@ -23,4 +23,4 @@ Open the **Actions** tab or create a pull request to `main` to run **Build SkyLy
 
 A green CI build is not a substitute for in-game testing. Local audio output, browser controls, lyric synchronization, all sky presets, and HUD placement still need a manual smoke test in TLauncher.
 
-See [`SkyLyrics-26.3/README.md`](SkyLyrics-26.3/README.md) for detailed instructions, troubleshooting, keybinds, license notices, and browser connector setup.
+Panduan cepat berbahasa Indonesia tersedia di [`SkyLyrics-26.3/PANDUAN-ID.md`](SkyLyrics-26.3/PANDUAN-ID.md). Dokumentasi lengkap tersedia di [`SkyLyrics-26.3/README.md`](SkyLyrics-26.3/README.md).
