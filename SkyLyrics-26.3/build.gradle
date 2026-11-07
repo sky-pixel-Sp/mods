@@ -293,6 +293,9 @@ tasks.register('verifySkyJar') {
         if (!archiveFile.isFile() || archiveFile.length() == 0L) {
             throw new GradleException("Final SkyLyrics JAR is missing or empty: ${archiveFile}")
         }
+        if (archiveFile.length() < 5_000_000L) {
+            throw new GradleException("Final SkyLyrics JAR is below the 5 MB release target: ${archiveFile.length()} bytes.")
+        }
 
         def zip = new java.util.zip.ZipFile(archiveFile)
         try {
