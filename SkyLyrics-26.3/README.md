@@ -2,11 +2,13 @@
 
 SkyLyrics by **Sky** is a client-side Fabric mod for Minecraft Java 26.3. It combines an in-game clickable Music Center, local offline audio playback, browser-connected online music controls, synchronized lyrics, and optional cinematic sky effects.
 
-## Panduan Bahasa Indonesia
+## Language support
 
-Lihat [`PANDUAN-ID.md`](PANDUAN-ID.md) untuk langkah pemasangan di TLauncher, impor musik lokal, lirik LRC, dan koneksi browser.
+The in-game interface defaults to **English**. Open **Settings → Language** to switch to **Bahasa Indonesia**; your selection is saved locally. The English documentation in this README is the primary guide. An Indonesian installation guide is available in [PANDUAN-ID.md](PANDUAN-ID.md).
 
 ## Music Center
+
+The UI language defaults to English and can be switched to Indonesian from the Settings tab.
 
 Open the interface with **O**. The entire player is operated through clickable Minecraft UI buttons; chat commands are not required.
 
