@@ -315,7 +315,32 @@ public final class SkyLyricsScreen extends Screen {
             }
             if(SkyLyricsClient.MEDIA_NOTICE!=null&&!SkyLyricsClient.MEDIA_NOTICE.isBlank())
                 graphics.text(font,SkyLyricsClient.MEDIA_NOTICE,contentLeft+14,top+393,0xFF9D96B3,false);
-        } else if(tab==Tab.PLAYER) {\n            graphics.text(font, "LOCAL LYRICS LIBRARY", contentLeft, top + 98, 0xFFC6A0FF, true);\n            if (SkyLyricsClient.PLAYER.hasTrack()) {\n                graphics.text(font, SkyLyricsClient.PLAYER.track().title(), contentLeft, top + 124, 0xFFFFFFFF, true);\n                graphics.text(font, SkyLyricsClient.PLAYER.track().artist(), contentLeft, top + 143, 0xFFBDB7CD, false);\n                LyricsCue cue = SkyLyricsClient.PLAYER.currentCue();\n                if (cue != null) graphics.text(font, cue.text(), contentLeft, top + 164, SkyLyricsClient.CONFIG.accentColor(), true);\n                graphics.text(font, (SkyLyricsClient.PLAYER.isPlaying() ? "TIMELINE RUNNING" : "TIMELINE PAUSED") + "  ·  " + LyricsPlayer.formatTime(SkyLyricsClient.PLAYER.positionMs()) + " / " + LyricsPlayer.formatTime(SkyLyricsClient.PLAYER.durationMs()), contentLeft, top + 184, 0xFFD4D1E2, false);\n            } else {\n                graphics.text(font, "No LRC file loaded.", contentLeft, top + 128, 0xFFD4D1E2, false);\n            }\n            graphics.text(font, "Offline: load downloaded .lrc files from the folder above.", contentLeft, top + 218, 0xFFBDB7CD, false);\n            graphics.text(font, "Online: browser media metadata can sync supported YouTube lyrics.", contentLeft, top + 238, 0xFFBDB7CD, false);\n            graphics.text(font, "Audio playback is not yet provided by this timeline controller.", contentLeft, top + 260, 0xFFFFC27A, false);\n            graphics.text(font, "Touch or click the buttons; no chat commands are needed.", contentLeft, top + 282, 0xFF9BE7BF, false);\n        } else if(tab==Tab.SKIES) {
+        } else if(tab==Tab.PLAYER) {
+            graphics.text(font, "LOCAL LYRICS LIBRARY", contentLeft, top + 98, 0xFFC6A0FF, true);
+            if (SkyLyricsClient.PLAYER.hasTrack()) {
+                graphics.text(font, SkyLyricsClient.PLAYER.track().title(), contentLeft, top + 124, 0xFFFFFFFF, true);
+                graphics.text(font, SkyLyricsClient.PLAYER.track().artist(), contentLeft, top + 143, 0xFFBDB7CD, false);
+                LyricsCue cue = SkyLyricsClient.PLAYER.currentCue();
+                if (cue != null) {
+                    graphics.text(font, cue.text(), contentLeft, top + 164, SkyLyricsClient.CONFIG.accentColor(), true);
+                }
+                graphics.text(font,
+                        (SkyLyricsClient.PLAYER.isPlaying() ? "TIMELINE RUNNING" : "TIMELINE PAUSED")
+                                + "  ·  " + LyricsPlayer.formatTime(SkyLyricsClient.PLAYER.positionMs())
+                                + " / " + LyricsPlayer.formatTime(SkyLyricsClient.PLAYER.durationMs()),
+                        contentLeft, top + 184, 0xFFD4D1E2, false);
+            } else {
+                graphics.text(font, "No LRC file loaded.", contentLeft, top + 128, 0xFFD4D1E2, false);
+            }
+            graphics.text(font, "Offline: load downloaded .lrc files from the folder above.",
+                    contentLeft, top + 218, 0xFFBDB7CD, false);
+            graphics.text(font, "Online: browser media metadata can sync supported YouTube lyrics.",
+                    contentLeft, top + 238, 0xFFBDB7CD, false);
+            graphics.text(font, "Audio playback is not yet provided by this timeline controller.",
+                    contentLeft, top + 260, 0xFFFFC27A, false);
+            graphics.text(font, "Touch or click the buttons; no chat commands are needed.",
+                    contentLeft, top + 282, 0xFF9BE7BF, false);
+        } else if(tab==Tab.SKIES) {
             graphics.text(font,"20 original animated, depth-masked sky presets",contentLeft,top+98,0xFFBDB7CD,false);
             graphics.text(font,"Active: "+SkyPresetCatalog.byId(SkyLyricsClient.CONFIG.skyPreset()).name(),
                     contentLeft,top+panelHeight-28,SkyLyricsClient.CONFIG.accentColor(),true);
