@@ -120,7 +120,7 @@ public final class BrowserMediaServer implements AutoCloseable {
             }
             if (method.equals("GET") && path.equals("/v1/commands")) {
                 if (!isBrowserExtensionOrigin(origin)) {
-                    respond(output, 403, "Forbidden", "application/json", "{\\"error\\":\\"extension origin required\\"}");
+                    respond(output, 403, "Forbidden", "application/json", "{\"error\":\"extension origin required\"}");
                     return;
                 }
                 int requestedTab = queryInt(requestTarget, "tabId", -1);
@@ -128,11 +128,11 @@ public final class BrowserMediaServer implements AutoCloseable {
                 if (requestedTab >= 0 && requestedTab == latestTabId()) {
                     String command;
                     while ((command = controlQueue.poll()) != null && commands.size() < 12) {
-                        commands.add("\\\"" + escape(command) + "\\\"");
+                        commands.add("\"" + escape(command) + "\"");
                     }
                 }
                 respond(output, 200, "OK", "application/json",
-                        "{\\"commands\\":[" + String.join(",", commands) + "]}");
+                        "{\"commands\":[" + String.join(",", commands) + "]}");
                 return;
             }
             if (method.equals("POST") && path.equals("/v1/browser-session")) {
