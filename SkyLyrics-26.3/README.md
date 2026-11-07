@@ -8,6 +8,7 @@ Open the interface with **O**. The entire player is operated through clickable M
 
 - **Music Center:** play, pause, stop, previous/next, seek, and volume controls.
 - **Offline Library:** import and play local music files, browse the saved library, import matching LRC files, and open the library folder.
+- **History & Stats:** locally stored play-session count, unique recent tracks, and the latest 100 playback sessions; history can be cleared from the UI.
 - **Online Music:** open YouTube Music or Spotify Web in the browser and control the active browser player from Minecraft.
 - **Lyrics Studio:** floating 3D lyrics or HUD lyrics, LRC import, word reveal, font and style controls.
 - **Keybinds:** all SkyLyrics shortcuts appear in Minecraft's Controls screen and can be rebound there.
@@ -22,10 +23,13 @@ Open the interface with **O**. The entire player is operated through clickable M
 
 Supported formats: **MP3, OGG, WAV, AIFF and AU**. MP3 and OGG decoding is supplied by bundled Java Sound codec libraries. WAV/AIFF/AU use the Java runtime audio providers.
 
+The compact in-game waveform reacts to measured PCM amplitude for offline tracks. Browser playback shows a lightweight transport animation only; SkyLyrics does not capture browser audio.
+
 To show synchronized lyrics offline, import a matching `.lrc` file into the Lyrics Library. The audio and lyric files must share the same base filename, for example `Golden Hour.mp3` and `Golden Hour.lrc`. You can also import the LRC from the Music Center.
 
 Music library directory: `config/skylyrics/music/`.
 Lyrics directory: `config/skylyrics/lyrics/`.
+Listening history: `config/skylyrics/history.json` (metadata only; stored locally and removable from History & Stats).
 
 ## Online playback
 
@@ -36,7 +40,7 @@ Online mode uses the official website player in Chrome or Edge. Internet access 
 3. Install the included `browser-extension` folder as an unpacked extension in Chrome or Edge and keep the provider tab open.
 4. When the extension is connected, SkyLyrics shows the current track and exposes browser playback controls in the Minecraft UI.
 
-The browser streams the music directly. SkyLyrics does not capture, download, or relay audio bytes from the online provider. The local extension only sends supported track metadata and receives a small allow-listed set of user playback commands over `127.0.0.1:38173`.
+The browser streams the music directly. SkyLyrics does not capture, download, or relay audio bytes from the online provider. The local extension only sends supported track metadata and receives a small allow-listed set of user playback commands over `127.0.0.1:38173`. Track/session metadata is recorded in the local History & Stats page; no audio is captured or uploaded by SkyLyrics.
 
 YouTube / YouTube Music can request synchronized LRC lyrics when a matching result is available. If none is found, import an LRC file manually. Spotify Web displays Now Playing metadata and artwork; synchronized Spotify lyrics are intentionally disabled.
 
@@ -51,6 +55,12 @@ YouTube / YouTube Music can request synchronized LRC lyrics when a matching resu
 | B | Previous local library track |
 
 Every key is configurable in **Minecraft → Options → Controls → Key Binds → SkyLyrics**. The UI buttons work with the standard Minecraft screen pointer; no chat command is needed.
+
+## Listening history and visualizer
+
+History & Stats records a local play session when a local track is selected or a supported browser track is observed playing. It stores only title, artist, source, and timestamp in `config/skylyrics/history.json`; it does not store audio, account identifiers, or authentication tokens. The most recent 100 sessions are kept, while the total session count is retained. The history can be cleared from the in-game page.
+
+For local audio, the mini-player waveform uses a short-window RMS measurement from the PCM stream. Online browser playback deliberately does not expose captured audio samples; its bars are only a playback-state animation.
 
 ## Shader is optional
 
