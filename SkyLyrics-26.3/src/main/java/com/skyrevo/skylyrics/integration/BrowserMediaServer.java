@@ -225,7 +225,7 @@ public final class BrowserMediaServer implements AutoCloseable {
 
     /** Queues a safe media-control request for the currently active supported browser tab. */
     public boolean enqueueControl(String command) {
-        if (command == null || !java.util.Set.of("play_pause", "next", "previous",
+        if (command == null || !java.util.Set.of("play_pause", "pause", "next", "previous",
                 "seek_forward", "seek_back", "volume_up", "volume_down").contains(command)) return false;
         if (latest() == null || activeTabId < 0 || controlQueue.size() >= 16) return false;
         controlQueue.offer(command);
