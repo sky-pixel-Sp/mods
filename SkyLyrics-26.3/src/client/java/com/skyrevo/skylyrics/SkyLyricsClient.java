@@ -1,7 +1,5 @@
 package com.skyrevo.skylyrics;
 
-import com.mojang.brigadier.Command;
-import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.skyrevo.skylyrics.core.LyricsLibrary;
 import com.skyrevo.skylyrics.core.LyricsPlayer;
@@ -15,8 +13,6 @@ import com.skyrevo.skylyrics.render.SkyEffectController;
 import com.skyrevo.skylyrics.render.AlbumArtManager;
 import com.skyrevo.skylyrics.ui.SkyLyricsScreen;
 import net.fabricmc.api.ClientModInitializer;
-import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
-import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
@@ -110,20 +106,6 @@ public final class SkyLyricsClient implements ClientModInitializer {
         HudElementRegistry.addLast(
                 Identifier.fromNamespaceAndPath(MOD_ID, "lyrics_hud"),
                 SkyLyricsHud::extract
-        );
-
-        ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) ->
-                dispatcher.register(
-                        LiteralArgumentBuilder.<FabricClientCommandSource>literal("skylyrics")
-                                .then(LiteralArgumentBuilder.<FabricClientCommandSource>literal("demo").executes(context -> {
-                                    startDemo();
-                                    return Command.SINGLE_SUCCESS;
-                                }))
-                                .then(LiteralArgumentBuilder.<FabricClientCommandSource>literal("stop").executes(context -> {
-                                    stopDemo();
-                                    return Command.SINGLE_SUCCESS;
-                                }))
-                )
         );
 
         LOGGER.info("SkyLyrics loaded: {} local LRC track(s) found.", LIBRARY.listTracks().size());
@@ -224,7 +206,7 @@ public final class SkyLyricsClient implements ClientModInitializer {
                     "SkyLyrics Studio"
             ));
             PLAYER.play();
-            MEDIA_NOTICE = "Cinematic preview playing. Press K to pause or /skylyrics stop to exit.";
+            MEDIA_NOTICE = "Cinematic preview playing. Use the Player tab or K to pause."
             LOGGER.info("Started built-in SkyLyrics cinematic preview.");
         } catch (IOException exception) {
             demoActive = false;
