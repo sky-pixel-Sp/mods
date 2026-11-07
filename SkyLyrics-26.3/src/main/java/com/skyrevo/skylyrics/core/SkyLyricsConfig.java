@@ -10,7 +10,7 @@ import java.util.Properties;
 
 /** Persisted settings for the SkyLyrics sky and lyric engines. */
 public final class SkyLyricsConfig {
-    private static final int CURRENT_CONFIG_VERSION = 5;
+    private static final int CURRENT_CONFIG_VERSION = 6;
 
     private final Path file;
     private int theme = 0;
@@ -44,6 +44,7 @@ public final class SkyLyricsConfig {
     private boolean elytraLyricsEnabled = true;
     private int nowPlayingStyle = 0;
     private String fontFamily = "poppins";
+    private String language = "en";
 
     public SkyLyricsConfig(Path configDirectory) {
         file = configDirectory.resolve("skylyrics.properties");
@@ -92,6 +93,7 @@ public final class SkyLyricsConfig {
             elytraLyricsEnabled = Boolean.parseBoolean(p.getProperty("elytraLyricsEnabled", "true"));
             nowPlayingStyle = clamp(parseInt(p.getProperty("nowPlayingStyle"), 0), 0, 2);
             fontFamily = SkyFontCatalog.byId(p.getProperty("fontFamily", "poppins")).id();
+            language = "id".equalsIgnoreCase(p.getProperty("language", "en")) ? "id" : "en";
 
             /*
              * Version 0.4 used a 0.012–0.060 world-text scale. Those values make
@@ -153,6 +155,7 @@ public final class SkyLyricsConfig {
         p.setProperty("elytraLyricsEnabled", Boolean.toString(elytraLyricsEnabled));
         p.setProperty("nowPlayingStyle", Integer.toString(nowPlayingStyle));
         p.setProperty("fontFamily", fontFamily);
+        p.setProperty("language", language);
         try {
             Files.createDirectories(file.getParent());
             try (Writer writer = Files.newBufferedWriter(file, StandardCharsets.UTF_8)) {
@@ -304,6 +307,11 @@ public final class SkyLyricsConfig {
             default -> "Bordered";
         };
     }
+
+    public String language() { return language; }
+    public boolean isEnglish() { return "en".equals(language); }
+    public String languageName() { return isEnglish() ? "English" : "Indonesian"; }
+    public void toggleLanguage() { language = isEnglish() ? "id" : "en"; save(); }
 
     public String fontFamily() { return fontFamily; }
     public void setFontFamily(String value) { fontFamily = SkyFontCatalog.byId(value).id(); save(); }
