@@ -80,7 +80,6 @@ public final class SkyLyricsClient implements ClientModInitializer {
         CONFIG = new SkyLyricsConfig(configDirectory);
         LIBRARY = new LyricsLibrary(configDirectory);
         MUSIC_LIBRARY = new MusicLibrary(configDirectory);
-        loadFirstAvailableTrack();
         MEDIA_BRIDGE.start();
 
         KeyMapping.Category category = KeyMapping.Category.register(
