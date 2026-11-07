@@ -333,8 +333,14 @@ public final class SkyLyricsClient implements ClientModInitializer {
         }
     }
 
-    public static void nextLocalTrack() { moveLocalTrack(1); }
-    public static void previousLocalTrack() { moveLocalTrack(-1); }
+    public static void nextLocalTrack() {
+        if (!localAudioMode && CURRENT_MEDIA != null && CURRENT_MEDIA.available()) controlOnline("next");
+        else moveLocalTrack(1);
+    }
+    public static void previousLocalTrack() {
+        if (!localAudioMode && CURRENT_MEDIA != null && CURRENT_MEDIA.available()) controlOnline("previous");
+        else moveLocalTrack(-1);
+    }
 
     private static void moveLocalTrack(int direction) {
         var tracks = MUSIC_LIBRARY.listAudio();
@@ -359,6 +365,10 @@ public final class SkyLyricsClient implements ClientModInitializer {
         localAudioMode = false;
         AUDIO.clear();
         PLAYER.clear();
+        CURRENT_MEDIA = null;
+        activeMediaIdentity = "";
+        lookupGeneration++;
+        lookupRunning = false;
         String url = switch (provider) {
             case "spotify" -> "https://open.spotify.com/";
             default -> "https://music.youtube.com/";
