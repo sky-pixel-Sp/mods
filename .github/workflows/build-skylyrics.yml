@@ -67,6 +67,7 @@ jobs:
           jar tf "${JAR}" | grep -q 'AlbumArtManager.class'
           jar tf "${JAR}" | grep -q 'LocalAudioEngine.class'
           jar tf "${JAR}" | grep -q 'MusicLibrary.class'
+          jar tf "${JAR}" | grep -q 'MusicHistory.class'
           jar tf "${JAR}" | grep -q 'META-INF/licenses/skylyrics-fonts/poppins-OFL.txt'
           jar tf "${JAR}" | grep -q 'META-INF/licenses/skylyrics-audio/NOTICE.txt'
           jar tf "${JAR}" | grep -q 'META-INF/jars/mp3spi-'
@@ -74,7 +75,7 @@ jobs:
           jar tf "${JAR}" | grep -q 'META-INF/jars/jlayer-'
           jar tf "${JAR}" | grep -q 'META-INF/jars/jorbis-'
           jar tf "${JAR}" | grep -q 'META-INF/jars/tritonus-share-'
-          echo "SkyLyrics ${MOD_VERSION} JAR, offline audio codecs, Music Center and visual assets verified."
+          echo "SkyLyrics ${MOD_VERSION} JAR, offline audio codecs, listening history, Music Center and visual assets verified."
       - name: Validate browser connector
         working-directory: SkyLyrics-26.3
         shell: bash
