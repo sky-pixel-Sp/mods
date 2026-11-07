@@ -100,7 +100,7 @@ jobs:
           rm -rf "${DIST}"
           mkdir -p "${DIST}/browser-extension"
           cp "build/libs/skylyrics-${MOD_VERSION}.jar" "${DIST}/"
-          cp README.md LICENSE "${DIST}/"
+          cp README.md LICENSE PANDUAN-ID.md "${DIST}/"
           cp browser-extension/manifest.json browser-extension/background.js browser-extension/content.js browser-extension/README.md "${DIST}/browser-extension/"
           test -s "${DIST}/skylyrics-${MOD_VERSION}.jar"
           test -s "${DIST}/browser-extension/manifest.json"
