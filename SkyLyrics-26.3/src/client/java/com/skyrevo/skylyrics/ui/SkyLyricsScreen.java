@@ -176,8 +176,6 @@ public final class SkyLyricsScreen extends Screen {
                 contentLeft, y + 10, half, 30);
         action("CLEAR HISTORY", SkyLyricsClient.HISTORY::clear,
                 contentLeft + half + gap, y + 10, half, 30);
-        action("HISTORY IS STORED LOCALLY ON THIS COMPUTER",
-                () -> {}, contentLeft, y + 52, contentWidth, 27);
     }
 
     private void online(int y) {
