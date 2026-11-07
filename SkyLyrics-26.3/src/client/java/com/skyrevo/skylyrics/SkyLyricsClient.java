@@ -15,6 +15,7 @@ import com.skyrevo.skylyrics.render.SkyEffectController;
 import com.skyrevo.skylyrics.render.AlbumArtManager;
 import com.skyrevo.skylyrics.ui.SkyLyricsScreen;
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
@@ -113,12 +114,12 @@ public final class SkyLyricsClient implements ClientModInitializer {
 
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) ->
                 dispatcher.register(
-                        LiteralArgumentBuilder.literal("skylyrics")
-                                .then(LiteralArgumentBuilder.literal("demo").executes(context -> {
+                        LiteralArgumentBuilder.<FabricClientCommandSource>literal("skylyrics")
+                                .then(LiteralArgumentBuilder.<FabricClientCommandSource>literal("demo").executes(context -> {
                                     startDemo();
                                     return Command.SINGLE_SUCCESS;
                                 }))
-                                .then(LiteralArgumentBuilder.literal("stop").executes(context -> {
+                                .then(LiteralArgumentBuilder.<FabricClientCommandSource>literal("stop").executes(context -> {
                                     stopDemo();
                                     return Command.SINGLE_SUCCESS;
                                 }))
