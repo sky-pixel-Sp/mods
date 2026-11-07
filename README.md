@@ -1,11 +1,11 @@
 # SkyLyrics — by Sky | Minecraft Java 26.3
 
-**SkyLyrics 0.9.1** is a client-side Fabric mod by **Sky**. It includes an in-game Music Center, offline music library, browser-connected media controls, synchronized lyrics, configurable 2D / 3D HUD, cinematic sky presets, and a custom mod icon.
+**SkyLyrics 0.9.2** is a client-side Fabric mod by **Sky**. It includes an in-game Music Center, offline music library, browser-connected media controls, synchronized lyrics, configurable 2D / 3D HUD, cinematic sky presets, and a custom mod icon plus an in-game gallery of authentic NASA/JPL nebula photography used by the Skies selector.
 
 ## Quick start
 
 1. Launch Minecraft Java **26.3** with Fabric Loader and the matching Fabric API.
-2. Put `skylyrics-0.9.1.jar` in that Fabric profile's `mods` folder.
+2. Put `skylyrics-0.9.2.jar` in that Fabric profile's `mods` folder.
 3. Enter a world and press **O** to open SkyLyrics.
 4. For local music, choose **Music Center → Import Song** and select MP3, OGG, or WAV.
 5. For synchronized local lyrics, open **Lyrics → Import / Match LRC** and select the matching `.lrc` file.
