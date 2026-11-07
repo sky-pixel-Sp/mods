@@ -501,7 +501,6 @@ public final class SkyLyricsScreen extends Screen {
             case "BY SKY  ·  CINEMATIC MUSIC EXPERIENCE" -> "OLEH SKY  ·  MUSIK SINEMATIK";
             case "CINEMATIC PREVIEW" -> "PRATINJAU SINEMATIK";
             case "Choose a local song or open an online provider." -> "Pilih lagu lokal atau buka penyedia online.";
-            case "OFFLINE LIBRARY" -> "PUSTAKA OFFLINE";
             case "SUPPORTED: MP3 · OGG · WAV · AIFF · AU" -> "FORMAT: MP3 · OGG · WAV · AIFF · AU";
             case "Matching .lrc files are loaded automatically by filename." -> "File .lrc yang cocok dimuat otomatis berdasarkan nama.";
             case "LISTENING OVERVIEW" -> "RINGKASAN PEMUTARAN";
