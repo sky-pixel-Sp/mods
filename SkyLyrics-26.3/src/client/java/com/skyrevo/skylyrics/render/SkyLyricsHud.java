@@ -17,7 +17,11 @@ public final class SkyLyricsHud {
         if (SkyLyricsClient.CONFIG == null || !SkyLyricsClient.CONFIG.enabled()) return;
 
         MediaStatus media = SkyLyricsClient.CURRENT_MEDIA;
-        if (media != null && media.available()) drawNowPlaying(graphics, media);
+        if (media != null && media.available()) {
+            drawNowPlaying(graphics, media);
+        } else if (SkyLyricsClient.isDemoActive() && SkyLyricsClient.PLAYER.hasTrack()) {
+            drawDemoNowPlaying(graphics);
+        }
 
         LyricsPlayer player = SkyLyricsClient.PLAYER;
         if (!player.hasTrack() || SkyLyricsClient.CONFIG.worldLyrics()) return;
@@ -105,57 +109,107 @@ public final class SkyLyricsHud {
         graphics.centeredText(minecraft.font, status, centerX, barY + 5, withAlpha(0xFFE5E5EF, 170));
     }
 
-    /** Compact, always-visible Now Playing card; independent of the 3D lyric mode. */
+    /** Compact top-centre music pill; independent of the 3D lyric mode. */
     private static void drawNowPlaying(GuiGraphicsExtractor graphics, MediaStatus media) {
+        drawPlayerPill(
+                graphics,
+                media.displaySource(),
+                media.title(),
+                media.artist(),
+                media.positionMs(),
+                media.durationMs(),
+                media.playing(),
+                AlbumArtManager.hasTexture()
+        );
+    }
+
+    private static void drawDemoNowPlaying(GuiGraphicsExtractor graphics) {
+        LyricsPlayer player = SkyLyricsClient.PLAYER;
+        drawPlayerPill(
+                graphics,
+                "SKYLYRICS DEMO",
+                player.track().title(),
+                player.track().artist(),
+                player.positionMs(),
+                player.durationMs(),
+                player.isPlaying(),
+                false
+        );
+    }
+
+    private static void drawPlayerPill(
+            GuiGraphicsExtractor graphics,
+            String source,
+            String title,
+            String artist,
+            long positionMs,
+            long durationMs,
+            boolean playing,
+            boolean hasArtwork
+    ) {
         Minecraft minecraft = Minecraft.getInstance();
         int screenWidth = graphics.guiWidth();
-        int panelWidth = Math.min(318, screenWidth - 24);
-        if (panelWidth < 180) return;
+        int panelWidth = Math.min(380, screenWidth - 24);
+        if (panelWidth < 220) return;
 
-        int panelHeight = 76;
-        int x = 12;
-        int y = graphics.guiHeight() - panelHeight - 12;
+        int panelHeight = 58;
+        int x = (screenWidth - panelWidth) / 2;
+        int y = 12;
         int accent = SkyLyricsClient.CONFIG.accentColor();
-        graphics.fill(x, y, x + panelWidth, y + panelHeight, 0xD90C0A18);
-        graphics.outline(x, y, panelWidth, panelHeight, 0xFF65528C);
-        graphics.fill(x, y, x + panelWidth, y + 2, accent);
+
+        // Translucent compact panel with a restrained top accent, not a large opaque HUD card.
+        graphics.fill(x, y, x + panelWidth, y + panelHeight, 0xD60B0A13);
+        graphics.outline(x, y, panelWidth, panelHeight, 0xAA75618F);
+        graphics.fill(x + 2, y + 2, x + panelWidth - 2, y + 3, withAlpha(accent, 190));
 
         int artX = x + 9;
         int artY = y + 10;
-        int artSize = 54;
-        if (AlbumArtManager.hasTexture()) {
+        int artSize = 36;
+        if (hasArtwork) {
             graphics.blit(RenderPipelines.GUI_TEXTURED, AlbumArtManager.TEXTURE_ID,
                     artX, artY, 0.0F, 0.0F, artSize, artSize, artSize, artSize);
         } else {
-            graphics.fill(artX, artY, artX + artSize, artY + artSize, 0xFF241D36);
-            graphics.centeredText(minecraft.font, "♪", artX + artSize / 2, artY + 19, 0xFFC6A0FF);
+            graphics.fill(artX, artY, artX + artSize, artY + artSize, 0xFF211A31);
+            graphics.centeredText(minecraft.font, "♪", artX + artSize / 2, artY + 12, 0xFFE4C8FF);
         }
 
         int textX = artX + artSize + 10;
-        int maxTextWidth = panelWidth - (textX - x) - 10;
-        int pulse = media.playing()
+        int waveWidth = 32;
+        int rightInset = 10;
+        int maxTextWidth = Math.max(80, panelWidth - (textX - x) - waveWidth - rightInset - 10);
+        int pulse = playing
                 ? 150 + (int) (55 * (0.5 + 0.5 * Math.sin(System.nanoTime() / 280_000_000.0)))
-                : 125;
-        graphics.fill(textX, y + 12, textX + 5, y + 17, withAlpha(0xFF7FE0B0, pulse));
-        graphics.text(minecraft.font, "NOW PLAYING  ·  " + media.displaySource(),
-                textX + 10, y + 10, 0xFFBDA9FF, true);
-        graphics.text(minecraft.font, fit(media.title().isBlank() ? "Unknown track" : media.title(),
-                minecraft, maxTextWidth, 1.0f), textX + 10, y + 26, 0xFFFFFFFF, true);
-        graphics.text(minecraft.font, fit(media.artist().isBlank() ? " " : media.artist(),
-                minecraft, maxTextWidth, 1.0f), textX + 10, y + 40, 0xFFCBC7D8, false);
+                : 120;
 
-        int progressX = textX + 10;
-        int progressWidth = Math.max(30, x + panelWidth - 10 - progressX);
-        int progressY = y + 61;
-        graphics.fill(progressX, progressY, progressX + progressWidth, progressY + 2, 0x663F3A50);
-        int progress = media.durationMs() <= 0 ? 0 : (int) (progressWidth * Math.max(0.0,
-                Math.min(1.0, (double) media.positionMs() / media.durationMs())));
+        graphics.fill(textX, y + 11, textX + 5, y + 16, withAlpha(0xFF8BE2B5, pulse));
+        graphics.text(minecraft.font, "NOW PLAYING  ·  " + fit(source, minecraft, maxTextWidth, 1.0f),
+                textX + 10, y + 8, 0xFFCBB8F4, true);
+        graphics.text(minecraft.font, fit(title == null || title.isBlank() ? "Unknown track" : title,
+                minecraft, maxTextWidth, 1.0f), textX + 10, y + 22, 0xFFFFFCF7, true);
+        graphics.text(minecraft.font, fit(artist == null ? "" : artist,
+                minecraft, maxTextWidth, 1.0f), textX + 10, y + 37, 0xFFC9C4D5, false);
+
+        // A small animated waveform echoes the music instead of adding another large panel.
+        int waveX = x + panelWidth - 27;
+        int waveCenter = y + 28;
+        for (int i = 0; i < 5; i++) {
+            float seed = new float[]{0.45f, 0.75f, 1.0f, 0.68f, 0.50f}[i];
+            int barHeight = playing
+                    ? 4 + Math.round(11 * seed * (float) (0.35 + 0.65 *
+                            (0.5 + 0.5 * Math.sin(System.nanoTime() / 165_000_000.0 + i * 1.4))))
+                    : 3;
+            int bx = waveX + i * 4;
+            graphics.fill(bx, waveCenter - barHeight / 2, bx + 2, waveCenter + (barHeight + 1) / 2,
+                    withAlpha(accent, playing ? 225 : 120));
+        }
+
+        int progressX = x + 9;
+        int progressWidth = panelWidth - 18;
+        int progressY = y + panelHeight - 4;
+        graphics.fill(progressX, progressY, progressX + progressWidth, progressY + 2, 0x66423A50);
+        int progress = durationMs <= 0 ? 0 : (int) (progressWidth * Math.max(0.0,
+                Math.min(1.0, (double) positionMs / durationMs)));
         graphics.fill(progressX, progressY, progressX + progress, progressY + 2, accent);
-
-        String time = LyricsPlayer.formatTime(media.positionMs()) + " / "
-                + (media.durationMs() > 0 ? LyricsPlayer.formatTime(media.durationMs()) : "--:--");
-        graphics.text(minecraft.font, time, x + panelWidth - minecraft.font.width(time) - 10,
-                y + 48, 0xFF9690AA, false);
     }
 
     private static FormattedCharSequence fit(String value, Minecraft minecraft, int screenWidth, float scale) {
