@@ -2,5 +2,7 @@
   "key.category.skylyrics.main": "SkyLyrics",
   "key.skylyrics.open_menu": "Open SkyLyrics menu",
   "key.skylyrics.toggle_hud": "Toggle lyric display",
-  "key.skylyrics.play_pause": "Play / pause lyric sync"
+  "key.skylyrics.play_pause": "Play / pause lyric sync",
+  "key.skylyrics.next_track": "Next local track",
+  "key.skylyrics.previous_track": "Previous local track"
 }

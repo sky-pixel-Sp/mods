@@ -2,5 +2,7 @@
   "key.category.skylyrics.main": "SkyLyrics",
   "key.skylyrics.open_menu": "Buka menu SkyLyrics",
   "key.skylyrics.toggle_hud": "Tampilkan / sembunyikan lirik",
-  "key.skylyrics.play_pause": "Putar / jeda sinkronisasi lirik"
+  "key.skylyrics.play_pause": "Putar / jeda sinkronisasi lirik",
+  "key.skylyrics.next_track": "Lagu lokal berikutnya",
+  "key.skylyrics.previous_track": "Lagu lokal sebelumnya"
 }

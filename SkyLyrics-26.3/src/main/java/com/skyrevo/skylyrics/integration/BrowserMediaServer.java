@@ -18,11 +18,14 @@ import java.util.Locale;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Map;
+import java.util.List;
+import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * Receives metadata from the SkyLyrics browser extension over a loopback-only HTTP server.
- * No audio bytes or remote-control commands are accepted.
+ * Audio bytes are never accepted. A strict allow-listed command queue relays user controls to the active extension tab.
  */
 public final class BrowserMediaServer implements AutoCloseable {
     private static final Logger LOGGER = LoggerFactory.getLogger("skylyrics-browser-media");
@@ -32,6 +35,8 @@ public final class BrowserMediaServer implements AutoCloseable {
     private static final long STALE_AFTER_MS = Duration.ofSeconds(5).toMillis();
 
     private final Map<Integer, MediaStatus> browserSessions = new ConcurrentHashMap<>();
+    private final ConcurrentLinkedQueue<String> controlQueue = new ConcurrentLinkedQueue<>();
+    private volatile int activeTabId = -1;
     private volatile boolean running;
     private volatile ServerSocket serverSocket;
     private volatile String statusMessage = "Browser connector not connected.";
@@ -90,7 +95,8 @@ public final class BrowserMediaServer implements AutoCloseable {
                 return;
             }
             String method = request[0].toUpperCase();
-            String path = request[1].split("\\?", 2)[0];
+            String requestTarget = request[1];
+            String path = requestTarget.split("\\?", 2)[0];
             int contentLength = 0;
             String origin = "";
             for (String line : lines) {
@@ -110,6 +116,23 @@ public final class BrowserMediaServer implements AutoCloseable {
                 MediaStatus current = latest();
                 String payload = current == null ? "{\"available\":false}" : toJson(current);
                 respond(output, 200, "OK", "application/json", payload);
+                return;
+            }
+            if (method.equals("GET") && path.equals("/v1/commands")) {
+                if (!isBrowserExtensionOrigin(origin)) {
+                    respond(output, 403, "Forbidden", "application/json", "{\"error\":\"extension origin required\"}");
+                    return;
+                }
+                int requestedTab = queryInt(requestTarget, "tabId", -1);
+                List<String> commands = new ArrayList<>();
+                if (requestedTab >= 0 && requestedTab == latestTabId()) {
+                    String command;
+                    while ((command = controlQueue.poll()) != null && commands.size() < 12) {
+                        commands.add("\"" + escape(command) + "\"");
+                    }
+                }
+                respond(output, 200, "OK", "application/json",
+                        "{\"commands\":[" + String.join(",", commands) + "]}");
                 return;
             }
             if (method.equals("POST") && path.equals("/v1/browser-session")) {
@@ -180,16 +203,48 @@ public final class BrowserMediaServer implements AutoCloseable {
     public MediaStatus latest() {
         long now = System.currentTimeMillis();
         browserSessions.entrySet().removeIf(entry -> now - entry.getValue().updatedAtEpochMs() > STALE_AFTER_MS);
-        MediaStatus playing = browserSessions.values().stream().filter(MediaStatus::playing)
-                .max(java.util.Comparator.comparingLong(MediaStatus::updatedAtEpochMs)).orElse(null);
-        if (playing != null) return playing;
-        MediaStatus paused = browserSessions.values().stream()
-                .max(java.util.Comparator.comparingLong(MediaStatus::updatedAtEpochMs)).orElse(null);
-        if (paused == null && running) statusMessage = "Listening on 127.0.0.1:" + PORT + "; waiting for a music tab.";
-        return paused;
+        Map.Entry<Integer, MediaStatus> selected = browserSessions.entrySet().stream()
+                .filter(entry -> entry.getValue().playing())
+                .max(java.util.Comparator.comparingLong(entry -> entry.getValue().updatedAtEpochMs()))
+                .orElseGet(() -> browserSessions.entrySet().stream()
+                        .max(java.util.Comparator.comparingLong(entry -> entry.getValue().updatedAtEpochMs()))
+                        .orElse(null));
+        if (selected == null) {
+            activeTabId = -1;
+            if (running) statusMessage = "Listening on 127.0.0.1:" + PORT + "; waiting for a music tab.";
+            return null;
+        }
+        activeTabId = selected.getKey();
+        return selected.getValue();
+    }
+
+    public int latestTabId() {
+        latest();
+        return activeTabId;
+    }
+
+    /** Queues a safe media-control request for the currently active supported browser tab. */
+    public boolean enqueueControl(String command) {
+        if (command == null || !java.util.Set.of("play_pause", "pause", "next", "previous",
+                "seek_forward", "seek_back", "volume_up", "volume_down").contains(command)) return false;
+        if (latest() == null || activeTabId < 0 || controlQueue.size() >= 16) return false;
+        controlQueue.offer(command);
+        return true;
     }
 
     public String statusMessage() { return statusMessage; }
+
+    private static int queryInt(String target, String key, int fallback) {
+        int marker = target.indexOf('?');
+        if (marker < 0) return fallback;
+        for (String part : target.substring(marker + 1).split("&")) {
+            String[] pair = part.split("=", 2);
+            if (pair.length == 2 && pair[0].equals(key)) {
+                try { return Integer.parseInt(pair[1]); } catch (NumberFormatException ignored) { return fallback; }
+            }
+        }
+        return fallback;
+    }
 
     private static boolean isBrowserExtensionOrigin(String origin) {
         return origin != null && origin.matches("chrome-extension://[a-p]{32}");
@@ -267,5 +322,7 @@ public final class BrowserMediaServer implements AutoCloseable {
         try { if (serverSocket != null) serverSocket.close(); }
         catch (IOException ignored) { }
         browserSessions.clear();
+        controlQueue.clear();
+        activeTabId = -1;
     }
 }

@@ -1,32 +1,73 @@
-# SkyLyrics 0.5.0 — Cinematic Edition
+# SkyLyrics 0.6.0 — Music Center
 
-A client-side Fabric mod for Minecraft Java 26.3. SkyLyrics turns music into large, timed 3D typography in the Minecraft sky, with procedural sky effects and a configurable studio menu.
+SkyLyrics is a client-side Fabric mod for Minecraft Java 26.3. It combines an in-game clickable Music Center, local offline audio playback, browser-connected online music controls, synchronized lyrics, and optional cinematic sky effects.
 
-## What changed in 0.5.0
+## Music Center
 
-- **Cinematic 3D lyrics:** larger world-space type, word-by-word reveal by default, soft dark outline, and no opaque box behind the lyric.
-- **Automatic line fitting:** long lines scale down to stay inside a comfortable field of view instead of stretching across the whole world.
-- **Golden Sunset is the new default sky:** the sky effect is applied automatically when a world is entered; it no longer waits for the settings screen to be opened.
-- **Legacy settings migration:** existing 0.4 settings are upgraded once, replacing the old tiny 3D text scale with a cinematic default while preserving a custom sky preset and a deliberately larger text size.
-- **Offline preview:** use /skylyrics demo to play an original built-in lyric preview without a music account, browser connector, server, or resource pack. Use /skylyrics stop to stop it.
-- **Studio overview:** a dedicated preview control, live lyric status, expanded workspace, and clearer active-tab indicator.
-- **Bundled typography and mini-player:** eight bundled OFL font families and allow-listed album artwork remain available from 0.4.0.
+Open the interface with **O**. The entire player is operated through clickable Minecraft UI buttons; chat commands are not required.
 
-## Visual direction
+- **Music Center:** play, pause, stop, previous/next, seek, and volume controls.
+- **Offline Library:** import and play local music files, browse the saved library, import matching LRC files, and open the library folder.
+- **History & Stats:** locally stored play-session count, unique recent tracks, and the latest 100 playback sessions; history can be cleared from the UI.
+- **Artwork Glow:** the Now Playing card samples a color from the current cover art and uses it for a restrained pulsing glow when GLOW is enabled.
+- **Online Music:** open YouTube Music or Spotify Web in the browser and control the active browser player from Minecraft.
+- **Lyrics Studio:** floating 3D lyrics or HUD lyrics, LRC import, word reveal, font and style controls.
+- **Keybinds:** all SkyLyrics shortcuts appear in Minecraft's Controls screen and can be rebound there.
+- **Skies / Performance:** choose a procedural sky or disable the sky effect entirely.
 
-The visual target is a cinematic sunset scene with warm sky gradients, very large warm-white lyrics floating above the horizon, subtle shadow/outline, and a compact now-playing pill. Sky backgrounds are generated procedurally by GLSL; there are no baked landscape photographs used as the in-game sky. Lyrics are rendered as live 3D text in the world.
+## Offline playback
 
-The video reference is used as a visual guide, not as an asset to copy. Text, animation, and sky effects are drawn at runtime.
+1. Download or obtain your music file from a source that permits you to keep and play it locally.
+2. In Minecraft press **O → Music Center → Import Song**, or open **Offline Library → Import Audio File**.
+3. Select an audio file. SkyLyrics copies it into `config/skylyrics/music/` so the library can find it again later.
+4. Use the on-screen Play/Pause, Previous, Next, Seek and Volume buttons. Offline playback does not require Wi-Fi or mobile data.
 
-## Features
+Supported formats: **MP3, OGG, WAV, AIFF and AU**. MP3 and OGG decoding is supplied by bundled Java Sound codec libraries. WAV/AIFF/AU use the Java runtime audio providers.
 
-- 20 procedural sky presets: Aurora, Galaxy, Nebula Storm, Nebula, Sunset, Golden Sunset, Pink Sunset, Saturn, Meteors, Star Trails, Comet, Hyperspace, Blood Moon, Solar Flare, Dreamscape, Prism, Synthwave, Black Hole, Thunderstorm, and Ocean.
-- Eight font families: Poppins, Montserrat, Kanit, Fredoka, Unbounded, Bebas Neue, Pacifico, and Caveat.
-- Three-dimensional world lyrics or an on-screen HUD.
-- Word reveal, camera follow/fixed placement, automatic line fitting, text glow/outline, size and distance controls.
-- Local LRC library and automatic synchronized lyric lookup for YouTube / YouTube Music.
-- Now-playing metadata and artwork for supported browser media sessions.
-- Client-only operation; a multiplayer server does not need SkyLyrics installed.
+The compact in-game waveform reacts to measured PCM amplitude for offline tracks. Browser playback shows a lightweight transport animation only; SkyLyrics does not capture browser audio. The Now Playing artwork glow uses a sampled cover-art accent rather than bundling external artwork.
+
+To show synchronized lyrics offline, import a matching `.lrc` file into the Lyrics Library. The audio and lyric files must share the same base filename, for example `Golden Hour.mp3` and `Golden Hour.lrc`. You can also import the LRC from the Music Center.
+
+Music library directory: `config/skylyrics/music/`.
+Lyrics directory: `config/skylyrics/lyrics/`.
+Listening history: `config/skylyrics/history.json` (metadata only; stored locally and removable from History & Stats).
+
+## Online playback
+
+Online mode uses the official website player in Chrome or Edge. Internet access is required, and you must sign in to the music provider yourself if it requires an account.
+
+1. Press **O → Online Music**.
+2. Click **Open YouTube Music** or **Open Spotify Web**. The provider opens in your browser; start playing music there.
+3. Install the included `browser-extension` folder as an unpacked extension in Chrome or Edge and keep the provider tab open.
+4. When the extension is connected, SkyLyrics shows the current track and exposes browser playback controls in the Minecraft UI.
+
+The browser streams the music directly. SkyLyrics does not capture, download, or relay audio bytes from the online provider. The local extension only sends supported track metadata and receives a small allow-listed set of user playback commands over `127.0.0.1:38173`. Track/session metadata is recorded in the local History & Stats page; no audio is captured or uploaded by SkyLyrics.
+
+YouTube / YouTube Music can request synchronized LRC lyrics when a matching result is available. If none is found, import an LRC file manually. Spotify Web displays Now Playing metadata and artwork; synchronized Spotify lyrics are intentionally disabled.
+
+## Controls and keybinds
+
+| Default key | Action |
+|---|---|
+| O | Open SkyLyrics Music Center |
+| H | Show / hide lyric display |
+| K | Play / pause current track |
+| N | Next local library track |
+| B | Previous local library track |
+
+Every key is configurable in **Minecraft → Options → Controls → Key Binds → SkyLyrics**. The UI buttons work with the standard Minecraft screen pointer; no chat command is needed.
+
+## Listening history, artwork glow and visualizer
+
+History & Stats records a local play session when a local track is selected or a supported browser track is observed playing. It stores only title, artist, source, and timestamp in `config/skylyrics/history.json`; it does not store audio, account identifiers, or authentication tokens. The most recent 100 sessions are kept, while the total session count is retained. The history can be cleared from the in-game page.
+
+When supported browser artwork is available, a sampled average accent from the cover is used for a subtle pulsing album-art glow. The effect is optional and follows the existing GLOW setting. No cover images are bundled with the mod.
+
+For local audio, the mini-player waveform uses a short-window RMS measurement from the PCM stream. Online browser playback deliberately does not expose captured audio samples; its bars are only a playback-state animation.
+
+## Shader is optional
+
+The Music Center, offline audio engine, online browser bridge, playlists/library, and lyric synchronization do not depend on the sky shader. Turn off **Sky Engine** in the UI or use the Performance tab; music and lyrics continue to work.
 
 ## Requirements
 
@@ -34,42 +75,24 @@ The video reference is used as a visual guide, not as an asset to copy. Text, an
 - Fabric Loader 0.20.1 or newer.
 - Fabric API 0.165.2+26.3.
 - Java Runtime 25 or newer.
-- Windows 10/11 for browser media integration.
-- Chrome or Edge for YouTube / YouTube Music metadata integration.
+- Windows / desktop environment with Java Sound output for local music. The file picker uses the operating system's native dialog.
+- Chrome or Edge for online browser integration.
 
 ## Install in TLauncher
 
-1. Install Fabric Loader for Minecraft 26.3 and start the Fabric profile once.
-2. Close Minecraft.
-3. Put skylyrics-0.5.0.jar and the matching Fabric API JAR in the same mods folder used by that Fabric profile.
-4. Start the Fabric 26.3 profile again.
-5. Press O to open SkyLyrics Studio. The selected sky is also applied automatically after entering a world.
-6. Press O → Overview → Play Cinematic Preview, or run /skylyrics demo to verify the 3D lyric rendering.
+1. Start the Minecraft 26.3 Fabric profile once, then close Minecraft.
+2. Put `skylyrics-0.6.0.jar` and the matching Fabric API JAR in the `mods` folder used by that Fabric profile.
+3. Start TLauncher and select the Fabric 26.3 profile.
+4. Enter a world and press **O** to open SkyLyrics Music Center.
 
-No SkyLyrics JAR or resource pack is installed on the multiplayer server. This mod runs on the player's client.
+SkyLyrics is client-side; a multiplayer server does not need this mod installed. No server resource pack is required.
 
-## Controls
+## Build and verification
 
-| Key / command | Function |
-|---|---|
-| O | Open SkyLyrics Studio |
-| H | Show / hide lyric display |
-| K | Play / pause a local LRC or demo track |
-| /skylyrics demo | Start the offline cinematic preview |
-| /skylyrics stop | Stop the preview |
+GitHub Actions uses JDK 25 and Gradle 9.8.2. The pipeline runs unit tests, verifies sky shaders and fonts, compiles the Minecraft 26.3 Fabric client, validates browser-extension JavaScript, verifies audio/player classes, and uploads the mod JAR.
 
-## Music integration
+A green CI result confirms compilation, unit tests, and packaging. It does not replace the final manual audio test in TLauncher. Local MP3/OGG output and online browser controls must be smoke-tested on the target Windows PC before calling this a fully verified release.
 
-For YouTube and YouTube Music, load the included browser-extension folder as an unpacked extension in Chrome or Edge. The extension sends playback metadata and position to the local SkyLyrics bridge; it does not capture audio.
+## Licenses
 
-Spotify Web Player provides Now Playing metadata and artwork only. Synchronized Spotify lyrics are not enabled. A local .lrc file can be placed in config/skylyrics/lyrics/ and loaded through the Lyrics screen.
-
-## Build and QA
-
-GitHub Actions uses JDK 25 and Gradle 9.8.2. The workflow runs unit tests and a full Fabric Loom build, validates the JAR metadata, bundled fonts, font licenses, and browser-extension scripts, then publishes the JAR as a workflow artifact.
-
-A green CI build confirms source compilation and automated checks. It does not replace the final visual smoke test in TLauncher on the target GPU. The cinematic preview is included to make that manual check repeatable and independent of a real song.
-
-## Licensing and privacy
-
-SkyLyrics code is MIT. Bundled font families are distributed under their respective SIL Open Font License notices included in the JAR. The browser connector sends only media metadata and artwork URLs to localhost. Audio is not recorded, downloaded, or uploaded.
+SkyLyrics source code is MIT. Bundled fonts carry their SIL Open Font License notices. MP3SPI and VorbisSPI codec providers are LGPL-2.1; their attribution and upstream links are included in `META-INF/licenses/skylyrics-audio/NOTICE.txt`. Browser extension code is local and does not send audio to a remote server.

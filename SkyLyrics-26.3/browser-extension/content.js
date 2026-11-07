@@ -47,4 +47,67 @@
   readSession();
   window.setInterval(readSession, 1000);
   document.addEventListener("visibilitychange", () => { if (!document.hidden) readSession(); });
+
+  function clickByLabel(labels) {
+    const nodes = Array.from(document.querySelectorAll("button, [role='button']"));
+    const found = nodes.find(node => {
+      const label = ((node.getAttribute("aria-label") || "") + " " +
+        (node.getAttribute("title") || "") + " " + (node.textContent || "")).toLowerCase();
+      return labels.some(value => label.includes(value));
+    });
+    if (found) { found.click(); return true; }
+    return false;
+  }
+
+  function executeSkyLyricsControl(command) {
+    const media = document.querySelector("video, audio");
+    switch (command) {
+      case "play_pause":
+        if (media) {
+          if (media.paused || media.ended) media.play().catch(() => {});
+          else media.pause();
+        } else {
+          clickByLabel(["play/pause", "pause", "play"]);
+        }
+        break;
+      case "pause":
+        if (media) media.pause();
+        else clickByLabel(["pause"]);
+        break;
+      case "next":
+        if (!clickByLabel(["skip forward", "next track", "next song", "next"])) {
+          document.querySelector("ytmusic-player-bar .next-button, .ytp-next-button")?.click();
+        }
+        break;
+      case "previous":
+        if (!clickByLabel(["skip back", "previous track", "previous song", "previous"])) {
+          document.querySelector("ytmusic-player-bar .previous-button")?.click();
+        }
+        break;
+      case "seek_forward":
+        if (media) media.currentTime = Math.min(media.duration || media.currentTime + 10, media.currentTime + 10);
+        break;
+      case "seek_back":
+        if (media) media.currentTime = Math.max(0, media.currentTime - 10);
+        break;
+      case "volume_up":
+        if (media) media.volume = Math.min(1, media.volume + 0.05);
+        break;
+      case "volume_down":
+        if (media) media.volume = Math.max(0, media.volume - 0.05);
+        break;
+    }
+  }
+
+  chrome.runtime.onMessage.addListener(message => {
+    if (message?.type === "skylyrics-control" && typeof message.command === "string") {
+      executeSkyLyricsControl(message.command);
+      readSession();
+    }
+  });
+
+  // Active tabs poll their own targeted command queue; inactive browser tabs cannot steal commands.
+  window.setInterval(() => {
+    chrome.runtime.sendMessage({ type: "skylyrics-poll-controls" }, () => void chrome.runtime.lastError);
+  }, 900);
 })();

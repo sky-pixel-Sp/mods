@@ -1,0 +1,15 @@
+SkyLyrics offline audio decoder notices
+
+MP3SPI 1.9.5.4
+  Maven: com.googlecode.soundlibs:mp3spi:1.9.5.4
+  License: GNU Lesser General Public License, version 2.1
+  Upstream: https://github.com/umjammer/mp3spi
+
+VorbisSPI 1.0.3.3
+  Maven: com.googlecode.soundlibs:vorbisspi:1.0.3.3
+  License: GNU Lesser General Public License, version 2.1
+  Upstream: https://github.com/pdudits/soundlibs
+
+The above codec libraries are distributed as separate nested mod dependencies by Fabric Loom.
+They are not modified by SkyLyrics. Their license texts and source are available from the
+upstream projects and Maven Central artifacts. SkyLyrics source code remains MIT-licensed.

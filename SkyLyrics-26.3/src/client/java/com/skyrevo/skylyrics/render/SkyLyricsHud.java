@@ -23,6 +23,8 @@ public final class SkyLyricsHud {
             drawNowPlaying(graphics, media);
         } else if (SkyLyricsClient.isDemoActive() && SkyLyricsClient.PLAYER.hasTrack()) {
             drawDemoNowPlaying(graphics);
+        } else if (SkyLyricsClient.AUDIO.hasFile()) {
+            drawOfflineNowPlaying(graphics);
         }
 
         LyricsPlayer player = SkyLyricsClient.PLAYER;
@@ -125,6 +127,21 @@ public final class SkyLyricsHud {
         );
     }
 
+    private static void drawOfflineNowPlaying(GuiGraphicsExtractor graphics) {
+        var file = SkyLyricsClient.AUDIO.currentFile();
+        String title = file == null ? "Offline track" : file.getFileName().toString();
+        drawPlayerPill(
+                graphics,
+                "OFFLINE LIBRARY",
+                title,
+                SkyLyricsClient.AUDIO.status(),
+                SkyLyricsClient.AUDIO.positionMs(),
+                SkyLyricsClient.AUDIO.durationMs(),
+                SkyLyricsClient.AUDIO.isPlaying(),
+                false
+        );
+    }
+
     private static void drawDemoNowPlaying(GuiGraphicsExtractor graphics) {
         LyricsPlayer player = SkyLyricsClient.PLAYER;
         drawPlayerPill(
@@ -157,7 +174,7 @@ public final class SkyLyricsHud {
         int panelHeight = 58;
         int x = (screenWidth - panelWidth) / 2;
         int y = 12;
-        int accent = SkyLyricsClient.CONFIG.accentColor();
+        int accent = hasArtwork ? AlbumArtManager.dominantColor() : SkyLyricsClient.CONFIG.accentColor();
 
         // Translucent compact panel with a restrained top accent, not a large opaque HUD card.
         graphics.fill(x, y, x + panelWidth, y + panelHeight, 0xD60B0A13);
@@ -168,6 +185,14 @@ public final class SkyLyricsHud {
         int artY = y + 10;
         int artSize = 36;
         if (hasArtwork) {
+            if (SkyLyricsClient.CONFIG.glowEnabled()) {
+                int glowAlpha = 22 + (int) (26 * (0.5 + 0.5 *
+                        Math.sin(System.nanoTime() / 310_000_000.0)));
+                graphics.fill(artX - 4, artY - 4, artX + artSize + 4, artY + artSize + 4,
+                        withAlpha(accent, glowAlpha));
+                graphics.outline(artX - 2, artY - 2, artSize + 4, artSize + 4,
+                        withAlpha(accent, Math.min(180, glowAlpha * 3)));
+            }
             graphics.blit(RenderPipelines.GUI_TEXTURED, AlbumArtManager.TEXTURE_ID,
                     artX, artY, 0.0F, 0.0F, artSize, artSize, artSize, artSize);
         } else {
@@ -196,11 +221,16 @@ public final class SkyLyricsHud {
         // A small animated waveform echoes the music instead of adding another large panel.
         int waveX = x + panelWidth - 27;
         int waveCenter = y + 28;
+        boolean localAudio = "OFFLINE LIBRARY".equals(source);
+        // Offline bars react to measured PCM amplitude. Browser mode remains a low-intensity
+        // transport animation because the extension intentionally never captures audio bytes.
+        float audioEnergy = localAudio ? SkyLyricsClient.AUDIO.visualizerLevel() : (playing ? 0.22f : 0.0f);
         for (int i = 0; i < 5; i++) {
             float seed = WAVE_HEIGHTS[i];
+            float rhythm = (float) (0.55 + 0.45 *
+                    (0.5 + 0.5 * Math.sin(System.nanoTime() / 165_000_000.0 + i * 1.4)));
             int barHeight = playing
-                    ? 4 + Math.round(11 * seed * (float) (0.35 + 0.65 *
-                            (0.5 + 0.5 * Math.sin(System.nanoTime() / 165_000_000.0 + i * 1.4))))
+                    ? 2 + Math.round((3.0f + audioEnergy * 18.0f) * seed * rhythm)
                     : 3;
             int bx = waveX + i * 4;
             graphics.fill(bx, waveCenter - barHeight / 2, bx + 2, waveCenter + (barHeight + 1) / 2,

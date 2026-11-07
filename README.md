@@ -1,35 +1,25 @@
 # SkyLyrics — Minecraft Java 26.3
 
-**SkyLyrics 0.5.0 — Cinematic Edition** is a client-side Fabric mod that renders large synchronized lyrics as live 3D text in the Minecraft sky, with procedural sky presets and a configurable studio menu.
+**SkyLyrics 0.6.0 — Music Center** adds a clickable in-game music UI, offline audio playback, browser-connected online music controls, synchronized lyrics, and optional cinematic sky effects.
 
-## Project
+## Main features
 
-The complete Gradle project is in the SkyLyrics-26.3/ directory. It includes Java source, bundled fonts and OFL notices, browser media connector, shader resources, automated tests, and build scripts.
+- **Offline:** import downloaded MP3, OGG, WAV, AIFF or AU files into the local library; play them without internet; import matching `.lrc` files for synchronized lyrics.
+- **Online:** open YouTube Music or Spotify Web from the in-game UI, then control the browser player and receive metadata through the included Chrome/Edge extension.
+- **Clickable UI:** Music Center, Offline Library, Online Music, Lyrics Studio, Styles, Skies, HUD, Keybinds and Performance pages. No chat command is required.
+- **Configurable controls:** O, H, K, N and B are defaults; rebind them in Minecraft Options → Controls → Key Binds → SkyLyrics.
+- **Optional shader:** audio and lyrics keep working if the sky effect is disabled.
 
 ## Build on GitHub
 
-The workflow **Build SkyLyrics for Minecraft 26.3** uses JDK 25 and Gradle 9.8.2. It runs unit tests, compiles the Fabric mod, checks the JAR contents and bundled font resources, validates the browser connector, and uploads the build artifact.
+Open the **Actions** tab and run **Build SkyLyrics for Minecraft 26.3**, or open a successful workflow run for branch `skylyrics-0.6-music-center`. Download the artifact **SkyLyrics-Minecraft-26.3** and extract `skylyrics-0.6.0.jar`.
 
-1. Open the repository's **Actions** tab.
-2. Select **Build SkyLyrics for Minecraft 26.3**.
-3. Open a successful run on the skylyrics-0.5-cinematic-overhaul branch.
-4. Download the artifact named **SkyLyrics-Minecraft-26.3**.
-5. Extract the ZIP. The mod file is skylyrics-0.5.0.jar.
-
-Do not treat a JAR as a verified release until its workflow run succeeds. CI does not replace an in-game visual test on the target Windows PC.
+Do not treat a JAR as verified until the workflow completes successfully. After CI, perform the local audio and browser-control smoke tests in TLauncher.
 
 ## Install
 
-Use Minecraft Java 26.3 with Fabric Loader 0.20.1+ and Fabric API 0.165.2+26.3. Put the SkyLyrics JAR and Fabric API JAR in the same client mods folder.
+Use Minecraft Java 26.3, Fabric Loader 0.20.1+ and Fabric API 0.165.2+26.3. Put the SkyLyrics JAR and Fabric API JAR in the same client `mods` folder.
 
-SkyLyrics is client-side. The multiplayer server does not need the mod installed.
+Enter a world and press **O** to open Music Center. The mod is client-side; the multiplayer server does not need it.
 
-## Quick preview
-
-Enter a world and run:
-
-    /skylyrics demo
-
-The built-in preview uses original sample text and does not need a browser extension, song file, account, or server. Run /skylyrics stop to end it.
-
-See SkyLyrics-26.3/README.md for all settings, music integration, requirements, and troubleshooting.
+See [`SkyLyrics-26.3/README.md`](SkyLyrics-26.3/README.md) for offline/online instructions, supported formats, keybinds, troubleshooting and licensing.

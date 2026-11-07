@@ -3,12 +3,20 @@
   "id": "skylyrics",
   "version": "${version}",
   "name": "SkyLyrics",
-  "description": "Cinematic procedural skies and large synchronized 3D lyrics for Minecraft Java 26.3.",
-  "authors": ["SkyRevo"],
+  "description": "Music Center with offline MP3/OGG/WAV playback, browser-connected online music controls, synchronized lyrics, and optional cinematic skies for Minecraft Java 26.3.",
+  "authors": [
+    "SkyRevo"
+  ],
   "license": "MIT",
   "environment": "client",
-  "entrypoints": { "client": ["com.skyrevo.skylyrics.SkyLyricsClient"] },
-  "mixins": ["skylyrics.mixins.json"],
+  "entrypoints": {
+    "client": [
+      "com.skyrevo.skylyrics.SkyLyricsClient"
+    ]
+  },
+  "mixins": [
+    "skylyrics.mixins.json"
+  ],
   "depends": {
     "fabricloader": ">=0.20.1",
     "minecraft": "~26.3",
