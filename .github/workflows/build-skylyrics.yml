@@ -89,10 +89,29 @@ jobs:
           node --check browser-extension/background.js
           python -m json.tool browser-extension/manifest.json >/dev/null
           echo "Browser extension scripts and manifest are valid."
-      - name: Upload SkyLyrics JAR
+      - name: Assemble complete install package
+        working-directory: SkyLyrics-26.3
+        shell: bash
+        run: |
+          set -euo pipefail
+          MOD_VERSION="$(sed -n 's/^mod_version=//p' gradle.properties | head -n 1)"
+          test -n "${MOD_VERSION}"
+          DIST="build/distribution/SkyLyrics-${MOD_VERSION}-Minecraft-26.3"
+          rm -rf "${DIST}"
+          mkdir -p "${DIST}/browser-extension"
+          cp "build/libs/skylyrics-${MOD_VERSION}.jar" "${DIST}/"
+          cp README.md LICENSE "${DIST}/"
+          cp browser-extension/manifest.json browser-extension/background.js browser-extension/content.js browser-extension/README.md "${DIST}/browser-extension/"
+          test -s "${DIST}/skylyrics-${MOD_VERSION}.jar"
+          test -s "${DIST}/browser-extension/manifest.json"
+          test -s "${DIST}/browser-extension/background.js"
+          test -s "${DIST}/browser-extension/content.js"
+          echo "Install package ready: JAR + Quick Start README + Chrome/Edge browser extension."
+
+      - name: Upload SkyLyrics install package
         uses: actions/upload-artifact@v7
         with:
           name: SkyLyrics-Minecraft-26.3
-          path: SkyLyrics-26.3/build/libs/skylyrics-*.jar
+          path: SkyLyrics-26.3/build/distribution/
           if-no-files-found: error
           retention-days: 30
