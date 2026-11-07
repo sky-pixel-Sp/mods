@@ -378,6 +378,7 @@ public final class SkyLyricsClient implements ClientModInitializer {
         PLAYER.clear();
         CURRENT_MEDIA = null;
         activeMediaIdentity = "";
+        lastHistoryIdentity = "";
         lookupGeneration++;
         lookupRunning = false;
         String url = switch (provider) {
