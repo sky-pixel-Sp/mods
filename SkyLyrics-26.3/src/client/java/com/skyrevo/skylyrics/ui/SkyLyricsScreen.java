@@ -296,6 +296,12 @@ public final class SkyLyricsScreen extends Screen {
                 contentLeft,y+12+step*4,(contentWidth-8)/2,25);
         action("WORLD TEXT SIZE  +",()->SkyLyricsClient.CONFIG.adjustWorldTextScale(0.01f),
                 contentLeft+(contentWidth-8)/2+8,y+12+step*4,(contentWidth-8)/2,25);
+        action("SYNC OFFSET  −250 ms",()->SkyLyricsClient.PLAYER.adjustOffset(-250L),
+                contentLeft,y+12+step*5,(contentWidth-16)/3,25);
+        action("SYNC OFFSET  +250 ms",()->SkyLyricsClient.PLAYER.adjustOffset(250L),
+                contentLeft+(contentWidth-16)/3+8,y+12+step*5,(contentWidth-16)/3,25);
+        action("RESET OFFSET",SkyLyricsClient.PLAYER::resetOffset,
+                contentLeft+2*((contentWidth-16)/3+8),y+12+step*5,(contentWidth-16)/3,25);
     }
 
     private void styles(int y) {
@@ -317,6 +323,9 @@ public final class SkyLyricsScreen extends Screen {
         action("TEXT SIZE  +", () -> SkyLyricsClient.CONFIG.adjustWorldTextScale(0.002f),
                 contentLeft + (contentWidth - 8) / 2 + 8, y + 135, (contentWidth - 8) / 2, 25);
 
+        action("NOW PLAYING STYLE  ·  "+SkyLyricsClient.CONFIG.nowPlayingStyleName(),
+                SkyLyricsClient.CONFIG::cycleNowPlayingStyle,contentLeft,y+165,contentWidth,25);
+
         int fontCols = 4, fontGap = 6;
         int fontWidth = (contentWidth - fontGap * (fontCols - 1)) / fontCols;
         for (int i = 0; i < SkyFontCatalog.ALL.size(); i++) {
@@ -325,7 +334,7 @@ public final class SkyLyricsScreen extends Screen {
                 SkyLyricsClient.CONFIG.setFontFamily(family.id());
                 open(Tab.STYLES);
             }).bounds(contentLeft + (i % fontCols) * (fontWidth + fontGap),
-                    y + 184 + (i / fontCols) * 35, fontWidth, 29).build());
+                    y + 220 + (i / fontCols) * 35, fontWidth, 29).build());
             fontButton.active = !family.id().equals(SkyLyricsClient.CONFIG.fontFamily());
         }
     }
@@ -345,8 +354,10 @@ public final class SkyLyricsScreen extends Screen {
                 contentLeft,y+170,(contentWidth-8)/2,25);
         action("MOVE HUD DOWN",()->SkyLyricsClient.CONFIG.adjustVerticalPosition(0.025f),
                 contentLeft+(contentWidth-8)/2+8,y+170,(contentWidth-8)/2,25);
+        action("ELYTRA LYRICS MODE  "+onOff(SkyLyricsClient.CONFIG.elytraLyricsEnabled()),
+                SkyLyricsClient.CONFIG::toggleElytraLyricsEnabled,contentLeft,y+208,contentWidth,27);
         action("OPEN HUD LAYOUT STUDIO · 5 WIDGETS  ↗", () -> this.minecraft.gui.setScreen(new HudEditorScreen(this)),
-                contentLeft, y + 208, contentWidth, 30);
+                contentLeft, y + 244, contentWidth, 30);
     }
 
     private void performance(int y) {
@@ -538,6 +549,8 @@ public final class SkyLyricsScreen extends Screen {
             if(cue!=null) graphics.text(font,cue.text(),contentLeft,top+324,SkyLyricsClient.CONFIG.accentColor(),true);
             graphics.text(font,"Sync "+LyricsPlayer.formatTime(SkyLyricsClient.PLAYER.positionMs())+
                     " / "+LyricsPlayer.formatTime(SkyLyricsClient.PLAYER.durationMs()),contentLeft,top+346,0xFFD4D1E2,false);
+            graphics.text(font,"Manual sync offset: "+SkyLyricsClient.PLAYER.manualOffsetMs()+" ms",
+                    contentLeft,top+370,0xFFBDB7CD,false);
         } else if(tab==Tab.STYLES) {
             graphics.text(font, "Style: " + SkyLyricsClient.CONFIG.textStyleName()
                     + "  ·  Glow: " + onOff(SkyLyricsClient.CONFIG.glowEnabled()),
@@ -553,8 +566,10 @@ public final class SkyLyricsScreen extends Screen {
                     contentLeft,top+258,0xFFD4D1E2,false);
             graphics.text(font,"Now Playing position: "+Math.round(SkyLyricsClient.CONFIG.nowPlayingHudX()*100)+"% X",
                     contentLeft,top+281,0xFFD4D1E2,false);
-            graphics.text(font,"Drag and drop both HUD panels in the Layout Editor.",
+            graphics.text(font,"Elytra lyrics mode: "+onOff(SkyLyricsClient.CONFIG.elytraLyricsEnabled()),
                     contentLeft,top+304,0xFFBDB7CD,false);
+            graphics.text(font,"Drag and drop HUD panels in the Layout Editor.",
+                    contentLeft,top+326,0xFFBDB7CD,false);
         } else if(tab==Tab.PERFORMANCE) {
             graphics.text(font,"Only clear background pixels are replaced by the sky shader.",contentLeft,top+190,0xFFD4D1E2,false);
             graphics.text(font,"Terrain, entities, and HUD pixels are passed through.",contentLeft,top+213,0xFFD4D1E2,false);

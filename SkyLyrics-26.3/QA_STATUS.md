@@ -1,3 +1,27 @@
+# QA STATUS — SkyLyrics 0.9.0 / Minecraft 26.3
+
+## 0.9.0 port additions (implementation in review)
+- Elytra Lyrics Mode moves 3D lyrics farther forward and keeps them camera-facing while the player is gliding; toggle is available in HUD settings and is persisted in config schema v5.
+- Now Playing can render in Bordered, Borderless, or Compact style; choice is persisted and can be cycled from Styles.
+- Lyrics page exposes -250 ms, +250 ms, and Reset sync-offset controls for the currently loaded track.
+- Project branding and mod identity remain SkyLyrics (`skylyrics`); the third-party Lyrics project is a feature reference only, not a dependency or bundled JAR.
+
+## Reference and licensing
+- User-provided reference file 9041952 is `lyricsplus-3.0.0-1.20.1.jar`, for Minecraft 1.20.1.
+- The same CurseForge project has a separate `lyricsplus-3.0.0-26.2.jar` release (file 9041918), but the reviewed project file list does not show a 26.3 release.
+- CurseForge lists the reference project under MIT. No class, asset, or binary from the reference JAR is bundled in SkyLyrics 0.9.0; the implementation uses SkyLyrics code and the public feature description.
+- The referenced mod monitors external PC/browser music players. SkyLyrics' offline player remains independent and must continue to play local tracks inside Minecraft without launching external media players.
+
+## Manual checks for 0.9.0 — still required
+- [ ] Enter an Elytra flight with World Lyrics enabled; verify the lyrics remain in front of the camera and do not remain behind the player.
+- [ ] Toggle Elytra Lyrics Mode off; verify the normal world-lyrics position returns.
+- [ ] Cycle Bordered → Borderless → Compact; verify layout, cover art, title and progress do not clip at common resolutions.
+- [ ] Adjust sync offset by -250 ms / +250 ms and Reset; verify the active lyric line changes at the expected time.
+- [ ] Confirm config v4 migrates to v5 and new settings persist after restart.
+- [ ] Retest native local audio import, visible library listing, MP3/OGG/WAV output, and transport controls in TLauncher 26.3. This remains blocked by the user's earlier report until directly retested.
+
+---
+
 # QA STATUS — SkyLyrics 0.8.0 / Modular HUD Studio
 
 ## Added in 0.8.0
