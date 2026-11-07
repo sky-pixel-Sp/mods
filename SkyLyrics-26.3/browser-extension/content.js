@@ -70,6 +70,10 @@
           clickByLabel(["play/pause", "pause", "play"]);
         }
         break;
+      case "pause":
+        if (media) media.pause();
+        else clickByLabel(["pause"]);
+        break;
       case "next":
         if (!clickByLabel(["skip forward", "next track", "next song", "next"])) {
           document.querySelector("ytmusic-player-bar .next-button, .ytp-next-button")?.click();
