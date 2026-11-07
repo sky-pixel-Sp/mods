@@ -4,8 +4,10 @@ import com.skyrevo.skylyrics.SkyLyricsClient;
 import com.skyrevo.skylyrics.core.LyricsCue;
 import com.skyrevo.skylyrics.core.LyricsPlayer;
 import com.skyrevo.skylyrics.core.SkyPresetCatalog;
+import com.skyrevo.skylyrics.core.SkyFontCatalog;
 import com.skyrevo.skylyrics.render.SkyEffectController;
 import com.skyrevo.skylyrics.render.SkyLyricsWorldText;
+import com.skyrevo.skylyrics.render.SkyLyricsTypography;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
@@ -107,21 +109,35 @@ public final class SkyLyricsScreen extends Screen {
     }
 
     private void styles(int y) {
-        String[] names={"Lavender","Dreamy","Comic","Script","Ice","Royal"};
-        int cols=3,gap=8,w=(contentWidth-gap*2)/3;
-        for(int i=0;i<names.length;i++) {
-            final int index=i;
-            Button b=addRenderableWidget(Button.builder(Component.literal(names[i]), x -> {
-                SkyLyricsClient.CONFIG.setTextStyle(index); open(Tab.STYLES);
-            }).bounds(contentLeft+(i%cols)*(w+gap),y+22+(i/cols)*43,w,34).build());
-            b.active=SkyLyricsClient.CONFIG.textStyle()!=i;
+        String[] names = {"Lavender", "Dreamy", "Comic", "Script", "Ice", "Royal"};
+        int cols = 3, gap = 8, w = (contentWidth - gap * 2) / 3;
+        for (int i = 0; i < names.length; i++) {
+            final int index = i;
+            Button styleButton = addRenderableWidget(Button.builder(Component.literal(names[i]), b -> {
+                SkyLyricsClient.CONFIG.setTextStyle(index);
+                open(Tab.STYLES);
+            }).bounds(contentLeft + (i % cols) * (w + gap), y + 16 + (i / cols) * 41, w, 32).build());
+            styleButton.active = SkyLyricsClient.CONFIG.textStyle() != i;
         }
-        action("GLOW  "+onOff(SkyLyricsClient.CONFIG.glowEnabled()),SkyLyricsClient.CONFIG::toggleGlow,
-                contentLeft,y+122,contentWidth,28);
-        action("TEXT SIZE  −",()->SkyLyricsClient.CONFIG.adjustWorldTextScale(-0.002f),
-                contentLeft,y+160,(contentWidth-8)/2,25);
-        action("TEXT SIZE  +",()->SkyLyricsClient.CONFIG.adjustWorldTextScale(0.002f),
-                contentLeft+(contentWidth-8)/2+8,y+160,(contentWidth-8)/2,25);
+
+        action("GLOW  " + onOff(SkyLyricsClient.CONFIG.glowEnabled()),
+                SkyLyricsClient.CONFIG::toggleGlow, contentLeft, y + 101, contentWidth, 26);
+        action("TEXT SIZE  −", () -> SkyLyricsClient.CONFIG.adjustWorldTextScale(-0.002f),
+                contentLeft, y + 135, (contentWidth - 8) / 2, 25);
+        action("TEXT SIZE  +", () -> SkyLyricsClient.CONFIG.adjustWorldTextScale(0.002f),
+                contentLeft + (contentWidth - 8) / 2 + 8, y + 135, (contentWidth - 8) / 2, 25);
+
+        int fontCols = 4, fontGap = 6;
+        int fontWidth = (contentWidth - fontGap * (fontCols - 1)) / fontCols;
+        for (int i = 0; i < SkyFontCatalog.ALL.size(); i++) {
+            SkyFontCatalog.Family family = SkyFontCatalog.ALL.get(i);
+            Button fontButton = addRenderableWidget(Button.builder(Component.literal(family.name()), b -> {
+                SkyLyricsClient.CONFIG.setFontFamily(family.id());
+                open(Tab.STYLES);
+            }).bounds(contentLeft + (i % fontCols) * (fontWidth + fontGap),
+                    y + 184 + (i / fontCols) * 35, fontWidth, 29).build());
+            fontButton.active = !family.id().equals(SkyLyricsClient.CONFIG.fontFamily());
+        }
     }
 
     private void hud(int y) {
@@ -173,7 +189,17 @@ public final class SkyLyricsScreen extends Screen {
             open(tab);
         }).bounds(x,y,w,h).build());
     }
-    private static String onOff(boolean value) { return value?"ON":"OFF"; }
+    private static String onOff(boolean value) { return value ? "ON" : "OFF"; }
+
+    private static int mixColor(int a, int b, float t) {
+        int alpha = (a >>> 24) & 255;
+        int ar = (a >>> 16) & 255, ag = (a >>> 8) & 255, ab = a & 255;
+        int br = (b >>> 16) & 255, bg = (b >>> 8) & 255, bb = b & 255;
+        int r = Math.round(ar + (br - ar) * t);
+        int g = Math.round(ag + (bg - ag) * t);
+        int blue = Math.round(ab + (bb - ab) * t);
+        return (alpha << 24) | (r << 16) | (g << 8) | blue;
+    }
     private void open(Tab next) { this.minecraft.gui.setScreen(new SkyLyricsScreen(next)); }
 
     @Override
@@ -182,7 +208,9 @@ public final class SkyLyricsScreen extends Screen {
         graphics.fill(0,0,width,height,0x6B060711);
         graphics.fill(left,top,left+panelWidth,top+panelHeight,0xF00D0C17);
         graphics.outline(left,top,panelWidth,panelHeight,0xFF67518D);
-        graphics.fill(left,top,left+panelWidth,top+3,0xFFB28BFF);
+        double phase = System.nanoTime() / 950_000_000.0;
+        float pulse = (float) (0.5 + 0.5 * Math.sin(phase));
+        graphics.fill(left, top, left + panelWidth, top + 3, mixColor(0xFF7F68D8, 0xFFE18BCB, pulse));
         graphics.fill(left,top+56,left+sideWidth,top+panelHeight-10,0xE9090812);
         graphics.fill(left+sideWidth,top+56,left+sideWidth+1,top+panelHeight-10,0xFF3A2C55);
         if(tab==Tab.SKIES) {
@@ -223,9 +251,13 @@ public final class SkyLyricsScreen extends Screen {
             graphics.text(font,"Sync "+LyricsPlayer.formatTime(SkyLyricsClient.PLAYER.positionMs())+
                     " / "+LyricsPlayer.formatTime(SkyLyricsClient.PLAYER.durationMs()),contentLeft,top+346,0xFFD4D1E2,false);
         } else if(tab==Tab.STYLES) {
-            graphics.text(font,"Active: "+SkyLyricsClient.CONFIG.textStyleName()+"  ·  Glow: "+onOff(SkyLyricsClient.CONFIG.glowEnabled()),
-                    contentLeft,top+225,SkyLyricsClient.CONFIG.accentColor(),true);
-            graphics.text(font,"Uses the built-in Minecraft font renderer.",contentLeft,top+248,0xFFBDB7CD,false);
+            graphics.text(font, "Style: " + SkyLyricsClient.CONFIG.textStyleName()
+                    + "  ·  Glow: " + onOff(SkyLyricsClient.CONFIG.glowEnabled()),
+                    contentLeft, top + 245, SkyLyricsClient.CONFIG.accentColor(), true);
+            graphics.centeredText(font, SkyLyricsTypography.ordered("Dream it. Sing it."),
+                    contentLeft + contentWidth / 2, top + 275, 0xFFFFFFFF);
+            graphics.text(font, "Font: " + SkyLyricsClient.CONFIG.fontFamilyName(),
+                    contentLeft, top + 312, 0xFFBDB7CD, false);
         } else if(tab==Tab.HUD) {
             graphics.text(font,"World text distance: "+String.format("%.1f",SkyLyricsClient.CONFIG.worldDistance())+" blocks",
                     contentLeft,top+235,0xFFD4D1E2,false);

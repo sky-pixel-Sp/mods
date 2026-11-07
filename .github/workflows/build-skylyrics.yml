@@ -3,7 +3,7 @@ on:
   push:
     branches:
       - main
-      - skylyrics-video-parity
+      - skylyrics-0.4-fonts-album-player
     paths:
       - "SkyLyrics-26.3/**"
       - ".github/workflows/build-skylyrics.yml"
@@ -32,26 +32,36 @@ jobs:
         with:
           gradle-version: "9.8.2"
           cache-provider: basic
-      - name: Run unit tests and build the Fabric mod
+      - name: Download pinned fonts, compile, test and build
         working-directory: SkyLyrics-26.3
         shell: bash
         run: |
           set -euo pipefail
           export JAVA_HOME="${JAVA_HOME_25_X64}"
           export PATH="${JAVA_HOME}/bin:${PATH}"
-          echo "Selected JAVA_HOME: ${JAVA_HOME}"
-          command -v java
           java -version
           java -version 2>&1 | head -n 1 | grep -Eq 'version "25([.]|")'
           gradle --no-daemon -Dorg.gradle.java.home="${JAVA_HOME}" clean test build
-          test -s build/libs/skylyrics-0.3.0.jar
-          jar tf build/libs/skylyrics-0.3.0.jar | grep -q 'fabric.mod.json'
-          jar tf build/libs/skylyrics-0.3.0.jar | grep -q 'skylyrics/post_effect/sky_nebula_storm.json'
-          echo "SkyLyrics JAR and sky resources verified."
+          test -s build/libs/skylyrics-0.4.0.jar
+          jar tf build/libs/skylyrics-0.4.0.jar | grep -q 'fabric.mod.json'
+          jar tf build/libs/skylyrics-0.4.0.jar | grep -q 'assets/skylyrics/font/poppins.ttf'
+          jar tf build/libs/skylyrics-0.4.0.jar | grep -q 'assets/skylyrics/font/montserrat.json'
+          jar tf build/libs/skylyrics-0.4.0.jar | grep -q 'AlbumArtManager.class'
+          jar tf build/libs/skylyrics-0.4.0.jar | grep -q 'META-INF/licenses/skylyrics-fonts/poppins-OFL.txt'
+          echo "SkyLyrics 0.4.0 JAR, custom fonts and album-art module verified."
+      - name: Validate browser connector
+        working-directory: SkyLyrics-26.3
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check browser-extension/content.js
+          node --check browser-extension/background.js
+          python -m json.tool browser-extension/manifest.json >/dev/null
+          echo "Browser extension scripts and manifest are valid."
       - name: Upload SkyLyrics JAR
         uses: actions/upload-artifact@v7
         with:
           name: SkyLyrics-Minecraft-26.3
-          path: SkyLyrics-26.3/build/libs/skylyrics-0.3.0.jar
+          path: SkyLyrics-26.3/build/libs/skylyrics-0.4.0.jar
           if-no-files-found: error
           retention-days: 30

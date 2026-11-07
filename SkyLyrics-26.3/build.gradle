@@ -2,13 +2,16 @@ plugins {
     id 'net.fabricmc.fabric-loom' version "${loom_version}"
     id 'maven-publish'
 }
+
 version = project.mod_version
 group = project.maven_group
 base { archivesName = project.archives_base_name }
+
 repositories {
     maven { url = 'https://maven.fabricmc.net/' }
     mavenCentral()
 }
+
 loom {
     splitEnvironmentSourceSets()
     mods {
@@ -18,6 +21,7 @@ loom {
         }
     }
 }
+
 dependencies {
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
     implementation "net.fabricmc:fabric-loader:${project.loader_version}"
@@ -26,45 +30,120 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
+
+def googleFontsCommit = '86aced91de05cd4f96a06838124cca45be337b2b'
+def generatedSkyFonts = layout.buildDirectory.dir('generated/skylyrics-font-resources')
+def skyFontSources = [
+    [id: 'poppins', file: 'poppins/Poppins-Regular.ttf'],
+    [id: 'montserrat', file: 'montserrat/Montserrat%5Bwght%5D.ttf'],
+    [id: 'kanit', file: 'kanit/Kanit-Regular.ttf'],
+    [id: 'fredoka', file: 'fredoka/Fredoka%5Bwdth%2Cwght%5D.ttf'],
+    [id: 'unbounded', file: 'unbounded/Unbounded%5Bwght%5D.ttf'],
+    [id: 'bebasneue', file: 'bebasneue/BebasNeue-Regular.ttf'],
+    [id: 'pacifico', file: 'pacifico/Pacifico-Regular.ttf'],
+    [id: 'caveat', file: 'caveat/Caveat%5Bwght%5D.ttf']
+]
+
+sourceSets.main.resources.srcDir(generatedSkyFonts)
+
+tasks.register('downloadSkyFonts') {
+    group = 'build setup'
+    description = 'Downloads pinned Open Font License typefaces and their license notices.'
+    outputs.dir(generatedSkyFonts)
+    doLast {
+        File root = generatedSkyFonts.get().asFile
+        skyFontSources.each { spec ->
+            File fontTarget = new File(root, "assets/skylyrics/font/${spec.id}.ttf")
+            File licenseTarget = new File(root, "META-INF/licenses/skylyrics-fonts/${spec.id}-OFL.txt")
+            fontTarget.parentFile.mkdirs()
+            licenseTarget.parentFile.mkdirs()
+
+            def downloadPinned = { String relativePath, File target ->
+                URL url = new URL("https://raw.githubusercontent.com/google/fonts/${googleFontsCommit}/ofl/${relativePath}")
+                URLConnection connection = url.openConnection()
+                connection.connectTimeout = 15000
+                connection.readTimeout = 45000
+                connection.setRequestProperty('User-Agent', 'SkyLyrics-build/0.4.0')
+                connection.inputStream.withCloseable { input ->
+                    target.withOutputStream { output -> input.transferTo(output) }
+                }
+                if (!target.isFile() || target.length() < 1024) {
+                    throw new GradleException("Font asset is missing or incomplete: ${relativePath}")
+                }
+            }
+
+            downloadPinned(spec.file, fontTarget)
+            downloadPinned("${spec.id}/OFL.txt", licenseTarget)
+        }
+        println "Downloaded ${skyFontSources.size()} pinned Open Font License families."
+    }
+}
+
 processResources {
+    dependsOn tasks.named('downloadSkyFonts')
     inputs.property 'version', project.version
     filesMatching('fabric.mod.json') { expand 'version': project.version }
 }
+
 tasks.withType(JavaCompile).configureEach {
     options.release = 25
     options.encoding = 'UTF-8'
 }
+
 java {
     sourceCompatibility = JavaVersion.VERSION_25
     targetCompatibility = JavaVersion.VERSION_25
     withSourcesJar()
 }
+
 tasks.register('verifySkyResources') {
     group = 'verification'
+    dependsOn tasks.named('downloadSkyFonts')
     doLast {
-        def dir = file('src/main/resources/assets/skylyrics/post_effect')
-        def effects = dir.exists() ? dir.listFiles().findAll { it.name.endsWith('.json') } : []
+        def effectDir = file('src/main/resources/assets/skylyrics/post_effect')
+        def effects = effectDir.exists() ? effectDir.listFiles().findAll { it.name.endsWith('.json') } : []
         if (effects.size() != 20) throw new GradleException("Expected 20 sky presets, found ${effects.size()}.")
         def parser = new groovy.json.JsonSlurper()
         effects.each {
             def data = parser.parse(it)
             if (!(data.passes instanceof List) || data.passes.size() != 2)
-                throw new GradleException("Invalid post-effect JSON: ${it.name}")
+                throw new GradleException("Invalid sky post-effect JSON: ${it.name}")
         }
+
         def shaderDir = file('src/main/resources/assets/skylyrics/shaders/post')
-        ['sky.vsh','sky.fsh','copy.vsh','copy.fsh'].each {
-            if (!new File(shaderDir,it).isFile()) throw new GradleException("Missing shader ${it}")
+        ['sky.vsh', 'sky.fsh', 'copy.vsh', 'copy.fsh'].each {
+            if (!new File(shaderDir, it).isFile()) throw new GradleException("Missing shader ${it}")
         }
-        println "Verified ${effects.size()} sky post effects and four shader stages."
+
+        def fontJsonDir = file('src/main/resources/assets/skylyrics/font')
+        def fontJsons = fontJsonDir.exists() ? fontJsonDir.listFiles().findAll { it.name.endsWith('.json') } : []
+        if (fontJsons.size() != 8) throw new GradleException("Expected 8 font definitions, found ${fontJsons.size()}.")
+        fontJsons.each {
+            def data = parser.parse(it)
+            if (!(data.providers instanceof List) || data.providers.size() < 2)
+                throw new GradleException("Invalid font definition: ${it.name}")
+        }
+
+        File generatedRoot = generatedSkyFonts.get().asFile
+        skyFontSources.each { spec ->
+            if (!new File(generatedRoot, "assets/skylyrics/font/${spec.id}.ttf").isFile())
+                throw new GradleException("Missing TTF font: ${spec.id}")
+            if (!new File(generatedRoot, "META-INF/licenses/skylyrics-fonts/${spec.id}-OFL.txt").isFile())
+                throw new GradleException("Missing OFL license: ${spec.id}")
+        }
+        println "Verified 20 sky effects, four shaders, eight TTF families, and eight OFL notices."
     }
 }
+
 tasks.test {
     useJUnitPlatform()
     dependsOn 'verifySkyResources'
 }
+
 jar {
-    from('LICENSE') { rename { "${it}_${project.base.archivesName.get()}" } }
+    from('LICENSE') { rename { "${it}_${project.archives_base_name}" } }
 }
+
 publishing {
     publications { create('mavenJava', MavenPublication) { from components.java } }
 }
