@@ -11,6 +11,8 @@ import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.util.FormattedCharSequence;
 
 public final class SkyLyricsHud {
+    private static final float[] WAVE_HEIGHTS = {0.45f, 0.75f, 1.0f, 0.68f, 0.50f};
+
     private SkyLyricsHud() {}
 
     public static void extract(GuiGraphicsExtractor graphics, DeltaTracker deltaTracker) {
@@ -182,7 +184,9 @@ public final class SkyLyricsHud {
                 : 120;
 
         graphics.fill(textX, y + 11, textX + 5, y + 16, withAlpha(0xFF8BE2B5, pulse));
-        graphics.text(minecraft.font, "NOW PLAYING  ·  " + fit(source, minecraft, maxTextWidth, 1.0f),
+        String sourceLabel = source == null || source.isBlank() ? "MUSIC" : source;
+        if (sourceLabel.length() > 18) sourceLabel = sourceLabel.substring(0, 18);
+        graphics.text(minecraft.font, "NOW PLAYING  ·  " + sourceLabel,
                 textX + 10, y + 8, 0xFFCBB8F4, true);
         graphics.text(minecraft.font, fit(title == null || title.isBlank() ? "Unknown track" : title,
                 minecraft, maxTextWidth, 1.0f), textX + 10, y + 22, 0xFFFFFCF7, true);
@@ -193,7 +197,7 @@ public final class SkyLyricsHud {
         int waveX = x + panelWidth - 27;
         int waveCenter = y + 28;
         for (int i = 0; i < 5; i++) {
-            float seed = new float[]{0.45f, 0.75f, 1.0f, 0.68f, 0.50f}[i];
+            float seed = WAVE_HEIGHTS[i];
             int barHeight = playing
                     ? 4 + Math.round(11 * seed * (float) (0.35 + 0.65 *
                             (0.5 + 0.5 * Math.sin(System.nanoTime() / 165_000_000.0 + i * 1.4))))
