@@ -32,6 +32,6 @@ public final class SkyPresetCatalog {
 
     public static Preset byId(String id) {
         if (id != null) for (Preset preset : ALL) if (preset.id().equals(id)) return preset;
-        return ALL.get(2);
+        return ALL.get(5);
     }
 }
