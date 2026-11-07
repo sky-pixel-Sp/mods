@@ -25,7 +25,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * Receives metadata from the SkyLyrics browser extension over a loopback-only HTTP server.
- * No audio bytes or remote-control commands are accepted.
+ * Audio bytes are never accepted. A strict allow-listed command queue relays user controls to the active extension tab.
  */
 public final class BrowserMediaServer implements AutoCloseable {
     private static final Logger LOGGER = LoggerFactory.getLogger("skylyrics-browser-media");
@@ -116,6 +116,23 @@ public final class BrowserMediaServer implements AutoCloseable {
                 MediaStatus current = latest();
                 String payload = current == null ? "{\"available\":false}" : toJson(current);
                 respond(output, 200, "OK", "application/json", payload);
+                return;
+            }
+            if (method.equals("GET") && path.equals("/v1/commands")) {
+                if (!isBrowserExtensionOrigin(origin)) {
+                    respond(output, 403, "Forbidden", "application/json", "{\\"error\\":\\"extension origin required\\"}");
+                    return;
+                }
+                int requestedTab = queryInt(requestTarget, "tabId", -1);
+                List<String> commands = new ArrayList<>();
+                if (requestedTab >= 0 && requestedTab == latestTabId()) {
+                    String command;
+                    while ((command = controlQueue.poll()) != null && commands.size() < 12) {
+                        commands.add("\\\"" + escape(command) + "\\\"");
+                    }
+                }
+                respond(output, 200, "OK", "application/json",
+                        "{\\"commands\\":[" + String.join(",", commands) + "]}");
                 return;
             }
             if (method.equals("POST") && path.equals("/v1/browser-session")) {
