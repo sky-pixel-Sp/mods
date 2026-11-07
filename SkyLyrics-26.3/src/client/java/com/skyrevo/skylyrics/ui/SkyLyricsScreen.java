@@ -542,6 +542,8 @@ public final class SkyLyricsScreen extends Screen {
             case "Click a control above, then press a keyboard key or mouse button." -> "Klik kontrol di atas, lalu tekan tombol keyboard atau mouse.";
             case "Press ESC while capturing to cancel. Defaults can be restored above." -> "Tekan ESC untuk batal. Tombol default dapat dipulihkan di atas.";
             case "20 original animated, depth-masked sky presets" -> "20 preset langit animasi dengan mask kedalaman";
+            case "20 SKY PRESETS · AUTHENTIC NASA/JPL PHOTO PREVIEWS" -> "20 PRESET LANGIT · FOTO ASTRONOMI ASLI NASA/JPL";
+            case "ACTIVE PRESET: " -> "PRESET AKTIF: ";
             case "No track loaded" -> "Belum ada lagu";
             case "SYNC " -> "SINKRON ";
             case "Manual sync offset: " -> "Offset sinkron manual: ";
