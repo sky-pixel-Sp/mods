@@ -315,7 +315,7 @@ public final class SkyLyricsClient implements ClientModInitializer {
 
     public static void stopPlayback() {
         AUDIO.stop();
-        if (CURRENT_MEDIA != null && CURRENT_MEDIA.available()) MEDIA_BRIDGE.enqueueControl("play_pause");
+        if (CURRENT_MEDIA != null && CURRENT_MEDIA.available()) MEDIA_BRIDGE.enqueueControl("pause");
         if (demoActive) stopDemo();
     }
 
