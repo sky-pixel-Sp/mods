@@ -28,7 +28,7 @@ Open the interface with **O**. The entire player is operated through clickable M
 
 1. Launch Minecraft Java **26.3 + Fabric**, then press **O** to open SkyLyrics.
 2. Choose **Music Center → Import Song** and select an MP3, OGG, or WAV file. It is copied into the SkyLyrics Offline Library.
-3. Choose **Lyrics → Import / Match LRC** and select the matching \x60.lrc\x60 file to display timed lyrics.
+3. Choose **Lyrics → Import / Match LRC** and select the matching `.lrc` file to display timed lyrics.
 4. In **Lyrics**, choose **Floating World Text** for 3D lyrics or switch to **Screen HUD** for a 2D overlay.
 5. Use **Quick Guide** inside the menu whenever you need the steps again. Keybinds can be changed under **Keybinds**.
 
