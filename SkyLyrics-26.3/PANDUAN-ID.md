@@ -1,4 +1,4 @@
-# Panduan Instalasi dan Penggunaan SkyLyrics 0.9.1
+# Panduan Instalasi dan Penggunaan SkyLyrics 0.9.2
 
 **Pembuat:** Sky  
 **Target:** Minecraft Java 26.3 · Fabric Loader 0.20.1+ · Java 25+
@@ -6,8 +6,8 @@
 ## 1. Pasang mod di TLauncher
 
 1. Ekstrak paket ZIP ini.
-2. Buka folder `SkyLyrics-0.9.1-Minecraft-26.3`.
-3. Salin file `skylyrics-0.9.1.jar` ke folder `mods` milik profil Minecraft 26.3 Fabric di TLauncher.
+2. Buka folder `SkyLyrics-0.9.2-Minecraft-26.3`.
+3. Salin file `skylyrics-0.9.2.jar` ke folder `mods` milik profil Minecraft 26.3 Fabric di TLauncher.
 4. Pastikan Fabric API yang cocok untuk Minecraft 26.3 juga ada di folder `mods`.
 5. Jalankan profil Fabric 26.3, masuk ke dunia, lalu tekan **O** untuk membuka SkyLyrics.
 
@@ -67,7 +67,7 @@ Kalau masalah tetap terjadi, simpan log Minecraft dari folder `logs/latest.log` 
 
 ## 7. Folder di dalam paket
 
-- `skylyrics-0.9.1.jar` — mod Fabric yang dipasang ke Minecraft.
+- `skylyrics-0.9.2.jar` — mod Fabric yang dipasang ke Minecraft.
 - `browser-extension/` — ekstensi Chrome / Edge untuk menghubungkan pemutar musik browser.
 - `README.md` — dokumentasi lengkap proyek.
 - `LICENSE` — lisensi MIT untuk kode SkyLyrics.
