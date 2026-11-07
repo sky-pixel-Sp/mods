@@ -1,4 +1,4 @@
-# SkyLyrics 0.6.1 — Music Center & Interactive Keybinds
+# SkyLyrics 0.7.0 — Music Center, Karaoke Timing & HUD Layout Studio
 
 SkyLyrics is a client-side Fabric mod for Minecraft Java 26.3. It combines an in-game clickable Music Center, local offline audio playback, browser-connected online music controls, synchronized lyrics, and optional cinematic sky effects.
 
@@ -11,7 +11,9 @@ Open the interface with **O**. The entire player is operated through clickable M
 - **History & Stats:** locally stored play-session count, unique recent tracks, and the latest 100 playback sessions; history can be cleared from the UI.
 - **Artwork Glow:** the Now Playing card samples a color from the current cover art and uses it for a restrained pulsing glow when GLOW is enabled.
 - **Online Music:** open YouTube Music or Spotify Web in the browser and control the active browser player from Minecraft.
-- **Lyrics Studio:** floating 3D lyrics or HUD lyrics, LRC import, word reveal, font and style controls.
+- **Lyrics Studio:** floating 3D lyrics or HUD lyrics, standard LRC import, word-by-word reveal, font and style controls.
+- **Word-synced karaoke:** reads LRCLIB-style inline word timestamps such as `<00:12.42>` and highlights each word at its actual timestamp. Ordinary line-timed LRC files continue to work.
+- **HUD Layout Studio:** drag Now Playing and Lyrics HUD independently, persist positions across restarts/resolutions, double-click a panel to reset it, or right-click during a drag to cancel.
 - **Keybinds:** change the five SkyLyrics shortcuts directly in the in-game KEYBINDS page. Click a row, press any keyboard key or mouse button, or press ESC to cancel. Restore Defaults is one click away. The same mappings remain visible in Minecraft's Controls screen.
 - **Skies / Performance:** choose a procedural sky or disable the sky effect entirely.
 
@@ -57,6 +59,25 @@ YouTube / YouTube Music can request synchronized LRC lyrics when a matching resu
 
 Every key is configurable in **O → KEYBINDS** or **Minecraft → Options → Controls → Key Binds → SkyLyrics**. In the KEYBINDS page, click a control row and then press the keyboard key or mouse button to assign it. Press ESC to cancel capture or select **Restore Default Keys** to restore O / H / K / N / B. No chat command is needed.
 
+## HUD layout editor
+
+Open **O → HUD → Open HUD Layout Editor**. Drag the **Now Playing** card and the **Lyrics HUD** panel independently. The editor saves normalized screen coordinates, so the layout is retained when the game resolution changes. Double-click a panel to reset only that panel; click **Reset All** to restore both defaults. Right-click while dragging to cancel and restore the position from before that drag.
+
+The editor changes only client-side HUD placement. It does not alter the world, player position, server state, or resource packs.
+
+## Word-synchronized lyrics
+
+SkyLyrics accepts ordinary LRC line timestamps and LRCLIB-style word timestamps embedded inside a line, for example:
+
+\`\`\`lrc
+[00:12.00]<00:12.00>Good <00:12.55>morning <00:13.20>sky
+\`\`\`
+
+When word timestamps are present and **Word-by-word reveal** is enabled, the screen HUD highlights the active word and the floating 3D lyrics reveal words in time. For LRC files without inline word timestamps, SkyLyrics falls back to its existing line-progress reveal behavior.
+
+A detailed independent architecture review of the supplied VerseFall 1.1.0 archive, its media/lyrics/HUD subsystems, compatibility limits, and the features chosen for SkyLyrics is in [`VERSEFALL_TECHNICAL_REVIEW.md`](VERSEFALL_TECHNICAL_REVIEW.md).
+
+
 ## Listening history, artwork glow and visualizer
 
 History & Stats records a local play session when a local track is selected or a supported browser track is observed playing. It stores only title, artist, source, and timestamp in `config/skylyrics/history.json`; it does not store audio, account identifiers, or authentication tokens. The most recent 100 sessions are kept, while the total session count is retained. The history can be cleared from the in-game page.
@@ -81,7 +102,7 @@ The Music Center, offline audio engine, online browser bridge, playlists/library
 ## Install in TLauncher
 
 1. Start the Minecraft 26.3 Fabric profile once, then close Minecraft.
-2. Put `skylyrics-0.6.1.jar` and the matching Fabric API JAR in the `mods` folder used by that Fabric profile.
+2. Put `skylyrics-0.7.0.jar` and the matching Fabric API JAR in the `mods` folder used by that Fabric profile.
 3. Start TLauncher and select the Fabric 26.3 profile.
 4. Enter a world and press **O** to open SkyLyrics Music Center.
 

@@ -125,6 +125,13 @@ public final class SkyLyricsWorldText {
         String[] words = cue.text().strip().split("\\s+");
         if (words.length < 2) return cue.text();
 
+        if (cue.hasWordTimings()) {
+            int activeWord = cue.activeWordIndex(player.positionMs());
+            if (activeWord < 0) return "";
+            int visible = Math.max(1, Math.min(words.length, activeWord + 1));
+            return String.join(" ", java.util.Arrays.copyOfRange(words, 0, visible));
+        }
+
         LyricsCue next = player.cueAt(player.currentCueIndex() + 1);
         long end = next == null ? player.durationMs() : next.timeMs();
         long span = Math.max(1L, end - cue.timeMs());

@@ -1,6 +1,13 @@
-# QA STATUS — SkyLyrics 0.6.1 / Interactive Keybind Editor
+# QA STATUS — SkyLyrics 0.7.0 / Karaoke Timing & HUD Layout Studio
 
 ## Added in this branch
+
+- Independent VerseFall technical review documenting its original class/package architecture, Spotify OAuth/PKCE flow, Windows media-session reader, LRCLIB word timing, draggable HUD system, graphics stack, compatibility and licensing caveats. This is analysis only; VerseFall code/assets are not bundled or copied.
+- LRC/LRCLIB inline per-word timestamps (`<mm:ss.xx>`) parsed into word timing metadata while preserving the original line-timed LRC behavior.
+- Karaoke HUD highlighting driven by per-word timestamps; 3D lyrics reveal words according to their actual word timestamps when supplied.
+- In-game HUD Layout Studio with independent drag positions for Now Playing and Lyrics HUD.
+- Normalized persisted positions that survive resolution changes, double-click per-panel reset, right-click drag cancel, and Reset All.
+- Config version 3 migration adds position fields without overwriting existing custom sky presets or lyrics vertical position.
 
 - Clickable Music Center, Offline Library, Online Music, and Keybinds tabs.
 - Local Java Sound playback engine with play/pause, stop, seek, volume, and background streaming from disk.
@@ -18,6 +25,13 @@
 - LGPL notices for bundled MP3SPI and VorbisSPI decoders.
 
 ## Release gates — not yet verified
+
+- [ ] A word-synced LRCLIB result highlights the active word at the correct timestamp in the screen HUD.
+- [ ] Word-synced 3D lyrics reveal words on their supplied timestamps; standard LRC keeps its line-progress fallback.
+- [ ] HUD Layout Studio can move Now Playing and Lyrics independently with mouse drag.
+- [ ] Double-click resets only the selected panel; right-click cancels without leaving the preview position changed.
+- [ ] HUD positions persist after game restart and stay within the visible screen after changing resolution.
+- [ ] Config version 2 migrates to version 3 while preserving user-selected sky preset, lyric style and vertical position.
 
 - [x] GitHub Actions `clean test build` succeeds with JDK 25 (Run #92, commit `c6b41e3`).
 - [x] Built JAR includes LocalAudioEngine, MusicLibrary, MusicHistory and bundled MP3SPI / VorbisSPI nested dependencies (verified by the release workflow).
@@ -38,4 +52,4 @@
 - [ ] Disabling the sky shader does not stop local or online music.
 - [ ] Multiplayer server does not require SkyLyrics or a resource pack.
 
-CI success is not an in-game audio test. Do not publish a verified release before the manual TLauncher checks pass.
+CI success is not an in-game audio or visual-interaction test. Do not publish a verified release before the manual TLauncher checks pass.
