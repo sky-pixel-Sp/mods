@@ -3,6 +3,7 @@ package com.skyrevo.skylyrics;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.skyrevo.skylyrics.core.LyricsLibrary;
 import com.skyrevo.skylyrics.core.MusicLibrary;
+import com.skyrevo.skylyrics.core.MusicHistory;
 import com.skyrevo.skylyrics.core.LyricsPlayer;
 import com.skyrevo.skylyrics.core.LyricsTrack;
 import com.skyrevo.skylyrics.core.SkyLyricsConfig;
@@ -36,6 +37,7 @@ public final class SkyLyricsClient implements ClientModInitializer {
     public static SkyLyricsConfig CONFIG;
     public static LyricsLibrary LIBRARY;
     public static MusicLibrary MUSIC_LIBRARY;
+    public static MusicHistory HISTORY;
     public static final LocalAudioEngine AUDIO = new LocalAudioEngine();
     public static final LyricsPlayer PLAYER = new LyricsPlayer();
     public static final BrowserMediaServer MEDIA_BRIDGE = new BrowserMediaServer();
@@ -43,6 +45,7 @@ public final class SkyLyricsClient implements ClientModInitializer {
     public static volatile String MEDIA_NOTICE = "Browser connector not connected";
     private static final LyricsLookupClient LYRICS_LOOKUP = new LyricsLookupClient();
     private static String activeMediaIdentity = "";
+    private static String lastHistoryIdentity = "";
     private static boolean lookupRunning;
     private static long lookupGeneration;
     private static long lastExternalTimestamp;
@@ -80,6 +83,7 @@ public final class SkyLyricsClient implements ClientModInitializer {
         CONFIG = new SkyLyricsConfig(configDirectory);
         LIBRARY = new LyricsLibrary(configDirectory);
         MUSIC_LIBRARY = new MusicLibrary(configDirectory);
+        HISTORY = new MusicHistory(configDirectory);
         MEDIA_BRIDGE.start();
 
         KeyMapping.Category category = KeyMapping.Category.register(
@@ -139,6 +143,7 @@ public final class SkyLyricsClient implements ClientModInitializer {
             }
             if (activeMediaIdentity.startsWith("youtube_music|") || activeMediaIdentity.startsWith("youtube|")) PLAYER.clear();
             activeMediaIdentity = "";
+            lastHistoryIdentity = "";
             lastExternalTimestamp = 0;
             MEDIA_NOTICE = MEDIA_BRIDGE.statusMessage();
             return;
@@ -160,6 +165,11 @@ public final class SkyLyricsClient implements ClientModInitializer {
             } else {
                 MEDIA_NOTICE = "Media detected. Use a local .lrc file for lyric timing.";
             }
+        }
+
+        if (media.playing() && !identity.equals(lastHistoryIdentity)) {
+            HISTORY.recordPlay(media.title(), media.artist(), media.displaySource());
+            lastHistoryIdentity = identity;
         }
 
         if (media.isYouTubeSource() && PLAYER.hasTrack()
@@ -285,6 +295,8 @@ public final class SkyLyricsClient implements ClientModInitializer {
         CURRENT_MEDIA = null;
         AlbumArtManager.update(null);
         AUDIO.play(file);
+        HISTORY.recordPlay(file.getFileName().toString(), "Local file", "Offline Library");
+        lastHistoryIdentity = "";
         Path matchingLyrics = MUSIC_LIBRARY.matchingLyrics(file);
         if (matchingLyrics != null) {
             try {
