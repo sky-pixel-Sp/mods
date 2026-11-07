@@ -1,6 +1,14 @@
-# QA STATUS — SkyLyrics 0.9.1 / Minecraft 26.3
+# QA STATUS — SkyLyrics 0.9.2 / Minecraft 26.3
 
-## 0.9.1 branding, navigation, and final-package checks
+## 0.9.2 gallery artwork, bilingual UI, and packaging checks
+- Eight authentic NASA/JPL astronomy photographs are bundled as full-resolution source JPGs and 1600×900 preview textures used by the Skies selector.
+- Every photograph has a retained image-page URL and individual credit line in `META-INF/licenses/skylyrics-artwork/NOTICE.txt`; no NASA/JPL endorsement is implied.
+- Skies now shows a photographic preview of the currently selected preset. The procedural post-effect remains the actual Minecraft sky effect.
+- The HUD Layout Studio uses real album artwork when it is available and localizes its controls and helper text.
+- The UI navigation now computes a smaller row pitch for short windows so all 13 tabs remain inside the panel.
+- Main HUD cards, status labels, and recent-activity text follow the saved English / Indonesian language setting.
+
+## 0.9.2 branding, navigation, and final-package checks
 - Fabric metadata author is exactly `Sky`; the mod now declares its custom `assets/skylyrics/icon.png` icon.
 - Added an Indonesian in-game PANDUAN CEPAT with direct buttons to Music Center, Lyrics, and Online Music.
 - The GitHub artifact now bundles the JAR, installation README, MIT license, and the complete Chrome / Edge extension folder.
@@ -16,6 +24,10 @@
 - [ ] Test all 20 sky presets, text styles, Elytra lyrics, and HUD positioning in TLauncher.
 
 ---
+
+## Historical QA — SkyLyrics 0.9.1 / Minecraft 26.3
+
+The 0.9.1 release-candidate checks are preserved below for audit history.
 
 ## Historical QA — SkyLyrics 0.9.0 / Minecraft 26.3
 
