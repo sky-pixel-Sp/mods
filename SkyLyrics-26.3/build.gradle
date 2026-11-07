@@ -140,6 +140,11 @@ tasks.test {
     dependsOn 'verifySkyResources'
 }
 
+// The generated TTF files are also included in the sources archive.
+tasks.named('sourcesJar') {
+    dependsOn tasks.named('downloadSkyFonts')
+}
+
 jar {
     from('LICENSE') { rename { "${it}_${project.archives_base_name}" } }
 }
