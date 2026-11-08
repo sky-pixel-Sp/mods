@@ -35,16 +35,16 @@ public final class HudEditorScreen extends Screen {
     }
 
     @Override public void extractBackground(GuiGraphicsExtractor g,int mx,int my,float delta){
-        super.extractBackground(g,mx,my,delta);g.fill(0,0,width,height,0xE9080712);
-        for(int x=0;x<width;x+=32)g.fill(x,0,x+1,height,0x182F2947);
-        for(int y=0;y<height;y+=32)g.fill(0,y,width,y+1,0x182F2947);
+        super.extractBackground(g,mx,my,delta);g.fill(0,0,width,height,0xE80B1016);
+        for(int x=0;x<width;x+=32)g.fill(x,0,x+1,height,0x1834414E);
+        for(int y=0;y<height;y+=32)g.fill(0,y,width,y+1,0x1834414E);
         drawNow(g);drawLyrics(g);drawVisualizer(g);drawRecent(g);drawStats(g);
-        g.fill(0,height-64,width,height,0xD90A0913);g.fill(0,height-64,width,height-63,0xFF59436F);
+        g.fill(0,height-64,width,height,0xD90A0913);g.fill(0,height-64,width,height-63,0xFF526171);
     }
     private void drawNow(GuiGraphicsExtractor g){
         Box b=box(SkyLyricsClient.CONFIG.nowPlayingHudX(),SkyLyricsClient.CONFIG.nowPlayingHudY(),380,58);
         g.fill(b.x,b.y,b.x+b.width,b.y+b.height,0xE00D0B18);g.outline(b.x,b.y,b.width,b.height,border(Element.NOW_PLAYING,true));
-        g.fill(b.x+2,b.y+2,b.x+b.width-2,b.y+4,0xFFB58BFF);g.fill(b.x+10,b.y+11,b.x+46,b.y+47,0xFF29203D);
+        g.fill(b.x+2,b.y+2,b.x+b.width-2,b.y+4,0xFF9DAFC2);g.fill(b.x+10,b.y+11,b.x+46,b.y+47,0xFF29203D);
         if(AlbumArtManager.hasTexture()) {
             g.blit(RenderPipelines.GUI_TEXTURED,AlbumArtManager.TEXTURE_ID,b.x+10,b.y+11,0.0F,0.0F,36,36,36,36);
         } else {
@@ -142,7 +142,7 @@ public final class HudEditorScreen extends Screen {
         case LISTENING_STATS->SkyLyricsClient.CONFIG.setListeningStatsHudPosition(0.85f,0.66f);
         default->{}}}
     private void restoreDragOrigin(){preview(dragging,originX,originY);SkyLyricsClient.CONFIG.saveHudPositions();}
-    private int border(Element e,boolean enabled){return !enabled?0x66817B91:dragging==e?0xFFFFD58A:0xFF8067A7;}
+    private int border(Element e,boolean enabled){return !enabled?0x66817B91:dragging==e?0xFFCFD8E2:0xFF667789;}
     private static String onOff(boolean v){return ui(v?"ON":"OFF");}
     private static String ui(String english){
         if(SkyLyricsClient.CONFIG==null||SkyLyricsClient.CONFIG.isEnglish())return english;
@@ -184,5 +184,6 @@ public final class HudEditorScreen extends Screen {
         };
     }
     private static float clamp(float v,float min,float max){return Math.max(min,Math.min(max,v));}
+    @Override public boolean isPauseScreen(){return false;}
     @Override public void onClose(){SkyLyricsClient.CONFIG.saveHudPositions();if(minecraft!=null)minecraft.gui.setScreen(parent);}
 }
