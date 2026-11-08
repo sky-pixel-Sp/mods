@@ -1,3 +1,60 @@
+# QA STATUS — SkyLyrics 0.10.0 / Minecraft 26.3
+
+## Current local-only build — 2026-11-08
+
+### Source and CI evidence
+
+- Development branch: `skylyrics-0.10.0-local-in-game`.
+- Commit verified by CI: `5ba433e28233981a16cce4d2bd344ad8637152ef`.
+- GitHub Actions: [Run #219](https://github.com/sky-pixel-Sp/mods/actions/runs/42440444857).
+- Result: **success** — JDK setup, Gradle setup, `clean test build`, JAR/resource checks, install-package assembly, and artifact upload all completed.
+- Toolchain: JDK 25 and Gradle 9.8.2.
+- Minecraft target: `~26.3`; Fabric Loader `>=0.20.1`; Java `>=25`. Build property pins Fabric API `0.165.2+26.3`.
+- Verified JAR: `skylyrics-0.10.0.jar`, **7,852,748 bytes**.
+- JAR SHA-256: `713887cbab5fd2671f1acfe260e71fb550d9a64f6e55fae8f421fd01ee387a05`.
+- GitHub install artifact: `SkyLyrics-Minecraft-26.3`, artifact ID `13600793822`, **7,831,532 bytes**.
+- Artifact ZIP SHA-256: `f1d15b01e82d7525027a2d79dc880d7d7894a508438707cbdd8a192d2e9b916a`.
+- Artifact expiry: **2026-12-08**.
+- Package contains the mod JAR, README, Indonesian guide, changelog, QA report, and MIT license. It does not contain a browser extension.
+
+### Local-only package inspection
+
+The downloaded JAR and package were inspected after the successful CI run.
+
+- Fabric metadata reports mod version `0.10.0`, Minecraft `~26.3`, Java `>=25`, and client-only environment.
+- Present: `InGameFilePickerScreen`, `LocalAudioEngine`, `PlaybackSessionGuard`, `SkyLyricsScreen`, `HudEditorScreen`, five bundled audio codec JARs, eight TTF font files, 20 sky presets, four shaders, and eight credited photo previews.
+- Absent: `BrowserMediaServer`, `MediaStatus`, `LyricsLookupClient`, and `AlbumArtManager` classes.
+- The former browser extension source files were removed from the 0.10.0 branch. The workflow no longer validates or packages browser-extension files.
+- The client controller does not start a browser listener or launch Spotify / YouTube. The Music Center has no Online Music tab.
+- Import UI is implemented as an in-game file browser. The code does not invoke a native Windows file dialog or an external media player.
+- Music Center, the file browser, and HUD Layout Studio declare non-pausing screen behavior.
+
+### What CI verifies
+
+- Java/Fabric source compilation for Minecraft 26.3.
+- Gradle unit-test task.
+- Sky resource, font, shader, artwork, nested codec, and final-JAR metadata/contents checks.
+- Required local-only UI/audio classes are present; the retired browser integration classes are absent.
+- The complete install package assembles and uploads successfully.
+
+### Not manually verified
+
+- No live Minecraft 26.3 or TLauncher launch was performed in this environment.
+- No audible output was tested through the user's laptop audio device.
+- The in-game file browser has not been mouse-tested on the user's actual Windows folders.
+- Play/Pause, seek, volume, LRC display, HUD positioning, multiplayer-screen behavior, and shutdown/cleanup still require hands-on client testing.
+- A successful CI build is not proof that a specific laptop's audio device or codec providers will behave correctly at runtime.
+
+### Scope limitations in 0.10.0
+
+- Audio is client-local. Other players on a multiplayer server do **not** hear the local music; no server audio broadcast or synchronization protocol is implemented.
+- Local audio formats supported by the current importer: MP3, OGG, WAV, AIFF, and AU.
+- The current library is a local track list with pagination. A full playlist editor, favorites, shuffle, repeat modes, and library search are not part of this build.
+- The HUD editor supports moving five widgets, toggling optional cards, and resetting positions. Resize handles and multiple named layout presets are not implemented.
+- The in-game file browser reads local directories that the Minecraft process can access; normal operating-system file permissions still apply.
+
+---
+
 # QA STATUS — SkyLyrics 0.9.3 / Minecraft 26.3
 
 ## 0.9.3 automated verification — 2026-11-08
