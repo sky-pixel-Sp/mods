@@ -13,6 +13,7 @@ on:
       - main
       - skylyrics-video-parity
       - skylyrics-0.9.3-audio-session-stability
+      - skylyrics-0.10.0-local-in-game
       - skylyrics-0.4-fonts-album-player
       - skylyrics-0.5-cinematic-overhaul
       - skylyrics-0.6-music-center
