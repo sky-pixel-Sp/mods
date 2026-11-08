@@ -3,11 +3,9 @@ package com.skyrevo.skylyrics.render;
 import com.skyrevo.skylyrics.SkyLyricsClient;
 import com.skyrevo.skylyrics.core.LyricsCue;
 import com.skyrevo.skylyrics.core.LyricsPlayer;
-import com.skyrevo.skylyrics.integration.MediaStatus;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.util.FormattedCharSequence;
 
 public final class SkyLyricsHud {
@@ -18,10 +16,7 @@ public final class SkyLyricsHud {
     public static void extract(GuiGraphicsExtractor graphics, DeltaTracker deltaTracker) {
         if (SkyLyricsClient.CONFIG == null || !SkyLyricsClient.CONFIG.enabled()) return;
 
-        MediaStatus media = SkyLyricsClient.CURRENT_MEDIA;
-        if (media != null && media.available()) {
-            drawNowPlaying(graphics, media);
-        } else if (SkyLyricsClient.isDemoActive() && SkyLyricsClient.PLAYER.hasTrack()) {
+        if (SkyLyricsClient.isDemoActive() && SkyLyricsClient.PLAYER.hasTrack()) {
             drawDemoNowPlaying(graphics);
         } else if (SkyLyricsClient.AUDIO.hasFile()) {
             drawOfflineNowPlaying(graphics);
@@ -122,20 +117,6 @@ public final class SkyLyricsHud {
         graphics.centeredText(minecraft.font, status, centerX, barY + 5, withAlpha(0xFFE5E5EF, 170));
     }
 
-    /** Compact top-centre music pill; independent of the 3D lyric mode. */
-    private static void drawNowPlaying(GuiGraphicsExtractor graphics, MediaStatus media) {
-        drawPlayerPill(
-                graphics,
-                media.displaySource(),
-                media.title(),
-                media.artist(),
-                media.positionMs(),
-                media.durationMs(),
-                media.playing(),
-                AlbumArtManager.hasTexture()
-        );
-    }
-
     private static void drawOfflineNowPlaying(GuiGraphicsExtractor graphics) {
         var file = SkyLyricsClient.AUDIO.currentFile();
         String title = file == null ? "Offline track" : file.getFileName().toString();
@@ -146,8 +127,7 @@ public final class SkyLyricsHud {
                 SkyLyricsClient.AUDIO.status(),
                 SkyLyricsClient.AUDIO.positionMs(),
                 SkyLyricsClient.AUDIO.durationMs(),
-                SkyLyricsClient.AUDIO.isPlaying(),
-                false
+                SkyLyricsClient.AUDIO.isPlaying()
         );
     }
 
@@ -160,8 +140,7 @@ public final class SkyLyricsHud {
                 player.track().artist(),
                 player.positionMs(),
                 player.durationMs(),
-                player.isPlaying(),
-                false
+                player.isPlaying()
         );
     }
 
@@ -172,8 +151,7 @@ public final class SkyLyricsHud {
             String artist,
             long positionMs,
             long durationMs,
-            boolean playing,
-            boolean hasArtwork
+            boolean playing
     ) {
         Minecraft minecraft = Minecraft.getInstance();
         int screenWidth = graphics.guiWidth();
@@ -186,33 +164,25 @@ public final class SkyLyricsHud {
         int y = Math.round(graphics.guiHeight() * SkyLyricsClient.CONFIG.nowPlayingHudY());
         x = Math.max(4, Math.min(screenWidth - panelWidth - 4, x));
         y = Math.max(4, Math.min(graphics.guiHeight() - panelHeight - 4, y));
-        int accent = hasArtwork ? AlbumArtManager.dominantColor() : SkyLyricsClient.CONFIG.accentColor();
+        int accent = SkyLyricsClient.CONFIG.accentColor();
 
-        // Bordered, Borderless, and Compact presentation styles.
         if (style != 1) {
-            graphics.fill(x, y, x + panelWidth, y + panelHeight, 0xD60B0A13);
-            if (style == 0) graphics.outline(x, y, panelWidth, panelHeight, 0xAA75618F);
+            graphics.fill(x, y, x + panelWidth, y + panelHeight, 0xD6171E26);
+            if (style == 0) graphics.outline(x, y, panelWidth, panelHeight, 0xAA607080);
             graphics.fill(x + 2, y + 2, x + panelWidth - 2, y + 3, withAlpha(accent, 190));
         }
 
         int artX = x + 9;
         int artSize = style == 2 ? 28 : 36;
         int artY = y + (panelHeight - artSize) / 2;
-        if (hasArtwork) {
-            if (SkyLyricsClient.CONFIG.glowEnabled()) {
-                int glowAlpha = 22 + (int) (26 * (0.5 + 0.5 *
-                        Math.sin(System.nanoTime() / 310_000_000.0)));
-                graphics.fill(artX - 4, artY - 4, artX + artSize + 4, artY + artSize + 4,
-                        withAlpha(accent, glowAlpha));
-                graphics.outline(artX - 2, artY - 2, artSize + 4, artSize + 4,
-                        withAlpha(accent, Math.min(180, glowAlpha * 3)));
-            }
-            graphics.blit(RenderPipelines.GUI_TEXTURED, AlbumArtManager.TEXTURE_ID,
-                    artX, artY, 0.0F, 0.0F, artSize, artSize, artSize, artSize);
-        } else {
-            graphics.fill(artX, artY, artX + artSize, artY + artSize, 0xFF211A31);
-            graphics.centeredText(minecraft.font, "♪", artX + artSize / 2, artY + 12, 0xFFE4C8FF);
+        if (SkyLyricsClient.CONFIG.glowEnabled() && playing) {
+            int glowAlpha = 18 + (int) (22 * (0.5 + 0.5 *
+                    Math.sin(System.nanoTime() / 310_000_000.0)));
+            graphics.fill(artX - 4, artY - 4, artX + artSize + 4, artY + artSize + 4,
+                    withAlpha(accent, glowAlpha));
         }
+        graphics.fill(artX, artY, artX + artSize, artY + artSize, 0xFF222C37);
+        graphics.centeredText(minecraft.font, "♪", artX + artSize / 2, artY + 12, 0xFFD8E2EC);
 
         int textX = artX + artSize + 10;
         int waveWidth = 32;
@@ -225,22 +195,20 @@ public final class SkyLyricsHud {
         int labelY = style == 2 ? 5 : 8;
         int titleY = style == 2 ? 17 : 22;
         int artistY = style == 2 ? 30 : 37;
-        graphics.fill(textX, y + (style == 2 ? 8 : 11), textX + 5, y + (style == 2 ? 13 : 16), withAlpha(0xFF8BE2B5, pulse));
+        graphics.fill(textX, y + (style == 2 ? 8 : 11), textX + 5,
+                y + (style == 2 ? 13 : 16), withAlpha(0xFF8BE2B5, pulse));
         String sourceLabel = ui(source == null || source.isBlank() ? "MUSIC" : source);
         if (sourceLabel.length() > 18) sourceLabel = sourceLabel.substring(0, 18);
         graphics.text(minecraft.font, ui("NOW PLAYING") + "  ·  " + sourceLabel,
-                textX + 10, y + labelY, 0xFFCBB8F4, true);
+                textX + 10, y + labelY, 0xFFC8D4DF, true);
         graphics.text(minecraft.font, fit(title == null || title.isBlank() ? ui("Unknown track") : title,
-                minecraft, maxTextWidth, 1.0f), textX + 10, y + titleY, 0xFFFFFCF7, true);
+                minecraft, maxTextWidth, 1.0f), textX + 10, y + titleY, 0xFFF1F4F7, true);
         graphics.text(minecraft.font, fit(artist == null ? "" : artist,
-                minecraft, maxTextWidth, 1.0f), textX + 10, y + artistY, 0xFFC9C4D5, false);
+                minecraft, maxTextWidth, 1.0f), textX + 10, y + artistY, 0xFFB7C3CE, false);
 
-        // A small animated waveform echoes the music instead of adding another large panel.
         int waveX = x + panelWidth - 27;
         int waveCenter = y + panelHeight / 2;
         boolean localAudio = "OFFLINE LIBRARY".equals(source);
-        // Offline bars react to measured PCM amplitude. Browser mode remains a low-intensity
-        // transport animation because the extension intentionally never captures audio bytes.
         float audioEnergy = localAudio ? SkyLyricsClient.AUDIO.visualizerLevel() : (playing ? 0.22f : 0.0f);
         for (int i = 0; i < 5; i++) {
             float seed = WAVE_HEIGHTS[i];
