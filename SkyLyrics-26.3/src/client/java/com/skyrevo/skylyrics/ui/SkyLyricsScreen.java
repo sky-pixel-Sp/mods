@@ -20,7 +20,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.network.chat.Component;
 
 public final class SkyLyricsScreen extends Screen {
-    private enum Tab { OVERVIEW, MUSIC, LIBRARY, HISTORY, ONLINE, LYRICS, STYLES, SKIES, HUD, KEYBINDS, PERFORMANCE, SETTINGS, GUIDE }
+    private enum Tab { OVERVIEW, MUSIC, LIBRARY, HISTORY, LYRICS, STYLES, SKIES, HUD, KEYBINDS, PERFORMANCE, SETTINGS, GUIDE }
     private static boolean firstOpen = true;
     private final Tab tab;
     private int left, top, panelWidth, panelHeight, sideWidth, contentLeft, contentWidth;
@@ -30,7 +30,7 @@ public final class SkyLyricsScreen extends Screen {
     private int navStep = 34;
     private int navHeight = 27;
 
-    public SkyLyricsScreen() { this(Tab.OVERVIEW); }
+    public SkyLyricsScreen() { this(Tab.MUSIC); }
     private SkyLyricsScreen(Tab tab) {
         super(Component.literal(ui("SkyLyrics by Sky")));
         this.tab = tab;
@@ -52,7 +52,7 @@ public final class SkyLyricsScreen extends Screen {
         navStep = Math.max(16, Math.min(34, (panelHeight - 78) / Tab.values().length));
         navHeight = Math.max(13, Math.min(27, navStep - 4));
 
-        String[] labels = {"OVERVIEW","MUSIC CENTER","OFFLINE LIBRARY","HISTORY & STATS","ONLINE MUSIC","LYRICS","STYLES","SKIES","HUD","KEYBINDS","PERFORMANCE","SETTINGS","QUICK GUIDE"};
+        String[] labels = {"OVERVIEW","MUSIC CENTER","OFFLINE LIBRARY","HISTORY & STATS","LYRICS","STYLES","SKIES","HUD","KEYBINDS","PERFORMANCE","SETTINGS","QUICK GUIDE"};
         Tab[] tabs = Tab.values();
         for (int i=0;i<tabs.length;i++) {
             Tab next = tabs[i];
@@ -69,7 +69,6 @@ public final class SkyLyricsScreen extends Screen {
             case MUSIC -> music(y);
             case LIBRARY -> library(y);
             case HISTORY -> history(y);
-            case ONLINE -> online(y);
             case LYRICS -> lyrics(y);
             case STYLES -> styles(y);
             case SKIES -> skies(y);
@@ -90,7 +89,6 @@ public final class SkyLyricsScreen extends Screen {
                 SkyLyricsClient.CONFIG::toggleEnabled,contentLeft+half+gap,y+22,half,32);
         navigate("OPEN MUSIC CENTER",Tab.MUSIC,contentLeft,y+68,half,32);
         navigate("OFFLINE LIBRARY",Tab.LIBRARY,contentLeft+half+gap,y+68,half,32);
-        navigate("ONLINE MUSIC",Tab.ONLINE,contentLeft,y+114,half,32);
         navigate("LYRICS STUDIO",Tab.LYRICS,contentLeft+half+gap,y+114,half,32);
         action(SkyLyricsClient.isDemoActive() ? "STOP VISUAL PREVIEW" : "PLAY VISUAL PREVIEW",
                 () -> {
@@ -155,8 +153,6 @@ public final class SkyLyricsScreen extends Screen {
         action("IMPORT .LRC LYRICS", () -> MusicFilePicker.chooseLyrics(path -> {
             if (path != null) SkyLyricsClient.importLyricsFile(path);
         }), contentLeft + half + gap, y + 10, half, 30);
-        action("OPEN MUSIC FOLDER", SkyLyricsClient::openMusicFolder,
-                contentLeft, y + 48, contentWidth, 27);
 
         var tracks = SkyLyricsClient.MUSIC_LIBRARY.listAudio();
         int pageSize = 6;
@@ -184,30 +180,6 @@ public final class SkyLyricsScreen extends Screen {
                 contentLeft, y + 10, half, 30);
         action("CLEAR HISTORY", SkyLyricsClient.HISTORY::clear,
                 contentLeft + half + gap, y + 10, half, 30);
-    }
-
-    private void online(int y) {
-        int gap = 8, half = (contentWidth - gap) / 2;
-        action("OPEN YOUTUBE MUSIC", () -> SkyLyricsClient.openOnlineProvider("youtube_music"),
-                contentLeft, y + 18, half, 36);
-        action("OPEN SPOTIFY WEB", () -> SkyLyricsClient.openOnlineProvider("spotify"),
-                contentLeft + half + gap, y + 18, half, 36);
-        action("PLAY / PAUSE", () -> SkyLyricsClient.controlOnline("play_pause"),
-                contentLeft, y + 72, half, 31);
-        action("NEXT TRACK ▶", () -> SkyLyricsClient.controlOnline("next"),
-                contentLeft + half + gap, y + 72, half, 31);
-        action("PREVIOUS ◀", () -> SkyLyricsClient.controlOnline("previous"),
-                contentLeft, y + 113, half, 31);
-        action("SEEK −10s", () -> SkyLyricsClient.controlOnline("seek_back"),
-                contentLeft + half + gap, y + 113, half, 31);
-        action("SEEK +10s", () -> SkyLyricsClient.controlOnline("seek_forward"),
-                contentLeft, y + 154, half, 31);
-        action("VOLUME −", () -> SkyLyricsClient.controlOnline("volume_down"),
-                contentLeft + half + gap, y + 154, half, 31);
-        action("VOLUME +", () -> SkyLyricsClient.controlOnline("volume_up"),
-                contentLeft, y + 195, half, 31);
-        action("PAUSE ONLINE PLAYER", () -> SkyLyricsClient.controlOnline("pause"),
-                contentLeft + half + gap, y + 195, half, 31);
     }
 
     private void keybinds(int y) {
@@ -391,7 +363,7 @@ public final class SkyLyricsScreen extends Screen {
         int width = (contentWidth - 2 * gap) / 3;
         navigate("MUSIC CENTER",Tab.MUSIC,contentLeft,y+18,width,30);
         navigate("LYRICS",Tab.LYRICS,contentLeft+width+gap,y+18,width,30);
-        navigate("ONLINE MUSIC",Tab.ONLINE,contentLeft+2*(width+gap),y+18,width,30);
+        navigate("LISTENING HISTORY",Tab.HISTORY,contentLeft+2*(width+gap),y+18,width,30);
     }
 
     private void navigate(String label,Tab next,int x,int y,int w,int h) {
@@ -586,16 +558,17 @@ public final class SkyLyricsScreen extends Screen {
     private void open(Tab next) { this.minecraft.gui.setScreen(new SkyLyricsScreen(next)); }
 
     @Override
+    public boolean isPauseScreen() { return false; }
+
+    @Override
     public void extractBackground(GuiGraphicsExtractor graphics,int mouseX,int mouseY,float delta) {
         super.extractBackground(graphics,mouseX,mouseY,delta);
-        graphics.fill(0,0,width,height,0x6B060711);
-        graphics.fill(left,top,left+panelWidth,top+panelHeight,0xF00D0C17);
-        graphics.outline(left,top,panelWidth,panelHeight,0xFF67518D);
-        double phase = System.nanoTime() / 950_000_000.0;
-        float pulse = (float) (0.5 + 0.5 * Math.sin(phase));
-        graphics.fill(left, top, left + panelWidth, top + 3, mixColor(0xFF7F68D8, 0xFFE18BCB, pulse));
-        graphics.fill(left,top+56,left+sideWidth,top+panelHeight-10,0xE9090812);
-        graphics.fill(left+sideWidth,top+56,left+sideWidth+1,top+panelHeight-10,0xFF3A2C55);
+        graphics.fill(0,0,width,height,0x70090D12);
+        graphics.fill(left,top,left+panelWidth,top+panelHeight,0xF0151A21);
+        graphics.outline(left,top,panelWidth,panelHeight,0xFF46515E);
+        graphics.fill(left,top,left+panelWidth,top+3,0xFF9DAFC2);
+        graphics.fill(left,top+56,left+sideWidth,top+panelHeight-10,0xE911161D);
+        graphics.fill(left+sideWidth,top+56,left+sideWidth+1,top+panelHeight-10,0xFF343E49);
         if (tab == Tab.OVERVIEW) {
             int cardTop = top + 258;
             int cardBottom = top + panelHeight - 18;
@@ -627,10 +600,10 @@ public final class SkyLyricsScreen extends Screen {
     public void extractRenderState(GuiGraphicsExtractor graphics,int mouseX,int mouseY,float delta) {
         super.extractRenderState(graphics,mouseX,mouseY,delta);
         graphics.text(font,ui("SKYLYRICS"),left+16,top+16,0xFFFFFFFF,true);
-        graphics.text(font,ui("BY SKY  ·  CINEMATIC MUSIC EXPERIENCE"),left+16,top+33,0xFFC7B9E8,false);
+        graphics.text(font,ui("LOCAL MUSIC  ·  SYNCHRONIZED LYRICS"),left+16,top+33,0xFFAFBAC6,false);
         graphics.text(font,ui(tab == Tab.GUIDE ? "QUICK GUIDE" : tab.name()),contentLeft,top+78,0xFFFFFFFF,true);
         int activeY = top + 70 + tab.ordinal() * navStep;
-        graphics.fill(left + 10, activeY + 2, left + 13, activeY + navHeight - 2, 0xFFB58BFF);
+        graphics.fill(left + 10, activeY + 2, left + 13, activeY + navHeight - 2, 0xFF9DAFC2);
         boolean ready = SkyLyricsClient.PLAYER.hasTrack();
         graphics.fill(left + panelWidth - 142, top + 17, left + panelWidth - 20, top + 38,
                 ready ? 0xFF20372F : 0xFF30283B);
@@ -707,19 +680,6 @@ public final class SkyLyricsScreen extends Screen {
             }
             graphics.text(font,ui("History stays in config/skylyrics/history.json; audio is never stored here."),
                     contentLeft, top + panelHeight - 28, 0xFF9690A8, false);
-        } else if (tab == Tab.ONLINE) {
-            var media = SkyLyricsClient.CURRENT_MEDIA;
-            graphics.text(font, media != null ? ui("CONNECTED") + "  ·  " + media.displaySource() : ui("WAITING FOR BROWSER PLAYER"),
-                    contentLeft, top + 244, media != null ? 0xFF9BE7BF : 0xFFFFD58A, true);
-            if (media != null) {
-                graphics.text(font, media.title(), contentLeft, top + 271, 0xFFFFFFFF, true);
-                graphics.text(font, media.artist(), contentLeft, top + 293, 0xFFBDB7CD, false);
-                graphics.text(font, LyricsPlayer.formatTime(media.positionMs()) + " / "
-                        + LyricsPlayer.formatTime(media.durationMs()), contentLeft, top + 315, 0xFFD4D1E2, false);
-            }
-            graphics.text(font,ui("Browser extension required for remote controls and synced metadata."),
-                    contentLeft, top + 354, 0xFFD4D1E2, false);
-            graphics.text(font, SkyLyricsClient.MEDIA_NOTICE, contentLeft, top + 378, 0xFF9D96B3, false);
         } else if (tab == Tab.KEYBINDS) {
             graphics.text(font,ui("EDIT CONTROLS DIRECTLY FROM THIS SCREEN"),
                     contentLeft, top + 360, 0xFFFFFFFF, true);
@@ -772,11 +732,8 @@ public final class SkyLyricsScreen extends Screen {
             graphics.text(font,ui("1. MUSIC CENTER → IMPORT SONG → CHOOSE MP3 / OGG / WAV."),contentLeft,top+218,0xFFD4D1E2,false);
             graphics.text(font,ui("2. LYRICS → IMPORT / MATCH LRC → CHOOSE THE MATCHING .LRC FILE."),contentLeft,top+242,0xFFD4D1E2,false);
             graphics.text(font,ui("3. CHOOSE FLOATING WORLD TEXT (3D) OR SCREEN HUD (2D)."),contentLeft,top+266,0xFFD4D1E2,false);
-            graphics.text(font,ui("4. ONLINE: OPEN SPOTIFY WEB / YOUTUBE MUSIC IN CHROME OR EDGE."),contentLeft,top+290,0xFFD4D1E2,false);
-            graphics.text(font,ui("5. LOAD THE INCLUDED BROWSER EXTENSION IN CHROME / EDGE."),contentLeft,top+314,0xFFD4D1E2,false);
             graphics.text(font,ui("KEYS: O MENU · H LYRICS · K PLAY/PAUSE · N NEXT · B PREVIOUS."),contentLeft,top+350,0xFFC6A0FF,true);
-            graphics.text(font,ui("LOCAL AUDIO PLAYS THROUGH SKYLYRICS; ONLINE AUDIO STAYS IN THE BROWSER."),contentLeft,top+376,0xFFBDB7CD,false);
-            graphics.text(font,ui("SPOTIFY WEB PROVIDES METADATA AND CONTROLS ONLY; LYRICS SYNC IS OFF."),contentLeft,top+400,0xFF9690A8,false);
+            graphics.text(font,ui("LOCAL AUDIO PLAYS DIRECTLY INSIDE MINECRAFT."),contentLeft,top+376,0xFFBDB7CD,false);
         }
     }
 }
