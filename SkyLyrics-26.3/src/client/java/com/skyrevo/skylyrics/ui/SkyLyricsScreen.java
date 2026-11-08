@@ -149,10 +149,16 @@ public final class SkyLyricsScreen extends Screen {
     private void library(int y) {
         int gap = 8, half = (contentWidth - gap) / 2;
         action("IMPORT AUDIO FILE", () -> MusicFilePicker.chooseAudio(path -> {
-            if (path != null) SkyLyricsClient.importAndPlayAudio(path);
+            if (path != null) {
+                SkyLyricsClient.importAndPlayAudio(path);
+                open(Tab.LIBRARY);
+            }
         }), contentLeft, y + 10, half, 30);
         action("IMPORT .LRC LYRICS", () -> MusicFilePicker.chooseLyrics(path -> {
-            if (path != null) SkyLyricsClient.importLyricsFile(path);
+            if (path != null) {
+                SkyLyricsClient.importLyricsFile(path);
+                open(Tab.LIBRARY);
+            }
         }), contentLeft + half + gap, y + 10, half, 30);
 
         var tracks = SkyLyricsClient.MUSIC_LIBRARY.listAudio();
@@ -413,7 +419,6 @@ public final class SkyLyricsScreen extends Screen {
             case "MUSIC CENTER" -> "PUSAT MUSIK";
             case "OFFLINE LIBRARY" -> "PUSTAKA OFFLINE";
             case "HISTORY & STATS" -> "RIWAYAT & STATISTIK";
-            case "ONLINE MUSIC" -> "MUSIK ONLINE";
             case "LYRICS" -> "LIRIK";
             case "STYLES" -> "GAYA";
             case "SKIES" -> "LANGIT";
@@ -450,7 +455,6 @@ public final class SkyLyricsScreen extends Screen {
             case "OPEN SPOTIFY WEB" -> "BUKA SPOTIFY WEB";
             case "NEXT TRACK ▶" -> "LAGU BERIKUTNYA ▶";
             case "PREVIOUS ◀" -> "LAGU SEBELUMNYA ◀";
-            case "PAUSE ONLINE PLAYER" -> "JEDA PEMUTAR ONLINE";
             case "TOGGLE LYRIC HUD" -> "UBAH HUD LIRIK";
             case "NEXT TRACK" -> "LAGU BERIKUTNYA";
             case "PREVIOUS TRACK" -> "LAGU SEBELUMNYA";
@@ -500,7 +504,6 @@ public final class SkyLyricsScreen extends Screen {
             case "CINEMATIC MUSIC EXPERIENCE" -> "PENGALAMAN MUSIK SINEMATIK";
             case "BY SKY  ·  CINEMATIC MUSIC EXPERIENCE" -> "OLEH SKY  ·  MUSIK SINEMATIK";
             case "CINEMATIC PREVIEW" -> "PRATINJAU SINEMATIK";
-            case "Choose a local song or open an online provider." -> "Pilih lagu lokal atau buka penyedia online.";
             case "SUPPORTED: MP3 · OGG · WAV · AIFF · AU" -> "FORMAT: MP3 · OGG · WAV · AIFF · AU";
             case "Matching .lrc files are loaded automatically by filename." -> "File .lrc yang cocok dimuat otomatis berdasarkan nama.";
             case "LISTENING OVERVIEW" -> "RINGKASAN PEMUTARAN";
@@ -510,7 +513,6 @@ public final class SkyLyricsScreen extends Screen {
             case "No listening sessions yet. Play a local or supported online track." -> "Belum ada riwayat. Putar lagu lokal atau online.";
             case "CONNECTED" -> "TERHUBUNG";
             case "WAITING FOR BROWSER PLAYER" -> "MENUNGGU PEMUTAR BROWSER";
-            case "Browser extension required for remote controls and synced metadata." -> "Ekstensi browser diperlukan untuk kontrol jarak jauh dan metadata.";
             case "EDIT CONTROLS DIRECTLY FROM THIS SCREEN" -> "UBAH KONTROL LANGSUNG DARI LAYAR INI";
             case "Click a control above, then press a keyboard key or mouse button." -> "Klik kontrol di atas, lalu tekan tombol keyboard atau mouse.";
             case "Press ESC while capturing to cancel. Defaults can be restored above." -> "Tekan ESC untuk batal. Tombol default dapat dipulihkan di atas.";
@@ -609,7 +611,7 @@ public final class SkyLyricsScreen extends Screen {
         super.extractRenderState(graphics,mouseX,mouseY,delta);
         graphics.text(font,ui("SKYLYRICS"),left+16,top+16,0xFFFFFFFF,true);
         graphics.text(font,ui("LOCAL MUSIC  ·  SYNCHRONIZED LYRICS"),left+16,top+33,0xFFAFBAC6,false);
-        graphics.text(font,ui(tab == Tab.GUIDE ? "QUICK GUIDE" : tab.name()),contentLeft,top+78,0xFFFFFFFF,true);
+        graphics.text(font,ui(tab == Tab.GUIDE ? "QUICK GUIDE" : tab == Tab.MUSIC ? "MUSIC CENTER" : tab.name()),contentLeft,top+78,0xFFFFFFFF,true);
         int activeY = top + 70 + tab.ordinal() * navStep;
         graphics.fill(left + 10, activeY + 2, left + 13, activeY + navHeight - 2, 0xFF9DAFC2);
         boolean ready = SkyLyricsClient.PLAYER.hasTrack();
@@ -634,7 +636,7 @@ public final class SkyLyricsScreen extends Screen {
             } else {
                 graphics.text(font,ui("Press PLAY CINEMATIC PREVIEW to test the 3D lyrics offline."),
                         contentLeft+14,top+305,0xFFBDB7CD,false);
-                graphics.text(font,ui("No browser extension, server resource pack or music account needed."),
+                graphics.text(font,ui("No music account, browser, or server resource pack is needed."),
                         contentLeft+14,top+324,0xFF9690A8,false);
             }
             if(SkyLyricsClient.MEDIA_NOTICE!=null&&!SkyLyricsClient.MEDIA_NOTICE.isBlank())
