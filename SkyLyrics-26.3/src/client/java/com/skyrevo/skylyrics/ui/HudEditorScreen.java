@@ -2,9 +2,7 @@ package com.skyrevo.skylyrics.ui;
 
 import com.skyrevo.skylyrics.SkyLyricsClient;
 import com.skyrevo.skylyrics.core.MusicHistory;
-import com.skyrevo.skylyrics.render.AlbumArtManager;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.KeyEvent;
@@ -45,17 +43,11 @@ public final class HudEditorScreen extends Screen {
         Box b=box(SkyLyricsClient.CONFIG.nowPlayingHudX(),SkyLyricsClient.CONFIG.nowPlayingHudY(),380,58);
         g.fill(b.x,b.y,b.x+b.width,b.y+b.height,0xE00D0B18);g.outline(b.x,b.y,b.width,b.height,border(Element.NOW_PLAYING,true));
         g.fill(b.x+2,b.y+2,b.x+b.width-2,b.y+4,0xFF9DAFC2);g.fill(b.x+10,b.y+11,b.x+46,b.y+47,0xFF29203D);
-        if(AlbumArtManager.hasTexture()) {
-            g.blit(RenderPipelines.GUI_TEXTURED,AlbumArtManager.TEXTURE_ID,b.x+10,b.y+11,0.0F,0.0F,36,36,36,36);
-        } else {
-            g.centeredText(font,"♪",b.x+28,b.y+23,0xFFFFD9FC);
-        }
+        g.centeredText(font,"♪",b.x+28,b.y+23,0xFFD8E2EC);
         g.text(font,ui("NOW PLAYING · SKYLYRICS"),b.x+56,b.y+10,0xFFCDBAF7,true);
         String title;
         if(SkyLyricsClient.AUDIO.hasFile() && SkyLyricsClient.AUDIO.currentFile()!=null) {
             title=SkyLyricsClient.AUDIO.currentFile().getFileName().toString();
-        } else if(SkyLyricsClient.CURRENT_MEDIA!=null && SkyLyricsClient.CURRENT_MEDIA.available()) {
-            title=SkyLyricsClient.CURRENT_MEDIA.title();
         } else if(SkyLyricsClient.PLAYER.hasTrack()) {
             title=SkyLyricsClient.PLAYER.track().title();
         } else {
