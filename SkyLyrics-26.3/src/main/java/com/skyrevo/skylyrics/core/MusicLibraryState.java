@@ -188,7 +188,7 @@ public final class MusicLibraryState {
         if (track == null || track.getFileName() == null) return null;
         String name = track.getFileName().toString();
         if (name.isBlank() || name.equals(".") || name.equals("..")
-                || name.contains("/") || name.contains("\\\\")) return null;
+                || name.contains("/") || name.contains("\\")) return null;
         Path resolved = musicDirectory.resolve(name).normalize();
         Path supplied = track.toAbsolutePath().normalize();
         return resolved.startsWith(musicDirectory) && resolved.equals(supplied) ? name : null;
@@ -202,7 +202,7 @@ public final class MusicLibraryState {
         if (value == null) return null;
         String name = value.strip().replaceAll("[\\p{Cntrl}]", "");
         if (name.isBlank() || name.length() > 40 || name.equals(".") || name.equals("..")) return null;
-        if (name.contains("/") || name.contains("\\\\")) return null;
+        if (name.contains("/") || name.contains("\\")) return null;
         return name;
     }
 
@@ -258,7 +258,7 @@ public final class MusicLibraryState {
 
     private String safeStoredTrackName(String name) {
         if (name == null || name.isBlank() || name.equals(".") || name.equals("..")
-                || name.contains("/") || name.contains("\\\\")) return null;
+                || name.contains("/") || name.contains("\\")) return null;
         Path resolved = musicDirectory.resolve(name).normalize();
         if (!resolved.startsWith(musicDirectory) || !MusicLibrary.isSupportedAudio(resolved)) return null;
         return name;
