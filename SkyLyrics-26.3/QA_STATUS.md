@@ -15,8 +15,13 @@
 ### Build verification status
 - Development branch: `skylyrics-0.11.0-playlists-queue`.
 - Version property: `mod_version=0.11.0`.
-- CI verification is pending until the pull-request workflow completes. Do not treat this entry as a successful build record until the run is inspected.
-- Required pipeline: JDK 25 / Gradle 9.8.2 / `clean test build`, JAR metadata/resource checks, and complete package assembly.
+- GitHub Actions Run #245: [42446219783](https://github.com/sky-pixel-Sp/mods/actions/runs/42446219783) — **success**.
+- Verified head commit: `62dc9fdfc8f12fd106514409e19e33b7e86a8de7`.
+- Toolchain: JDK 25 and Gradle 9.8.2; `clean test build` completed successfully, including the Gradle `test` task.
+- Final JAR: `skylyrics-0.11.0.jar`, **7,867,248 bytes**; SHA-256 `74de7b60798ba43e80e0524c7a15214e747633c5de3c62cbb6a0b5fcc0ea2e96`.
+- Install artifact: `SkyLyrics-Minecraft-26.3`, ID `13602944184`, **7,849,025 bytes**; ZIP SHA-256 `bab55ef1cdf1198ebcb42f49732298ac8036710ce5b7c43bded19610d6a7127e`; expires **2026-12-08**.
+- CI verified the JAR author, metadata, icon, 8 TTF fonts, 20 sky presets, 4 shaders, 5 bundled audio codecs, 8 credited 1600×900 NASA/JPL preview textures, and the presence of `MusicLibraryState`, the local audio engine, and in-game file browser.
+- The package contains the JAR, README, Indonesian guide, changelog, QA report, and MIT license.
 
 ### Manual validation still required
 - No live Minecraft 26.3 or TLauncher client test has yet been completed for this branch.
