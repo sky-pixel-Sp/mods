@@ -79,7 +79,9 @@ Library metadata: `config/skylyrics/library-state.json` (playlist names, local f
 | N | Next local library track |
 | B | Previous local queue track |
 
-Shuffle and Repeat are configured in **O → OFFLINE LIBRARY**. Repeat cycles through Off (stop at the queue end), All (loop the queue), and One (replay the current track). Shuffle selects a different track from the active queue.\n\nEvery key is configurable in **O → KEYBINDS** or **Minecraft → Options → Controls → Key Binds → SkyLyrics**. In the KEYBINDS page, click a control row and then press the keyboard key or mouse button to assign it. Press ESC to cancel capture or select **Restore Default Keys** to restore O / H / K / N / B. No chat command is needed.
+Shuffle and Repeat are configured in **O → OFFLINE LIBRARY**. Repeat cycles through Off (stop at the queue end), All (loop the queue), and One (replay the current track). Shuffle selects a different track from the active queue.
+
+Every key is configurable in **O → KEYBINDS** or **Minecraft → Options → Controls → Key Binds → SkyLyrics**. In the KEYBINDS page, click a control row and then press the keyboard key or mouse button to assign it. Press ESC to cancel capture or select **Restore Default Keys** to restore O / H / K / N / B. No chat command is needed.
 
 ## HUD layout editor
 
