@@ -507,6 +507,7 @@ public final class SkyLyricsScreen extends Screen {
             case "SEARCH LIBRARY" -> "CARI DI PUSTAKA";
             case "No tracks in this view. Import audio or change the filter." -> "Tidak ada lagu pada tampilan ini. Impor audio atau ubah filter.";
             case "No matching tracks. Try another search." -> "Tidak ada hasil. Coba kata pencarian lain.";
+            case "No listening sessions yet. Play a local track to see your history." -> "Belum ada riwayat. Putar lagu lokal untuk melihat riwayat.";
 
             case "SkyLyrics by Sky" -> "SkyLyrics oleh Sky";
             case "OVERVIEW" -> "RINGKASAN";
@@ -762,8 +763,6 @@ public final class SkyLyricsScreen extends Screen {
                         : "No matching tracks. Try another search.";
                 graphics.text(font, ui(emptyMessage), contentLeft, top + 280, 0xFFB7C1CB, false);
             }
-            graphics.text(font, ui("FAVORITE  ★   ·   + ADD TO PLAYLIST   ·   SHUFFLE / REPEAT APPLY TO THIS QUEUE"),
-                    contentLeft, top + 480, 0xFF8E9BA8, false);
         } else if (tab == Tab.HISTORY) {
             graphics.text(font,ui("LISTENING OVERVIEW"), contentLeft, top + 112, 0xFFC6A0FF, true);
             graphics.text(font, ui("PLAY SESSIONS") + "  ·  " + SkyLyricsClient.HISTORY.totalPlays(),
@@ -773,7 +772,7 @@ public final class SkyLyricsScreen extends Screen {
             graphics.text(font,ui("RECENTLY PLAYED"), contentLeft, top + 210, 0xFFC6A0FF, true);
             var entries = SkyLyricsClient.HISTORY.recent(7);
             if (entries.isEmpty()) {
-                graphics.text(font,ui("No listening sessions yet. Play a local or supported online track."),
+                graphics.text(font,ui("No listening sessions yet. Play a local track to see your history."),
                         contentLeft, top + 238, 0xFFBDB7CD, false);
             } else {
                 for (int i = 0; i < entries.size(); i++) {
