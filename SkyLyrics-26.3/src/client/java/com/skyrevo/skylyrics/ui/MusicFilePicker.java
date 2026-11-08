@@ -22,7 +22,7 @@ public final class MusicFilePicker {
     private static void open(boolean lyricsOnly, Consumer<Path> callback) {
         Minecraft client = Minecraft.getInstance();
         if (client == null) return;
-        client.setScreen(new InGameFilePickerScreen(
+        client.gui.setScreen(new InGameFilePickerScreen(
                 client.screen,
                 lyricsOnly,
                 callback,
