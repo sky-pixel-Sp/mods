@@ -71,7 +71,7 @@ public final class MusicLibraryState {
         if (name == null || playlists.size() >= MAX_PLAYLISTS || containsPlaylist(name)) return false;
         playlists.put(name, new LinkedHashSet<>());
         activePlaylist = name;
-        filterMode = FilterMode.PLAYLIST;
+        // Keep the current library view so the user can immediately add tracks.
         save();
         return true;
     }
