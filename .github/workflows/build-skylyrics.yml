@@ -91,6 +91,7 @@ jobs:
           test -n "${MOD_VERSION}"
           DIST="build/distribution/SkyLyrics-${MOD_VERSION}-Minecraft-26.3"
           rm -rf "${DIST}"
+          mkdir -p "${DIST}"
           cp "build/libs/skylyrics-${MOD_VERSION}.jar" "${DIST}/"
           cp README.md LICENSE PANDUAN-ID.md CHANGELOG.md QA_STATUS.md "${DIST}/"
           test -s "${DIST}/skylyrics-${MOD_VERSION}.jar"
