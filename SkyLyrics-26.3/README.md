@@ -46,8 +46,10 @@ Open the interface with **O**. The entire player is operated through clickable M
 1. Launch Minecraft Java **26.3 + Fabric**, enter a single-player world or multiplayer server, and press **O**. Music Center opens inside Minecraft without pausing the world.
 2. Choose **Import Song**. SkyLyrics opens its own in-game file browser; browse to `Music`, `Downloads`, or another folder and click an audio file.
 3. SkyLyrics copies the song into `config/skylyrics/music/` and plays it through the in-game audio engine. No web service, browser, Spotify, YouTube, or separate media player is launched.
-4. Choose **Import / Match LRC** in Music Center and select the matching `.lrc` file. You can also import it from the Offline Library.
-5. In **Lyrics**, choose **Floating World Text** for 3D lyrics or **Screen HUD** for a 2D overlay. Use **Keybinds** to change shortcuts.
+4. Open **Offline Library** to search tracks, switch between All / Favorites / Playlist, mark a track with ☆ / ★, or use + / − to manage membership in the active playlist.
+5. Enter a playlist name and choose **Create**. Set **Shuffle** and **Repeat** for the active queue (Off / All / One). These settings are saved locally.
+6. Choose **Import / Match LRC** in Music Center and select the matching `.lrc` file. You can also import it from Offline Library.
+7. In **Lyrics**, choose **Floating World Text** for 3D lyrics or **Screen HUD** for a 2D overlay. Use **Keybinds** to change shortcuts.
 
 ## Offline playback
 
@@ -64,7 +66,8 @@ To show synchronized lyrics offline, import a matching `.lrc` file into the Lyri
 
 Music library directory: `config/skylyrics/music/`.
 Lyrics directory: `config/skylyrics/lyrics/`.
-Listening history: `config/skylyrics/history.json` (metadata only; stored locally and removable from History & Stats).\nLibrary metadata: `config/skylyrics/library-state.json` (playlist names, local file names, favorites, shuffle and repeat settings; no audio data).
+Listening history: `config/skylyrics/history.json` (metadata only; stored locally and removable from History & Stats).
+Library metadata: `config/skylyrics/library-state.json` (playlist names, local file names, favorites, shuffle and repeat settings; no audio data).
 
 ## Controls and keybinds
 
