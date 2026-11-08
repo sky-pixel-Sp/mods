@@ -7,10 +7,8 @@ import com.skyrevo.skylyrics.core.MusicHistory;
 import com.skyrevo.skylyrics.core.LyricsPlayer;
 import com.skyrevo.skylyrics.core.LyricsTrack;
 import com.skyrevo.skylyrics.core.SkyLyricsConfig;
-import com.skyrevo.skylyrics.integration.MediaStatus;
 import com.skyrevo.skylyrics.render.SkyLyricsHud;
 import com.skyrevo.skylyrics.render.SkyEffectController;
-import com.skyrevo.skylyrics.render.AlbumArtManager;
 import com.skyrevo.skylyrics.audio.LocalAudioEngine;
 import com.skyrevo.skylyrics.ui.SkyLyricsScreen;
 import net.fabricmc.api.ClientModInitializer;
@@ -35,7 +33,6 @@ public final class SkyLyricsClient implements ClientModInitializer {
     public static MusicHistory HISTORY;
     public static final LocalAudioEngine AUDIO = new LocalAudioEngine();
     public static final LyricsPlayer PLAYER = new LyricsPlayer();
-    public static volatile MediaStatus CURRENT_MEDIA;
     public static volatile String MEDIA_NOTICE = "Local playback only · no external music player";
     private static Object lastAppliedSkyLevel;
     private static boolean demoActive;
@@ -147,8 +144,6 @@ public final class SkyLyricsClient implements ClientModInitializer {
         try {
             AUDIO.clear();
             demoActive = true;
-                CURRENT_MEDIA = null;
-            AlbumArtManager.update(null);
             PLAYER.load(LyricsTrack.fromLrcText(
                     DEMO_LRC,
                     "Golden Hour Preview",
@@ -209,8 +204,6 @@ public final class SkyLyricsClient implements ClientModInitializer {
     public static void playLocalTrack(Path file) {
         if (file == null) return;
         stopDemo();
-        CURRENT_MEDIA = null;
-        AlbumArtManager.update(null);
         AUDIO.play(file);
         HISTORY.recordPlay(file.getFileName().toString(), "Local file", "Offline Library");
         Path matchingLyrics = MUSIC_LIBRARY.matchingLyrics(file);
