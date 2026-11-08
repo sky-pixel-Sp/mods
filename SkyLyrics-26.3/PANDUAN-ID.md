@@ -1,75 +1,76 @@
-# Panduan Instalasi dan Penggunaan SkyLyrics 0.9.3
+# Panduan Instalasi dan Penggunaan SkyLyrics 0.10.0
 
-> Versi 0.9.3 memperkuat kestabilan sesi pemutaran audio lokal. Hasil build dan pengujian otomatis tercatat di `QA_STATUS.md`. Uji suara langsung tetap perlu dilakukan di Minecraft 26.3.
+SkyLyrics 0.10.0 adalah pemutar musik **langsung di dalam Minecraft**. Tidak perlu membuka Spotify, YouTube, Chrome, browser lain, atau pemutar musik eksternal.
 
-**Pembuat:** Sky  
-**Target:** Minecraft Java 26.3 · Fabric Loader 0.20.1+ · Java 25+
+## 1. Persyaratan
 
-## 1. Pasang mod di TLauncher
+- Minecraft Java Edition **26.3**.
+- Fabric Loader **0.20.1 atau lebih baru**.
+- Fabric API **0.165.2+26.3** atau versi kompatibel untuk Minecraft 26.3.
+- Java **25 atau lebih baru**.
+- Windows atau laptop/PC dengan perangkat keluaran audio.
 
-1. Ekstrak paket ZIP ini.
-2. Buka folder `SkyLyrics-0.9.3-Minecraft-26.3`.
-3. Salin file `skylyrics-0.9.3.jar` ke folder `mods` milik profil Minecraft 26.3 Fabric di TLauncher.
-4. Pastikan Fabric API yang cocok untuk Minecraft 26.3 juga ada di folder `mods`.
-5. Jalankan profil Fabric 26.3, masuk ke dunia, lalu tekan **O** untuk membuka SkyLyrics.
+## 2. Pasang di laptop
 
-Mod ini bersifat client-side. Server multiplayer tidak perlu memasangnya.
+1. Jalankan profil Minecraft 26.3 Fabric sekali, lalu tutup game.
+2. Buka folder instalasi Minecraft yang dipakai oleh launcher.
+3. Masukkan `skylyrics-0.10.0.jar` ke folder `mods`.
+4. Pastikan Fabric API untuk Minecraft 26.3 juga ada di folder `mods`.
+5. Jalankan profil Fabric 26.3.
 
-## 2. Putar musik lokal
+SkyLyrics adalah mod **client-side**. Server multiplayer tidak perlu memasang mod ini. Pemain yang memasangnya sendiri dapat membuka Music Center di client mereka.
 
-1. Tekan **O** → **Music Center** → **Import Song**.
-2. Pilih file MP3, OGG, atau WAV dari komputer.
-3. SkyLyrics menyalin file ke `config/skylyrics/music/` agar muncul di **Offline Library**.
-4. Gunakan tombol Play/Pause, Previous, Next, Seek, dan Volume di menu.
+## 3. Buka Music Center saat bermain
 
-Audio lokal diputar melalui player SkyLyrics pada komputer yang menjalankan Minecraft. Musik tetap dapat diputar tanpa internet setelah file diimpor.
+1. Masuk ke dunia single-player atau server multiplayer.
+2. Tekan tombol **O** pada keyboard.
+3. Music Center muncul sebagai layar di dalam Minecraft. Dunia tetap berjalan; layar SkyLyrics tidak menghentikan permainan.
+4. Tab yang terbuka pertama kali adalah **Music Center**.
 
-## 3. Tampilkan lirik
+Tidak perlu mengetik command di chat.
 
-1. Siapkan file lirik format **.LRC** yang cocok dengan lagu.
-2. Buka **O** → **Lyrics** → **Import / Match LRC**.
-3. Pilih file LRC. Untuk pencocokan otomatis, nama dasar file lirik harus sama dengan nama file audio.
-4. Pilih **Floating World Text** untuk lirik 3D di dunia Minecraft atau **Screen HUD** untuk lirik di layar.
-5. Atur gaya teks, font, ukuran, dan sinkronisasi di menu **Lyrics** dan **Styles**.
+## 4. Putar lagu dari laptop — sepenuhnya di dalam game
 
-## 4. Kontrol Spotify Web / YouTube Music
+1. Di Music Center tekan **IMPORT SONG**.
+2. Penjelajah file SkyLyrics akan muncul di dalam Minecraft. Ini bukan jendela Windows dan bukan pemutar musik eksternal.
+3. Gunakan shortcut **HOME**, **MUSIC**, **DOWNLOADS**, **DESKTOP**, atau **UP** untuk mencari folder lagu.
+4. Klik file audio yang ingin diputar.
+5. SkyLyrics menyalin file ke `config/skylyrics/music/` dan mulai memutarnya melalui audio engine di dalam Minecraft.
 
-1. Buka **O** → **Online Music**.
-2. Klik **OPEN SPOTIFY WEB** atau **OPEN YOUTUBE MUSIC**.
-3. Login langsung di halaman resmi penyedia musik pada Chrome atau Edge, lalu mulai putar lagu.
-4. Buka `chrome://extensions` (Chrome) atau `edge://extensions` (Edge).
-5. Aktifkan **Developer mode**.
-6. Klik **Load unpacked**, lalu pilih folder `browser-extension` dari paket ZIP ini.
-7. Kembali ke tab Spotify / YouTube Music dan refresh halaman. Biarkan tab tersebut terbuka saat bermain.
-8. SkyLyrics akan menerima metadata lagu dan mengirim kontrol pemutaran ke tab browser.
+Format yang didukung: **MP3, OGG, WAV, AIFF, dan AU**.
 
-**Penting:** audio dari Spotify / YouTube Music tetap diputar oleh browser, bukan dialirkan ulang melalui audio engine Minecraft. Spotify Web saat ini menyediakan metadata dan kontrol saja; sinkronisasi lirik Spotify tidak diaktifkan. Jangan pernah memasukkan password akun Spotify ke dalam mod atau ekstensi.
+Kontrol yang tersedia di Music Center: Previous, Play/Pause, Stop, Next, Seek mundur/maju 10 detik, Volume turun/naik, serta impor file LRC.
 
-## 5. Tombol bawaan
+## 5. Tampilkan lirik tersinkron
+
+1. Siapkan file `.lrc` yang cocok dengan lagu.
+2. Pilih **IMPORT / MATCH LRC** di Music Center atau **IMPORT .LRC LYRICS** di Offline Library.
+3. Pilih file melalui penjelajah file SkyLyrics di dalam game.
+4. Untuk pencocokan otomatis, nama dasar file audio dan LRC sebaiknya sama. Contoh: `Song.mp3` dan `Song.lrc`.
+5. Pilih tampilan **Floating World Text (3D)** atau **Screen HUD (2D)** pada halaman Lyrics.
+
+LRC bertimestamp baris didukung. Timestamp per kata digunakan saat datanya tersedia; jika tidak, lirik tetap memakai sinkronisasi per baris.
+
+## 6. Tombol bawaan
 
 | Tombol | Fungsi |
 |---|---|
-| **O** | Buka / tutup Music Center |
-| **H** | Tampilkan / sembunyikan lyric HUD |
-| **K** | Play / Pause |
-| **N** | Lagu berikutnya |
-| **B** | Lagu sebelumnya |
+| O | Buka Music Center |
+| H | Tampilkan/sembunyikan HUD lirik |
+| K | Play/Pause |
+| N | Lagu berikutnya |
+| B | Lagu sebelumnya |
 
-Tombol bisa diubah dari **O** → **Keybinds** atau melalui Options → Controls di Minecraft.
+Tombol dapat diubah dari **O → KEYBINDS** atau Minecraft **Options → Controls → Key Binds → SkyLyrics**.
 
-## 6. Jika ada masalah
+## 7. Lokasi file
 
-- **Menu tidak terbuka:** buka Options → Controls dan pastikan tombol SkyLyrics tidak bentrok dengan mod lain.
-- **Offline Library kosong:** pastikan impor selesai dan file berada di `config/skylyrics/music/`.
-- **Audio tidak terdengar:** periksa output audio Windows, volume SkyLyrics, dan apakah file audio dapat diputar normal di pemutar lain.
-- **Lirik tidak muncul:** pastikan file berekstensi .LRC dan namanya cocok dengan file audio.
-- **Kontrol browser tidak tersambung:** pastikan ekstensi sudah aktif, tab musik terbuka, lalu refresh halaman penyedia.
+- Musik: `config/skylyrics/music/`
+- Lirik: `config/skylyrics/lyrics/`
+- Riwayat pemutaran: `config/skylyrics/history.json`
 
-Kalau masalah tetap terjadi, simpan log Minecraft dari folder `logs/latest.log` dan sertakan pesan error yang muncul.
+File audio disalin ke folder library SkyLyrics; file asli di folder laptop tidak dihapus.
 
-## 7. Folder di dalam paket
+## 8. Batas pengujian
 
-- `skylyrics-0.9.3.jar` — mod Fabric yang dipasang ke Minecraft.
-- `browser-extension/` — ekstensi Chrome / Edge untuk menghubungkan pemutar musik browser.
-- `README.md` — dokumentasi lengkap proyek.
-- `LICENSE` — lisensi MIT untuk kode SkyLyrics.
+Build dan tes otomatis dicatat pada `QA_STATUS.md`. Suara dari perangkat laptop, navigasi file in-game, dan interaksi layar tetap perlu diuji langsung di Minecraft 26.3 pada laptop yang digunakan.

@@ -3,7 +3,7 @@
   "id": "skylyrics",
   "version": "${version}",
   "name": "SkyLyrics",
-  "description": "SkyLyrics by Sky — in-game music controls, synchronized lyrics, customizable 2D/3D HUD, and cinematic sky presets for Minecraft Java 26.3.",
+  "description": "SkyLyrics — fully in-game local music playback, in-game file browser, synchronized lyrics, customizable HUD, and cinematic sky presets for Minecraft Java 26.3.",
   "authors": [
     "Sky"
   ],

@@ -13,6 +13,7 @@ on:
       - main
       - skylyrics-video-parity
       - skylyrics-0.9.3-audio-session-stability
+      - skylyrics-0.10.0-local-in-game
       - skylyrics-0.4-fonts-album-player
       - skylyrics-0.5-cinematic-overhaul
       - skylyrics-0.6-music-center
@@ -67,7 +68,12 @@ jobs:
           jar tf "${JAR}" | grep -q 'skylyrics/post_effect/sky_golden_sunset.json'
           jar tf "${JAR}" | grep -q 'assets/skylyrics/font/poppins.ttf'
           jar tf "${JAR}" | grep -q 'assets/skylyrics/font/montserrat.json'
-          jar tf "${JAR}" | grep -q 'AlbumArtManager.class'
+          jar tf "${JAR}" | grep -q 'InGameFilePickerScreen.class'
+          jar tf "${JAR}" | grep -q 'PlaybackSessionGuard.class'
+          if jar tf "${JAR}" | grep -Eq 'BrowserMediaServer.class|MediaStatus.class|LyricsLookupClient.class|AlbumArtManager.class'; then
+            echo "External browser integration classes must not be packaged in the local-only edition." >&2
+            exit 1
+          fi
           jar tf "${JAR}" | grep -q 'LocalAudioEngine.class'
           jar tf "${JAR}" | grep -q 'MusicLibrary.class'
           jar tf "${JAR}" | grep -q 'MusicHistory.class'
@@ -81,15 +87,6 @@ jobs:
           jar tf "${JAR}" | grep -q 'META-INF/jars/jorbis-'
           jar tf "${JAR}" | grep -q 'META-INF/jars/tritonus-share-'
           echo "SkyLyrics ${MOD_VERSION} JAR, author metadata, icon, embedded fonts, shader presets, offline codecs, Music Center and HUD assets verified."
-      - name: Validate browser connector
-        working-directory: SkyLyrics-26.3
-        shell: bash
-        run: |
-          set -euo pipefail
-          node --check browser-extension/content.js
-          node --check browser-extension/background.js
-          python -m json.tool browser-extension/manifest.json >/dev/null
-          echo "Browser extension scripts and manifest are valid."
       - name: Assemble complete install package
         working-directory: SkyLyrics-26.3
         shell: bash
@@ -99,15 +96,11 @@ jobs:
           test -n "${MOD_VERSION}"
           DIST="build/distribution/SkyLyrics-${MOD_VERSION}-Minecraft-26.3"
           rm -rf "${DIST}"
-          mkdir -p "${DIST}/browser-extension"
+          mkdir -p "${DIST}"
           cp "build/libs/skylyrics-${MOD_VERSION}.jar" "${DIST}/"
           cp README.md LICENSE PANDUAN-ID.md CHANGELOG.md QA_STATUS.md "${DIST}/"
-          cp browser-extension/manifest.json browser-extension/background.js browser-extension/content.js browser-extension/README.md "${DIST}/browser-extension/"
           test -s "${DIST}/skylyrics-${MOD_VERSION}.jar"
-          test -s "${DIST}/browser-extension/manifest.json"
-          test -s "${DIST}/browser-extension/background.js"
-          test -s "${DIST}/browser-extension/content.js"
-          echo "Install package ready: JAR + Quick Start README + Chrome/Edge browser extension."
+          echo "Install package ready: Minecraft-only JAR + README + Indonesian guide + changelog + QA report."
 
       - name: Upload SkyLyrics install package
         uses: actions/upload-artifact@v7
