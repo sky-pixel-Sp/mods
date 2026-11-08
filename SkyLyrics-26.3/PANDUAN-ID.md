@@ -1,6 +1,6 @@
-# Panduan Instalasi dan Penggunaan SkyLyrics 0.10.0
+# Panduan Instalasi dan Penggunaan SkyLyrics 0.11.0
 
-SkyLyrics 0.10.0 adalah pemutar musik **langsung di dalam Minecraft**. Tidak perlu membuka Spotify, YouTube, Chrome, browser lain, atau pemutar musik eksternal.
+SkyLyrics 0.11.0 adalah pemutar musik **langsung di dalam Minecraft**. Tidak perlu membuka Spotify, YouTube, Chrome, browser lain, atau pemutar musik eksternal.
 
 ## 1. Persyaratan
 
@@ -14,7 +14,7 @@ SkyLyrics 0.10.0 adalah pemutar musik **langsung di dalam Minecraft**. Tidak per
 
 1. Jalankan profil Minecraft 26.3 Fabric sekali, lalu tutup game.
 2. Buka folder instalasi Minecraft yang dipakai oleh launcher.
-3. Masukkan `skylyrics-0.10.0.jar` ke folder `mods`.
+3. Masukkan `skylyrics-0.11.0.jar` ke folder `mods`.
 4. Pastikan Fabric API untuk Minecraft 26.3 juga ada di folder `mods`.
 5. Jalankan profil Fabric 26.3.
 
@@ -39,7 +39,7 @@ Tidak perlu mengetik command di chat.
 
 Format yang didukung: **MP3, OGG, WAV, AIFF, dan AU**.
 
-Kontrol yang tersedia di Music Center: Previous, Play/Pause, Stop, Next, Seek mundur/maju 10 detik, Volume turun/naik, serta impor file LRC.
+Kontrol yang tersedia di Music Center: Previous, Play/Pause, Stop, Next, Seek mundur/maju 10 detik, Volume turun/naik, serta impor file LRC.\n\n### Kelola library, favorit, dan playlist\n\n1. Buka tab **OFFLINE LIBRARY**. Gunakan kolom **SEARCH** untuk mencari nama file lagu.\n2. Tombol **FILTER** berganti antara semua lagu, favorit, dan playlist aktif. Tombol **PLAYLIST** berganti ke playlist yang tersedia.\n3. Tekan **☆ / ★** di samping lagu untuk menambah atau menghapus favorit. Tekan **+ / −** untuk menambah atau menghapus lagu dari playlist aktif.\n4. Ketik nama playlist di kolom bawah lalu tekan **CREATE**. Playlist aktif dapat dihapus melalui **DELETE ACTIVE PLAYLIST**.\n5. **SHUFFLE** mengacak antrean. **REPEAT** berganti Off → All → One. Pengaturan ini tersimpan dan digunakan saat lagu selesai diputar.
 
 ## 5. Tampilkan lirik tersinkron
 
@@ -67,7 +67,7 @@ Tombol dapat diubah dari **O → KEYBINDS** atau Minecraft **Options → Control
 
 - Musik: `config/skylyrics/music/`
 - Lirik: `config/skylyrics/lyrics/`
-- Riwayat pemutaran: `config/skylyrics/history.json`
+- Riwayat pemutaran: `config/skylyrics/history.json`\n- Playlist, favorit, dan preferensi antrean: `config/skylyrics/library-state.json`
 
 File audio disalin ke folder library SkyLyrics; file asli di folder laptop tidak dihapus.
 
