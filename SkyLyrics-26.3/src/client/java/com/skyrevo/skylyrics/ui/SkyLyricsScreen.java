@@ -451,8 +451,6 @@ public final class SkyLyricsScreen extends Screen {
             case "◀ PREVIOUS" -> "◀ SEBELUMNYA";
             case "NEXT ▶" -> "BERIKUTNYA ▶";
             case "CLEAR HISTORY" -> "HAPUS RIWAYAT";
-            case "OPEN YOUTUBE MUSIC" -> "BUKA YOUTUBE MUSIC";
-            case "OPEN SPOTIFY WEB" -> "BUKA SPOTIFY WEB";
             case "NEXT TRACK ▶" -> "LAGU BERIKUTNYA ▶";
             case "PREVIOUS ◀" -> "LAGU SEBELUMNYA ◀";
             case "TOGGLE LYRIC HUD" -> "UBAH HUD LIRIK";
@@ -539,11 +537,9 @@ public final class SkyLyricsScreen extends Screen {
             case "1. MUSIC CENTER → IMPORT SONG → CHOOSE MP3 / OGG / WAV." -> "1. PUSAT MUSIK → IMPOR LAGU → PILIH MP3 / OGG / WAV.";
             case "2. LYRICS → IMPORT / MATCH LRC → CHOOSE THE MATCHING .LRC FILE." -> "2. LIRIK → IMPOR / COCOKKAN LRC → PILIH FILE .LRC YANG SESUAI.";
             case "3. CHOOSE FLOATING WORLD TEXT (3D) OR SCREEN HUD (2D)." -> "3. PILIH TEKS DUNIA MELAYANG (3D) ATAU HUD LAYAR (2D).";
-            case "4. ONLINE: OPEN SPOTIFY WEB / YOUTUBE MUSIC IN CHROME OR EDGE." -> "4. ONLINE: BUKA SPOTIFY WEB / YOUTUBE MUSIC DI CHROME ATAU EDGE.";
             case "5. LOAD THE INCLUDED BROWSER EXTENSION IN CHROME / EDGE." -> "5. MUAT EKSTENSI BROWSER YANG DISERTAKAN DI CHROME / EDGE.";
             case "KEYS: O MENU · H LYRICS · K PLAY/PAUSE · N NEXT · B PREVIOUS." -> "TOMBOL: O MENU · H LIRIK · K PUTAR/JEDA · N BERIKUTNYA · B SEBELUMNYA.";
             case "LOCAL AUDIO PLAYS THROUGH SKYLYRICS; ONLINE AUDIO STAYS IN THE BROWSER." -> "AUDIO LOKAL DIPUTAR OLEH SKYLYRICS; AUDIO ONLINE TETAP DI BROWSER.";
-            case "SPOTIFY WEB PROVIDES METADATA AND CONTROLS ONLY; LYRICS SYNC IS OFF." -> "SPOTIFY WEB HANYA MEMBERI METADATA DAN KONTROL; SINKRON LIRIK NONAKTIF.";
             default -> english;
         };
     }
@@ -662,7 +658,7 @@ public final class SkyLyricsScreen extends Screen {
                 graphics.text(font, "No song selected", contentLeft + 14, top + 384, 0xFFE4EAF0, true);
                 graphics.text(font, "Import a song to play it directly inside Minecraft.",
                         contentLeft + 14, top + 406, 0xFFAAB7C4, false);
-                graphics.text(font, "No Spotify, YouTube, browser tab, or external player is required.",
+                graphics.text(font, "No browser or external music player is required.",
                         contentLeft + 14, top + 428, 0xFF8F9CAA, false);
             }
             graphics.text(font, SkyLyricsClient.MEDIA_NOTICE, contentLeft + 14, top + 466, 0xFF81909F, false);
