@@ -49,6 +49,7 @@ class MusicLibraryStateTest {
         MusicLibraryState state = new MusicLibraryState(temporaryDirectory.resolve("config"), library);
 
         assertTrue(state.createPlaylist("Road Trip"));
+        assertEquals(MusicLibraryState.FilterMode.ALL, state.filterMode());
         assertTrue(state.toggleTrackInActivePlaylist(first));
         assertTrue(state.toggleTrackInActivePlaylist(second));
         assertTrue(state.isInActivePlaylist(first));
