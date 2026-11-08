@@ -118,7 +118,7 @@ public final class SkyLyricsScreen extends Screen {
         int gap = 8, half = (contentWidth - gap) / 2;
         int transportWidth = (contentWidth - 3 * gap) / 4;
 
-        action("IMPORT SONG  +", () -> MusicFilePicker.chooseAudio(path -> {
+        action("IMPORT SONG  +", () -> MusicFilePicker.chooseAudio(this, path -> {
             if (path != null) SkyLyricsClient.importAndPlayAudio(path);
         }), contentLeft, y + 14, half, 34);
         navigate("OPEN OFFLINE LIBRARY", Tab.LIBRARY,
@@ -141,20 +141,20 @@ public final class SkyLyricsScreen extends Screen {
                 contentLeft, y + 150, half, 30);
         action("VOLUME  +", () -> SkyLyricsClient.adjustPlaybackVolume(0.08f),
                 contentLeft + half + gap, y + 150, half, 30);
-        action("IMPORT / MATCH LRC", () -> MusicFilePicker.chooseLyrics(path -> {
+        action("IMPORT / MATCH LRC", () -> MusicFilePicker.chooseLyrics(this, path -> {
             if (path != null) SkyLyricsClient.importLyricsFile(path);
         }), contentLeft, y + 192, contentWidth, 30);
     }
 
     private void library(int y) {
         int gap = 8, half = (contentWidth - gap) / 2;
-        action("IMPORT AUDIO FILE", () -> MusicFilePicker.chooseAudio(path -> {
+        action("IMPORT AUDIO FILE", () -> MusicFilePicker.chooseAudio(this, path -> {
             if (path != null) {
                 SkyLyricsClient.importAndPlayAudio(path);
                 open(Tab.LIBRARY);
             }
         }), contentLeft, y + 10, half, 30);
-        action("IMPORT .LRC LYRICS", () -> MusicFilePicker.chooseLyrics(path -> {
+        action("IMPORT .LRC LYRICS", () -> MusicFilePicker.chooseLyrics(this, path -> {
             if (path != null) {
                 SkyLyricsClient.importLyricsFile(path);
                 open(Tab.LIBRARY);
