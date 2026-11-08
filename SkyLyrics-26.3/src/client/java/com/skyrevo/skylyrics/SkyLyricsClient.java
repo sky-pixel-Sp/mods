@@ -4,6 +4,7 @@ import com.mojang.blaze3d.platform.InputConstants;
 import com.skyrevo.skylyrics.core.LyricsLibrary;
 import com.skyrevo.skylyrics.core.MusicLibrary;
 import com.skyrevo.skylyrics.core.MusicHistory;
+import com.skyrevo.skylyrics.core.MusicLibraryState;
 import com.skyrevo.skylyrics.core.LyricsPlayer;
 import com.skyrevo.skylyrics.core.LyricsTrack;
 import com.skyrevo.skylyrics.core.SkyLyricsConfig;
@@ -23,6 +24,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 public final class SkyLyricsClient implements ClientModInitializer {
     public static final String MOD_ID = "skylyrics";
@@ -31,6 +34,8 @@ public final class SkyLyricsClient implements ClientModInitializer {
     public static LyricsLibrary LIBRARY;
     public static MusicLibrary MUSIC_LIBRARY;
     public static MusicHistory HISTORY;
+    public static MusicLibraryState LIBRARY_STATE;
+    private static Path lastHandledCompletion;
     public static final LocalAudioEngine AUDIO = new LocalAudioEngine();
     public static final LyricsPlayer PLAYER = new LyricsPlayer();
     public static volatile String MEDIA_NOTICE = "Local playback only · no external music player";
@@ -84,6 +89,7 @@ public final class SkyLyricsClient implements ClientModInitializer {
         LIBRARY = new LyricsLibrary(configDirectory);
         MUSIC_LIBRARY = new MusicLibrary(configDirectory);
         HISTORY = new MusicHistory(configDirectory);
+        LIBRARY_STATE = new MusicLibraryState(configDirectory, MUSIC_LIBRARY);
 
         KeyMapping.Category category = KeyMapping.Category.register(
                 Identifier.fromNamespaceAndPath(MOD_ID, "main")
@@ -108,6 +114,7 @@ public final class SkyLyricsClient implements ClientModInitializer {
                 LOGGER.info("Applied SkyLyrics sky preset: {}", CONFIG.skyPreset());
             }
             syncLocalAudioClock();
+            handleCompletedLocalTrack();
             while (openMenuKey.consumeClick()) {
                 client.gui.setScreen(new SkyLyricsScreen());
             }
@@ -203,6 +210,7 @@ public final class SkyLyricsClient implements ClientModInitializer {
 
     public static void playLocalTrack(Path file) {
         if (file == null) return;
+        lastHandledCompletion = null;
         stopDemo();
         AUDIO.play(file);
         HISTORY.recordPlay(file.getFileName().toString(), "Local file", "Offline Library");
@@ -241,6 +249,25 @@ public final class SkyLyricsClient implements ClientModInitializer {
         if (AUDIO.hasFile()) AUDIO.adjustVolume(delta);
     }
 
+    public static void toggleShuffle() {
+        LIBRARY_STATE.toggleShuffle();
+        MEDIA_NOTICE = "Shuffle " + (LIBRARY_STATE.shuffleEnabled() ? "enabled." : "disabled.");
+    }
+
+    public static void cycleRepeatMode() {
+        LIBRARY_STATE.cycleRepeatMode();
+        MEDIA_NOTICE = "Repeat mode: " + LIBRARY_STATE.repeatMode().name() + ".";
+    }
+
+    private static List<Path> playbackQueue() {
+        return LIBRARY_STATE.filteredTracks(MUSIC_LIBRARY.listAudio());
+    }
+
+    private static boolean sameFile(Path first, Path second) {
+        return first != null && second != null
+                && first.toAbsolutePath().normalize().equals(second.toAbsolutePath().normalize());
+    }
+
     public static void nextLocalTrack() {
         moveLocalTrack(1);
     }
@@ -250,16 +277,69 @@ public final class SkyLyricsClient implements ClientModInitializer {
     }
 
     private static void moveLocalTrack(int direction) {
-        var tracks = MUSIC_LIBRARY.listAudio();
+        List<Path> tracks = playbackQueue();
         if (tracks.isEmpty()) {
-            MEDIA_NOTICE = "Offline library is empty. Import a song first.";
+            MEDIA_NOTICE = "No tracks are available in the selected library view.";
             return;
         }
         Path current = AUDIO.currentFile();
-        int index = current == null ? -1 : tracks.indexOf(current);
-        int next = index < 0 ? (direction > 0 ? 0 : tracks.size() - 1)
-                : Math.floorMod(index + direction, tracks.size());
+        int index = -1;
+        for (int i = 0; i < tracks.size(); i++) {
+            if (sameFile(tracks.get(i), current)) {
+                index = i;
+                break;
+            }
+        }
+        int next;
+        if (LIBRARY_STATE.shuffleEnabled() && tracks.size() > 1) {
+            next = randomOtherIndex(tracks.size(), index);
+        } else {
+            next = index < 0 ? (direction > 0 ? 0 : tracks.size() - 1)
+                    : Math.floorMod(index + direction, tracks.size());
+        }
+        lastHandledCompletion = null;
         playLocalTrack(tracks.get(next));
+    }
+
+    private static int randomOtherIndex(int size, int currentIndex) {
+        if (size <= 1) return 0;
+        int candidate = ThreadLocalRandom.current().nextInt(size - 1);
+        return currentIndex >= 0 && candidate >= currentIndex ? candidate + 1 : candidate;
+    }
+
+    private static void handleCompletedLocalTrack() {
+        Path completed = AUDIO.currentFile();
+        if (!AUDIO.isFinished() || completed == null || sameFile(completed, lastHandledCompletion)) return;
+
+        lastHandledCompletion = completed;
+        if (LIBRARY_STATE.repeatMode() == MusicLibraryState.RepeatMode.ONE) {
+            playLocalTrack(completed);
+            return;
+        }
+
+        List<Path> tracks = playbackQueue();
+        if (tracks.isEmpty()) return;
+        int index = -1;
+        for (int i = 0; i < tracks.size(); i++) {
+            if (sameFile(tracks.get(i), completed)) {
+                index = i;
+                break;
+            }
+        }
+        if (index < 0) return;
+
+        int next = -1;
+        if (index < 0) {
+            next = LIBRARY_STATE.shuffleEnabled() && tracks.size() > 1
+                    ? ThreadLocalRandom.current().nextInt(tracks.size()) : 0;
+        } else if (LIBRARY_STATE.shuffleEnabled() && tracks.size() > 1) {
+            next = randomOtherIndex(tracks.size(), index);
+        } else if (index + 1 < tracks.size()) {
+            next = index + 1;
+        } else if (LIBRARY_STATE.repeatMode() == MusicLibraryState.RepeatMode.ALL) {
+            next = 0;
+        }
+        if (next >= 0) playLocalTrack(tracks.get(next));
     }
 
     public static boolean loadTrack(Path path) {

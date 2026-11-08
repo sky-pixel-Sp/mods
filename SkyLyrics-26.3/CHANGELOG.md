@@ -2,6 +2,27 @@
 
 All notable SkyLyrics changes are recorded here.
 
+## [0.11.0] — 2026-11-08
+
+### Added
+- Added persistent named playlists with create, cycle, add/remove tracks, and delete actions in the in-game Offline Library.
+- Added per-track favorites and a Favorites library filter.
+- Added case-insensitive local library search and All / Favorites / Playlist queue views.
+- Added persistent Shuffle plus Repeat Off / All / One modes.
+- Added automatic end-of-track handling that respects the active queue, shuffle, and repeat mode.
+- Added regression tests for playlist persistence, favorites, filtering, search, unsafe names, and queue preferences.
+- Library metadata is stored separately in `config/skylyrics/library-state.json`; it contains file names and preferences, not audio.
+
+### Compatibility
+- Minecraft Java 26.3
+- Fabric Loader 0.20.1+
+- Fabric API 0.165.2+26.3
+- Java 25+
+
+### Verification boundary
+- Automated Java compilation, tests, JAR verification, and package checks are tracked by the 0.11.0 GitHub Actions run.
+- Real Minecraft audio output, laptop-specific file browsing, and live GUI interactions still require manual testing.
+
 ## [0.10.0] — 2026-11-08
 
 ### Changed

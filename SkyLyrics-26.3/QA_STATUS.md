@@ -1,3 +1,43 @@
+# QA STATUS — SkyLyrics 0.11.0 / Minecraft 26.3
+
+## 0.11.0 feature implementation — 2026-11-08
+
+### Added to the local-only Music Center
+- Offline Library supports case-insensitive filename search.
+- All / Favorites / Playlist queue filters are persisted locally.
+- Users can favorite individual tracks and create, cycle, add/remove tracks from, and delete named playlists.
+- Shuffle selects a different track for manual next/previous and automatic end-of-track advancement when multiple queued tracks exist.
+- Repeat Off stops at the end of the active queue; Repeat All wraps to the first queued track; Repeat One restarts the finished track.
+- Queue preferences, playlist membership, favorites, and active filter are stored as metadata in `config/skylyrics/library-state.json`. No audio bytes or account identifiers are written to this file.
+- Track references are restricted to safe file names inside the SkyLyrics music directory. Playlist names reject separators, control characters, empty values, and overly long names.
+- Added JUnit coverage for favorites persistence, playlist persistence and membership, unsafe names, shuffle/repeat persistence, and search matching.
+
+### Build verification status
+- Development branch: `skylyrics-0.11.0-playlists-queue`.
+- Version property: `mod_version=0.11.0`.
+- GitHub Actions Run #245: [42446219783](https://github.com/sky-pixel-Sp/mods/actions/runs/42446219783) — **success**.
+- Verified head commit: `62dc9fdfc8f12fd106514409e19e33b7e86a8de7`.
+- Toolchain: JDK 25 and Gradle 9.8.2; `clean test build` completed successfully, including the Gradle `test` task.
+- Final JAR: `skylyrics-0.11.0.jar`, **7,867,248 bytes**; SHA-256 `74de7b60798ba43e80e0524c7a15214e747633c5de3c62cbb6a0b5fcc0ea2e96`.
+- Install artifact: `SkyLyrics-Minecraft-26.3`, ID `13602944184`, **7,849,025 bytes**; ZIP SHA-256 `bab55ef1cdf1198ebcb42f49732298ac8036710ce5b7c43bded19610d6a7127e`; expires **2026-12-08**.
+- CI verified the JAR author, metadata, icon, 8 TTF fonts, 20 sky presets, 4 shaders, 5 bundled audio codecs, 8 credited 1600×900 NASA/JPL preview textures, and the presence of `MusicLibraryState`, the local audio engine, and in-game file browser.
+- The package contains the JAR, README, Indonesian guide, changelog, QA report, and MIT license.
+
+### Manual validation still required
+- No live Minecraft 26.3 or TLauncher client test has yet been completed for this branch.
+- No actual laptop audio output has been tested here.
+- No real in-game mouse/keyboard acceptance test has been performed for playlist creation, filtering, favorite toggles, search, or queue transitions.
+- Verify with a short local test library: All → Favorites → each playlist; search; add/remove a track; close and restart Minecraft; verify metadata persistence.
+- Verify Repeat Off / All / One and Shuffle across end-of-track transitions using real audio files.
+- Client-local only: a multiplayer server and other players do not receive or hear the user's locally played music.
+
+### Scope and compatibility
+- Retains the 0.10.0 local-only design: no Spotify, YouTube, browser extension, browser listener, native file dialog, or external media player is part of the intended playback flow.
+- Target: Minecraft Java 26.3, Fabric Loader 0.20.1+, Fabric API 0.165.2+26.3, Java 25+.
+- Audio formats remain MP3, OGG, WAV, AIFF, and AU.
+
+---
+
 # QA STATUS — SkyLyrics 0.10.0 / Minecraft 26.3
 
 ## Current local-only build — 2026-11-08

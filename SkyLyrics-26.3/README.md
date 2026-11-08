@@ -1,4 +1,8 @@
-# SkyLyrics 0.10.0 — by Sky
+# SkyLyrics 0.11.0 — by Sky
+
+## 0.11.0 — playlists, favorites and queue controls
+
+The Offline Library now includes persistent playlists, per-track favorites, case-insensitive library search, queue filtering, shuffle, and three repeat modes (**Off**, **All**, and **One**). Create a playlist, keep the filter on All to add songs, then switch the filter to Playlist to play only its members. Playlist membership, favorites, and queue preferences are stored locally in `config/skylyrics/library-state.json`; only file names and playback preferences are saved, never audio data. Shuffle and repeat also control automatic track advancement at the end of a song.
 
 ## 0.10.0 — fully in-game local music
 
@@ -21,7 +25,7 @@ The UI language defaults to English and can be switched to Indonesian from the S
 Open the interface with **O**. The entire player is operated through clickable Minecraft UI buttons; chat commands are not required.
 
 - **Music Center:** play, pause, stop, previous/next, seek, and volume controls. The player opens inside the active world or server and does not pause gameplay.
-- **Offline Library:** browse and play imported local music files, import matching LRC files, and keep your library inside `config/skylyrics/music/`.
+- **Offline Library:** search imported music, filter All / Favorites / Playlist, favorite tracks, create and delete playlists, and play the current queue. Playlist, favorite, shuffle and repeat settings persist locally in `config/skylyrics/library-state.json`.
 - **History & Stats:** locally stored play-session count, unique recent tracks, and the latest 100 playback sessions; history can be cleared from the UI.
 - **Now Playing accent:** the player card uses the selected SkyLyrics text-style accent for a restrained pulse when GLOW is enabled. Local playback does not fetch remote cover artwork.
 - **Lyrics Studio:** floating 3D lyrics or HUD lyrics, standard LRC import, word-by-word reveal, font and style controls.
@@ -42,8 +46,10 @@ Open the interface with **O**. The entire player is operated through clickable M
 1. Launch Minecraft Java **26.3 + Fabric**, enter a single-player world or multiplayer server, and press **O**. Music Center opens inside Minecraft without pausing the world.
 2. Choose **Import Song**. SkyLyrics opens its own in-game file browser; browse to `Music`, `Downloads`, or another folder and click an audio file.
 3. SkyLyrics copies the song into `config/skylyrics/music/` and plays it through the in-game audio engine. No web service, browser, Spotify, YouTube, or separate media player is launched.
-4. Choose **Import / Match LRC** in Music Center and select the matching `.lrc` file. You can also import it from the Offline Library.
-5. In **Lyrics**, choose **Floating World Text** for 3D lyrics or **Screen HUD** for a 2D overlay. Use **Keybinds** to change shortcuts.
+4. Open **Offline Library** to search tracks, switch between All / Favorites / Playlist, mark a track with ☆ / ★, or use + / − to manage membership in the active playlist.
+5. Enter a playlist name and choose **Create**. Set **Shuffle** and **Repeat** for the active queue (Off / All / One). These settings are saved locally.
+6. Choose **Import / Match LRC** in Music Center and select the matching `.lrc` file. You can also import it from Offline Library.
+7. In **Lyrics**, choose **Floating World Text** for 3D lyrics or **Screen HUD** for a 2D overlay. Use **Keybinds** to change shortcuts.
 
 ## Offline playback
 
@@ -61,6 +67,7 @@ To show synchronized lyrics offline, import a matching `.lrc` file into the Lyri
 Music library directory: `config/skylyrics/music/`.
 Lyrics directory: `config/skylyrics/lyrics/`.
 Listening history: `config/skylyrics/history.json` (metadata only; stored locally and removable from History & Stats).
+Library metadata: `config/skylyrics/library-state.json` (playlist names, local file names, favorites, shuffle and repeat settings; no audio data).
 
 ## Controls and keybinds
 
@@ -70,7 +77,9 @@ Listening history: `config/skylyrics/history.json` (metadata only; stored locall
 | H | Show / hide lyric display |
 | K | Play / pause current track |
 | N | Next local library track |
-| B | Previous local library track |
+| B | Previous local queue track |
+
+Shuffle and Repeat are configured in **O → OFFLINE LIBRARY**. Repeat cycles through Off (stop at the queue end), All (loop the queue), and One (replay the current track). Shuffle selects a different track from the active queue.
 
 Every key is configurable in **O → KEYBINDS** or **Minecraft → Options → Controls → Key Binds → SkyLyrics**. In the KEYBINDS page, click a control row and then press the keyboard key or mouse button to assign it. Press ESC to cancel capture or select **Restore Default Keys** to restore O / H / K / N / B. No chat command is needed.
 
@@ -118,7 +127,7 @@ The Music Center, offline audio engine, library, and lyric synchronization do no
 ## Install in TLauncher
 
 1. Start the Minecraft 26.3 Fabric profile once, then close Minecraft.
-2. Put `skylyrics-0.10.0.jar` and the matching Fabric API JAR in the `mods` folder used by that Fabric profile.
+2. Put `skylyrics-0.11.0.jar` and the matching Fabric API JAR in the `mods` folder used by that Fabric profile.
 3. Start TLauncher and select the Fabric 26.3 profile.
 4. Enter a world and press **O** to open SkyLyrics Music Center.
 
