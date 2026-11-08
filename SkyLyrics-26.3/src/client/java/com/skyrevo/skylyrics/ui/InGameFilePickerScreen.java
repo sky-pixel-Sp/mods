@@ -54,6 +54,10 @@ public final class InGameFilePickerScreen extends Screen {
 
     public static Path defaultDirectory() {
         if (lastDirectory != null && Files.isDirectory(lastDirectory)) return lastDirectory;
+        return homeDirectory();
+    }
+
+    private static Path homeDirectory() {
         String home = System.getProperty("user.home", ".");
         Path path = Path.of(home).toAbsolutePath().normalize();
         return Files.isDirectory(path) ? path : Path.of(".").toAbsolutePath().normalize();
@@ -161,7 +165,7 @@ public final class InGameFilePickerScreen extends Screen {
     }
 
     private static Path homeFolder(String child) {
-        Path home = defaultDirectory();
+        Path home = homeDirectory();
         Path candidate = home.resolve(child);
         return Files.isDirectory(candidate) ? candidate : home;
     }
