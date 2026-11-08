@@ -116,33 +116,34 @@ public final class SkyLyricsScreen extends Screen {
 
     private void music(int y) {
         int gap = 8, half = (contentWidth - gap) / 2;
+        int transportWidth = (contentWidth - 3 * gap) / 4;
+
         action("IMPORT SONG  +", () -> MusicFilePicker.chooseAudio(path -> {
             if (path != null) SkyLyricsClient.importAndPlayAudio(path);
         }), contentLeft, y + 14, half, 34);
-        navigate("OPEN OFFLINE LIBRARY",Tab.LIBRARY,
+        navigate("OPEN OFFLINE LIBRARY", Tab.LIBRARY,
                 contentLeft + half + gap, y + 14, half, 34);
+
         action("PREVIOUS  ◀", SkyLyricsClient::previousLocalTrack,
-                contentLeft, y + 62, (contentWidth - 3 * gap) / 4, 34);
+                contentLeft, y + 62, transportWidth, 36);
         action("PLAY / PAUSE", SkyLyricsClient::togglePlayback,
-                contentLeft + (contentWidth - 3 * gap) / 4 + gap, y + 62,
-                (contentWidth - 3 * gap) / 4, 34);
+                contentLeft + transportWidth + gap, y + 62, transportWidth, 36);
         action("STOP", SkyLyricsClient::stopPlayback,
-                contentLeft + 2 * ((contentWidth - 3 * gap) / 4 + gap), y + 62,
-                (contentWidth - 3 * gap) / 4, 34);
+                contentLeft + 2 * (transportWidth + gap), y + 62, transportWidth, 36);
         action("NEXT  ▶", SkyLyricsClient::nextLocalTrack,
-                contentLeft + 3 * ((contentWidth - 3 * gap) / 4 + gap), y + 62,
-                (contentWidth - 3 * gap) / 4, 34);
-        action("SEEK −10s", () -> SkyLyricsClient.seekPlayback(-10_000L),
+                contentLeft + 3 * (transportWidth + gap), y + 62, transportWidth, 36);
+
+        action("SEEK BACK  10s", () -> SkyLyricsClient.seekPlayback(-10_000L),
                 contentLeft, y + 110, half, 30);
-        action("SEEK +10s", () -> SkyLyricsClient.seekPlayback(10_000L),
+        action("SEEK FORWARD  10s", () -> SkyLyricsClient.seekPlayback(10_000L),
                 contentLeft + half + gap, y + 110, half, 30);
-        action("VOLUME −", () -> SkyLyricsClient.adjustPlaybackVolume(-0.08f),
-                contentLeft, y + 152, half, 30);
-        action("VOLUME +", () -> SkyLyricsClient.adjustPlaybackVolume(0.08f),
-                contentLeft + half + gap, y + 152, half, 30);
+        action("VOLUME  −", () -> SkyLyricsClient.adjustPlaybackVolume(-0.08f),
+                contentLeft, y + 150, half, 30);
+        action("VOLUME  +", () -> SkyLyricsClient.adjustPlaybackVolume(0.08f),
+                contentLeft + half + gap, y + 150, half, 30);
         action("IMPORT / MATCH LRC", () -> MusicFilePicker.chooseLyrics(path -> {
             if (path != null) SkyLyricsClient.importLyricsFile(path);
-        }), contentLeft, y + 194, contentWidth, 30);
+        }), contentLeft, y + 192, contentWidth, 30);
     }
 
     private void library(int y) {
@@ -576,6 +577,13 @@ public final class SkyLyricsScreen extends Screen {
             graphics.outline(contentLeft, cardTop, contentWidth, cardBottom - cardTop, 0xFF493A5F);
             graphics.fill(contentLeft, cardTop, contentLeft + 3, cardBottom, 0xFFB38BFF);
         }
+        if (tab == Tab.MUSIC) {
+            int cardTop = top + 346;
+            int cardBottom = top + panelHeight - 12;
+            graphics.fill(contentLeft, cardTop, contentLeft + contentWidth, cardBottom, 0xD91C232C);
+            graphics.outline(contentLeft, cardTop, contentWidth, cardBottom - cardTop, 0xFF3C4A58);
+            graphics.fill(contentLeft + 2, cardTop + 2, contentLeft + 4, cardBottom - 2, 0xFF9DAFC2);
+        }
         if(tab==Tab.SKIES) {
             String artwork = SkyPresetCatalog.artworkFor(SkyLyricsClient.CONFIG.skyPreset());
             Identifier preview = Identifier.fromNamespaceAndPath(
@@ -632,29 +640,35 @@ public final class SkyLyricsScreen extends Screen {
             if(SkyLyricsClient.MEDIA_NOTICE!=null&&!SkyLyricsClient.MEDIA_NOTICE.isBlank())
                 graphics.text(font,SkyLyricsClient.MEDIA_NOTICE,contentLeft+14,top+393,0xFF9D96B3,false);
         } else if (tab == Tab.MUSIC) {
+            graphics.text(font, "NOW PLAYING", contentLeft + 14, top + 360, 0xFFAFBFCE, true);
             if (SkyLyricsClient.AUDIO.hasFile()) {
-                graphics.text(font, SkyLyricsClient.AUDIO.currentFile().getFileName().toString(),
-                        contentLeft, top + 285, 0xFFFFFFFF, true);
-                graphics.text(font, SkyLyricsClient.AUDIO.status(), contentLeft, top + 309, 0xFFC6A0FF, false);
+                String title = SkyLyricsClient.AUDIO.currentFile().getFileName().toString();
+                if (title.length() > 58) title = title.substring(0, 55) + "...";
+                graphics.text(font, title, contentLeft + 14, top + 382, 0xFFF1F4F7, true);
+                graphics.text(font, SkyLyricsClient.AUDIO.status(), contentLeft + 14, top + 402, 0xFFB8C8D7, false);
                 graphics.text(font, LyricsPlayer.formatTime(SkyLyricsClient.AUDIO.positionMs()) + " / "
                         + LyricsPlayer.formatTime(SkyLyricsClient.AUDIO.durationMs()),
-                        contentLeft, top + 334, 0xFFD4D1E2, false);
-                graphics.text(font, ui("Volume ") + Math.round(SkyLyricsClient.AUDIO.volume() * 100) + "%",
-                        contentLeft, top + 358, 0xFFD4D1E2, false);
-            } else if (SkyLyricsClient.CURRENT_MEDIA != null) {
-                graphics.text(font, SkyLyricsClient.CURRENT_MEDIA.title(), contentLeft, top + 285, 0xFFFFFFFF, true);
-                graphics.text(font, SkyLyricsClient.CURRENT_MEDIA.displaySource() + " · "
-                        + SkyLyricsClient.CURRENT_MEDIA.artist(), contentLeft, top + 309, 0xFFC6A0FF, false);
+                        contentLeft + 14, top + 424, 0xFFD0D9E2, false);
+                graphics.text(font, "VOLUME  " + Math.round(SkyLyricsClient.AUDIO.volume() * 100) + "%",
+                        contentLeft + 14, top + 446, 0xFFAAB7C4, false);
+                if (SkyLyricsClient.PLAYER.hasTrack() && SkyLyricsClient.PLAYER.currentCue() != null) {
+                    graphics.text(font, SkyLyricsClient.PLAYER.currentCue().text(),
+                            contentLeft + Math.min(contentWidth - 180, 280), top + 446,
+                            SkyLyricsClient.CONFIG.accentColor(), true);
+                }
             } else {
-                graphics.text(font,ui("Choose a local song or open an online provider."), contentLeft, top + 300, 0xFFD4D1E2, false);
+                graphics.text(font, "No song selected", contentLeft + 14, top + 384, 0xFFE4EAF0, true);
+                graphics.text(font, "Import a song to play it directly inside Minecraft.",
+                        contentLeft + 14, top + 406, 0xFFAAB7C4, false);
+                graphics.text(font, "No Spotify, YouTube, browser tab, or external player is required.",
+                        contentLeft + 14, top + 428, 0xFF8F9CAA, false);
             }
-            graphics.text(font, SkyLyricsClient.MEDIA_NOTICE, contentLeft, top + 388, 0xFF9D96B3, false);
+            graphics.text(font, SkyLyricsClient.MEDIA_NOTICE, contentLeft + 14, top + 466, 0xFF81909F, false);
         } else if (tab == Tab.LIBRARY) {
-            graphics.text(font, ui("OFFLINE LIBRARY") + "  ·  " + SkyLyricsClient.MUSIC_LIBRARY.listAudio().size() + " audio files",
-                    contentLeft, top + 218, 0xFFC6A0FF, true);
-            graphics.text(font,ui("Supported: MP3 · OGG · WAV · AIFF · AU"), contentLeft, top + 241, 0xFFD4D1E2, false);
-            graphics.text(font,ui("Matching .lrc files are loaded automatically by filename."), contentLeft, top + 263, 0xFFBDB7CD, false);
-            graphics.text(font, SkyLyricsClient.MUSIC_LIBRARY.musicDirectory().toString(), contentLeft, top + 286, 0xFF9690A8, false);
+            graphics.text(font, ui("LIBRARY") + "  ·  " + SkyLyricsClient.MUSIC_LIBRARY.listAudio().size() + " TRACKS",
+                    contentLeft, top + 172, 0xFFE2E9F0, true);
+            graphics.text(font,ui("MP3 · OGG · WAV · AIFF · AU  ·  CLICK A TRACK TO PLAY"),
+                    contentLeft, top + 190, 0xFF9EABB8, false);
         } else if (tab == Tab.HISTORY) {
             graphics.text(font,ui("LISTENING OVERVIEW"), contentLeft, top + 112, 0xFFC6A0FF, true);
             graphics.text(font, ui("PLAY SESSIONS") + "  ·  " + SkyLyricsClient.HISTORY.totalPlays(),
