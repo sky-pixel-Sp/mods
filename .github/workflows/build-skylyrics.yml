@@ -68,7 +68,12 @@ jobs:
           jar tf "${JAR}" | grep -q 'skylyrics/post_effect/sky_golden_sunset.json'
           jar tf "${JAR}" | grep -q 'assets/skylyrics/font/poppins.ttf'
           jar tf "${JAR}" | grep -q 'assets/skylyrics/font/montserrat.json'
-          jar tf "${JAR}" | grep -q 'AlbumArtManager.class'
+          jar tf "${JAR}" | grep -q 'InGameFilePickerScreen.class'
+          jar tf "${JAR}" | grep -q 'PlaybackSessionGuard.class'
+          if jar tf "${JAR}" | grep -Eq 'BrowserMediaServer.class|MediaStatus.class|LyricsLookupClient.class|AlbumArtManager.class'; then
+            echo "External browser integration classes must not be packaged in the local-only edition." >&2
+            exit 1
+          fi
           jar tf "${JAR}" | grep -q 'LocalAudioEngine.class'
           jar tf "${JAR}" | grep -q 'MusicLibrary.class'
           jar tf "${JAR}" | grep -q 'MusicHistory.class'
