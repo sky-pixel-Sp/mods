@@ -2,7 +2,6 @@ package com.skyrevo.skylyrics.render;
 
 import com.skyrevo.skylyrics.SkyLyricsClient;
 import com.skyrevo.skylyrics.core.MusicHistory;
-import com.skyrevo.skylyrics.integration.MediaStatus;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import java.util.List;
@@ -27,14 +26,12 @@ public final class SkyLyricsHudWidgets {
         int x=left(g.guiWidth(),w,SkyLyricsClient.CONFIG.visualizerHudX());
         int y=top(g.guiHeight(),h,SkyLyricsClient.CONFIG.visualizerHudY());
         int accent=SkyLyricsClient.CONFIG.accentColor();
-        MediaStatus media=SkyLyricsClient.CURRENT_MEDIA;
         boolean local=SkyLyricsClient.AUDIO.hasFile();
-        boolean browser=media!=null&&media.available();
         boolean demo=SkyLyricsClient.isDemoActive();
-        boolean playing=local?SkyLyricsClient.AUDIO.isPlaying():browser?media.playing():demo&&SkyLyricsClient.PLAYER.isPlaying();
+        boolean playing=local?SkyLyricsClient.AUDIO.isPlaying():demo&&SkyLyricsClient.PLAYER.isPlaying();
         float level=local?SkyLyricsClient.AUDIO.visualizerLevel():0.0f;
         String mode=ui(local?(playing?"PCM AUDIO · LIVE":"PCM AUDIO · PAUSED")
-                :browser?"BROWSER TRANSPORT · NO AUDIO CAPTURE":demo?"PREVIEW TRANSPORT":"WAITING FOR TRACK");
+                :demo?"PREVIEW TRANSPORT":"WAITING FOR TRACK");
         g.fill(x,y,x+w,y+h,0xD90D0B17);
         g.outline(x,y,w,h,withAlpha(accent,180));
         g.fill(x+2,y+2,x+w-2,y+4,withAlpha(accent,210));
@@ -46,7 +43,7 @@ public final class SkyLyricsHudWidgets {
             double a=0.5+0.5*Math.sin(clock/125_000_000.0+i*0.54);
             double b=0.5+0.5*Math.sin(clock/213_000_000.0+i*0.23);
             double contour=0.18+0.82*(0.64*a+0.36*b);
-            double amplitude=local?level:(playing?0.16:0.035);
+            double amplitude=local?level:(demo&&playing?0.16:0.035);
             int bh=playing?2+(int)Math.round((3.0+amplitude*28.0)*contour):2+(int)Math.round(2.0*contour);
             int bx=x+11+i*5;
             g.fill(bx,baseline-bh,bx+3,baseline+bh/3,withAlpha(accent,playing?205:95));
@@ -114,7 +111,6 @@ public final class SkyLyricsHudWidgets {
             case "AUDIO VISUALIZER" -> "VISUALISASI AUDIO";
             case "PCM AUDIO · LIVE" -> "AUDIO PCM · LANGSUNG";
             case "PCM AUDIO · PAUSED" -> "AUDIO PCM · DIJEDA";
-            case "BROWSER TRANSPORT · NO AUDIO CAPTURE" -> "TRANSPORT BROWSER · AUDIO TIDAK DIREKAM";
             case "PREVIEW TRANSPORT" -> "TRANSPORT PRATINJAU";
             case "WAITING FOR TRACK" -> "MENUNGGU LAGU";
             case "RECENTLY PLAYED" -> "BARU DIPUTAR";
