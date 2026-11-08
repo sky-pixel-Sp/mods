@@ -189,7 +189,8 @@ public final class MusicLibraryState {
         if (name.isBlank() || name.equals(".") || name.equals("..")
                 || name.contains("/") || name.contains("\\\\")) return null;
         Path resolved = musicDirectory.resolve(name).normalize();
-        return resolved.startsWith(musicDirectory) ? name : null;
+        Path supplied = track.toAbsolutePath().normalize();
+        return resolved.startsWith(musicDirectory) && resolved.equals(supplied) ? name : null;
     }
 
     private boolean containsPlaylist(String requested) {
