@@ -1,3 +1,38 @@
+# QA STATUS — SkyLyrics 0.11.0 / Minecraft 26.3
+
+## 0.11.0 feature implementation — 2026-11-08
+
+### Added to the local-only Music Center
+- Offline Library supports case-insensitive filename search.
+- All / Favorites / Playlist queue filters are persisted locally.
+- Users can favorite individual tracks and create, cycle, add/remove tracks from, and delete named playlists.
+- Shuffle selects a different track for manual next/previous and automatic end-of-track advancement when multiple queued tracks exist.
+- Repeat Off stops at the end of the active queue; Repeat All wraps to the first queued track; Repeat One restarts the finished track.
+- Queue preferences, playlist membership, favorites, and active filter are stored as metadata in `config/skylyrics/library-state.json`. No audio bytes or account identifiers are written to this file.
+- Track references are restricted to safe file names inside the SkyLyrics music directory. Playlist names reject separators, control characters, empty values, and overly long names.
+- Added JUnit coverage for favorites persistence, playlist persistence and membership, unsafe names, shuffle/repeat persistence, and search matching.
+
+### Build verification status
+- Development branch: `skylyrics-0.11.0-playlists-queue`.
+- Version property: `mod_version=0.11.0`.
+- CI verification is pending until the pull-request workflow completes. Do not treat this entry as a successful build record until the run is inspected.
+- Required pipeline: JDK 25 / Gradle 9.8.2 / `clean test build`, JAR metadata/resource checks, and complete package assembly.
+
+### Manual validation still required
+- No live Minecraft 26.3 or TLauncher client test has yet been completed for this branch.
+- No actual laptop audio output has been tested here.
+- No real in-game mouse/keyboard acceptance test has been performed for playlist creation, filtering, favorite toggles, search, or queue transitions.
+- Verify with a short local test library: All → Favorites → each playlist; search; add/remove a track; close and restart Minecraft; verify metadata persistence.
+- Verify Repeat Off / All / One and Shuffle across end-of-track transitions using real audio files.
+- Client-local only: a multiplayer server and other players do not receive or hear the user's locally played music.
+
+### Scope and compatibility
+- Retains the 0.10.0 local-only design: no Spotify, YouTube, browser extension, browser listener, native file dialog, or external media player is part of the intended playback flow.
+- Target: Minecraft Java 26.3, Fabric Loader 0.20.1+, Fabric API 0.165.2+26.3, Java 25+.
+- Audio formats remain MP3, OGG, WAV, AIFF, and AU.
+
+---
+
 # QA STATUS — SkyLyrics 0.10.0 / Minecraft 26.3
 
 ## Current local-only build — 2026-11-08
