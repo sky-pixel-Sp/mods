@@ -23,7 +23,7 @@ Open the interface with **O**. The entire player is operated through clickable M
 - **Music Center:** play, pause, stop, previous/next, seek, and volume controls. The player opens inside the active world or server and does not pause gameplay.
 - **Offline Library:** browse and play imported local music files, import matching LRC files, and keep your library inside `config/skylyrics/music/`.
 - **History & Stats:** locally stored play-session count, unique recent tracks, and the latest 100 playback sessions; history can be cleared from the UI.
-- **Artwork Glow:** the Now Playing card samples a color from the current cover art and uses it for a restrained pulsing glow when GLOW is enabled.
+- **Now Playing accent:** the player card uses the selected SkyLyrics text-style accent for a restrained pulse when GLOW is enabled. Local playback does not fetch remote cover artwork.
 - **Lyrics Studio:** floating 3D lyrics or HUD lyrics, standard LRC import, word-by-word reveal, font and style controls.
 - **Elytra Lyrics Mode:** while gliding, the 3D lyrics move farther ahead and remain camera-facing; the option can be disabled in HUD settings.
 - **Now Playing styles:** Bordered, Borderless, and Compact presentations, selectable from Styles.
@@ -95,7 +95,7 @@ When word timestamps are present and **Word-by-word reveal** is enabled, the scr
 A detailed independent architecture review of the supplied VerseFall 1.1.0 archive, its media/lyrics/HUD subsystems, compatibility limits, and the features chosen for SkyLyrics is in [`VERSEFALL_TECHNICAL_REVIEW.md`](VERSEFALL_TECHNICAL_REVIEW.md). The 0.9.2 presentation additions were also informed by the feature description of [Lyrics by QQID](https://www.curseforge.com/minecraft/mc-mods/lyrics); SkyLyrics retains its own `skylyrics` mod ID, package namespace, and branding. No third-party JAR is bundled.
 
 
-## Listening history, artwork glow and visualizer
+## Listening history, Now Playing accent and visualizer
 
 History & Stats records each local play session. It stores only title, artist, source, and timestamp in `config/skylyrics/history.json`; it does not store audio or account identifiers. The most recent 100 sessions are kept, while the total session count is retained. The history can be cleared from the in-game page.
 
@@ -113,7 +113,7 @@ The Music Center, offline audio engine, library, and lyric synchronization do no
 - Fabric Loader 0.20.1 or newer.
 - Fabric API 0.165.2+26.3.
 - Java Runtime 25 or newer.
-- Windows / desktop environment with Java Sound output for local music. The file picker uses the operating system's native dialog.
+- Windows / desktop environment with Java Sound output for local music. Audio and LRC files are chosen through the custom in-game file browser, not a native desktop dialog.
 
 ## Install in TLauncher
 
