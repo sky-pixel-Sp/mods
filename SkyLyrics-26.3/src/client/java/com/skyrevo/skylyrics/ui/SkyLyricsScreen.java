@@ -15,10 +15,12 @@ import com.skyrevo.skylyrics.render.SkyLyricsTypography;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.resources.Identifier;
 import net.minecraft.network.chat.Component;
 
 public final class SkyLyricsScreen extends Screen {
-    private enum Tab { OVERVIEW, MUSIC, LIBRARY, HISTORY, ONLINE, LYRICS, STYLES, SKIES, HUD, KEYBINDS, PERFORMANCE, SETTINGS, INFORMATION }
+    private enum Tab { OVERVIEW, MUSIC, LIBRARY, HISTORY, ONLINE, LYRICS, STYLES, SKIES, HUD, KEYBINDS, PERFORMANCE, SETTINGS, GUIDE }
     private static boolean firstOpen = true;
     private final Tab tab;
     private int left, top, panelWidth, panelHeight, sideWidth, contentLeft, contentWidth;
@@ -30,7 +32,7 @@ public final class SkyLyricsScreen extends Screen {
 
     public SkyLyricsScreen() { this(Tab.OVERVIEW); }
     private SkyLyricsScreen(Tab tab) {
-        super(Component.literal("SkyLyrics Studio"));
+        super(Component.literal(ui("SkyLyrics by Sky")));
         this.tab = tab;
     }
 
@@ -47,14 +49,14 @@ public final class SkyLyricsScreen extends Screen {
         sideWidth = Math.min(170, panelWidth / 4);
         contentLeft = left + sideWidth + 18;
         contentWidth = panelWidth - sideWidth - 34;
-        navStep = Math.min(34, Math.max(24, (panelHeight - 78) / Tab.values().length));
-        navHeight = Math.max(20, Math.min(27, navStep - 4));
+        navStep = Math.max(16, Math.min(34, (panelHeight - 78) / Tab.values().length));
+        navHeight = Math.max(13, Math.min(27, navStep - 4));
 
-        String[] labels = {"OVERVIEW","MUSIC CENTER","OFFLINE LIBRARY","HISTORY & STATS","ONLINE MUSIC","LYRICS","STYLES","SKIES","HUD","KEYBINDS","PERFORMANCE","SETTINGS","INFORMATION"};
+        String[] labels = {"OVERVIEW","MUSIC CENTER","OFFLINE LIBRARY","HISTORY & STATS","ONLINE MUSIC","LYRICS","STYLES","SKIES","HUD","KEYBINDS","PERFORMANCE","SETTINGS","QUICK GUIDE"};
         Tab[] tabs = Tab.values();
         for (int i=0;i<tabs.length;i++) {
             Tab next = tabs[i];
-            Button item = addRenderableWidget(Button.builder(Component.literal(labels[i]), b -> open(next))
+            Button item = addRenderableWidget(Button.builder(Component.literal(ui(labels[i])), b -> open(next))
                     .bounds(left+10, top+70+i*navStep, sideWidth-20, navHeight).build());
             item.active = tab != next;
         }
@@ -75,7 +77,7 @@ public final class SkyLyricsScreen extends Screen {
             case KEYBINDS -> keybinds(y);
             case PERFORMANCE -> performance(y);
             case SETTINGS -> settings(y);
-            case INFORMATION -> information(y);
+            case GUIDE -> guide(y);
         }
     }
 
@@ -86,10 +88,10 @@ public final class SkyLyricsScreen extends Screen {
         }, contentLeft,y+22,half,32);
         action("LYRIC DISPLAY  "+onOff(SkyLyricsClient.CONFIG.enabled()),
                 SkyLyricsClient.CONFIG::toggleEnabled,contentLeft+half+gap,y+22,half,32);
-        action("OPEN MUSIC CENTER",()->open(Tab.MUSIC),contentLeft,y+68,half,32);
-        action("OFFLINE LIBRARY",()->open(Tab.LIBRARY),contentLeft+half+gap,y+68,half,32);
-        action("ONLINE MUSIC",()->open(Tab.ONLINE),contentLeft,y+114,half,32);
-        action("LYRICS STUDIO",()->open(Tab.LYRICS),contentLeft+half+gap,y+114,half,32);
+        navigate("OPEN MUSIC CENTER",Tab.MUSIC,contentLeft,y+68,half,32);
+        navigate("OFFLINE LIBRARY",Tab.LIBRARY,contentLeft+half+gap,y+68,half,32);
+        navigate("ONLINE MUSIC",Tab.ONLINE,contentLeft,y+114,half,32);
+        navigate("LYRICS STUDIO",Tab.LYRICS,contentLeft+half+gap,y+114,half,32);
         action(SkyLyricsClient.isDemoActive() ? "STOP VISUAL PREVIEW" : "PLAY VISUAL PREVIEW",
                 () -> {
                     if (SkyLyricsClient.isDemoActive()) SkyLyricsClient.stopDemo();
@@ -109,7 +111,7 @@ public final class SkyLyricsScreen extends Screen {
                 SkyLyricsClient.CONFIG.setSkyEnabled(true);
                 SkyEffectController.refreshFromConfig();
                 open(Tab.SKIES);
-            }).bounds(contentLeft+(i%cols)*(w+gap),y+39+(i/cols)*(h+7),w,h).build());
+            }).bounds(contentLeft+(i%cols)*(w+gap),y+118+(i/cols)*50,w,h).build());
             card.active=!preset.id().equals(SkyLyricsClient.CONFIG.skyPreset());
         }
     }
@@ -119,7 +121,7 @@ public final class SkyLyricsScreen extends Screen {
         action("IMPORT SONG  +", () -> MusicFilePicker.chooseAudio(path -> {
             if (path != null) SkyLyricsClient.importAndPlayAudio(path);
         }), contentLeft, y + 14, half, 34);
-        action("OPEN OFFLINE LIBRARY", () -> open(Tab.LIBRARY),
+        navigate("OPEN OFFLINE LIBRARY",Tab.LIBRARY,
                 contentLeft + half + gap, y + 14, half, 34);
         action("PREVIOUS  ◀", SkyLyricsClient::previousLocalTrack,
                 contentLeft, y + 62, (contentWidth - 3 * gap) / 4, 34);
@@ -169,16 +171,16 @@ public final class SkyLyricsScreen extends Screen {
             action("▶  " + name, () -> SkyLyricsClient.playLocalTrack(selected),
                     contentLeft, y + 90 + (i - start) * 38, contentWidth, 31);
         }
-        action("◀ PREVIOUS", () -> { libraryPage = Math.max(0, libraryPage - 1); open(Tab.LIBRARY); },
+        action("◀ PREVIOUS", () -> { libraryPage = Math.max(0, libraryPage - 1); },
                 contentLeft, y + 90 + pageSize * 38, half, 27);
-        action("NEXT ▶", () -> { libraryPage = Math.min(pages - 1, libraryPage + 1); open(Tab.LIBRARY); },
+        action("NEXT ▶", () -> { libraryPage = Math.min(pages - 1, libraryPage + 1); },
                 contentLeft + half + gap, y + 90 + pageSize * 38, half, 27);
     }
 
     private void history(int y) {
         int gap = 8;
         int half = (contentWidth - gap) / 2;
-        action("OPEN OFFLINE LIBRARY", () -> open(Tab.LIBRARY),
+        navigate("OPEN OFFLINE LIBRARY",Tab.LIBRARY,
                 contentLeft, y + 10, half, 30);
         action("CLEAR HISTORY", SkyLyricsClient.HISTORY::clear,
                 contentLeft + half + gap, y + 10, half, 30);
@@ -234,9 +236,9 @@ public final class SkyLyricsScreen extends Screen {
     }
 
     private static Component keyBindingMessage(String label, KeyMapping mapping, boolean waiting) {
-        String key = waiting ? "PRESS KEY OR MOUSE BUTTON  ·  ESC CANCEL"
+        String key = waiting ? ui("PRESS KEY OR MOUSE BUTTON  ·  ESC CANCEL")
                 : mapping.getTranslatedKeyMessage().getString();
-        return Component.literal(label + "  [" + key + "]");
+        return Component.literal(ui(label) + "  [" + key + "]");
     }
 
     private void applyPendingKeyBinding(InputConstants.Key key) {
@@ -259,9 +261,10 @@ public final class SkyLyricsScreen extends Screen {
     public boolean keyPressed(KeyEvent event) {
         if (pendingKeyBinding != null) {
             if (event.isEscape()) {
-                pendingKeyBindingButton.setMessage(Component.literal(
-                        pendingKeyBindingButton.getMessage().getString().replace(
-                                "  [PRESS KEY OR MOUSE BUTTON  ·  ESC CANCEL]", "  [CANCELLED]")));
+                String prompt = "  [" + ui("PRESS KEY OR MOUSE BUTTON  ·  ESC CANCEL") + "]";
+                String cancelled = "  [" + ui("CANCELLED") + "]";
+                String currentMessage = pendingKeyBindingButton.getMessage().getString();
+                pendingKeyBindingButton.setMessage(Component.literal(currentMessage.replace(prompt, cancelled)));
                 pendingKeyBinding = null;
                 pendingKeyBindingButton = null;
                 return true;
@@ -356,7 +359,7 @@ public final class SkyLyricsScreen extends Screen {
                 contentLeft+(contentWidth-8)/2+8,y+170,(contentWidth-8)/2,25);
         action("ELYTRA LYRICS MODE  "+onOff(SkyLyricsClient.CONFIG.elytraLyricsEnabled()),
                 SkyLyricsClient.CONFIG::toggleElytraLyricsEnabled,contentLeft,y+208,contentWidth,27);
-        action("OPEN HUD LAYOUT STUDIO · 5 WIDGETS  ↗", () -> this.minecraft.gui.setScreen(new HudEditorScreen(this)),
+        screenAction("OPEN HUD LAYOUT STUDIO · 5 WIDGETS  ↗", () -> this.minecraft.gui.setScreen(new HudEditorScreen(this)),
                 contentLeft, y + 244, contentWidth, 30);
     }
 
@@ -379,20 +382,197 @@ public final class SkyLyricsScreen extends Screen {
                 SkyLyricsClient.CONFIG::toggleWordByWord,contentLeft,y+94,contentWidth,29);
         action("GLOW  "+onOff(SkyLyricsClient.CONFIG.glowEnabled()),
                 SkyLyricsClient.CONFIG::toggleGlow,contentLeft,y+132,contentWidth,29);
+        action("LANGUAGE  ·  "+SkyLyricsClient.CONFIG.languageName(),
+                SkyLyricsClient.CONFIG::toggleLanguage,contentLeft,y+170,contentWidth,29);
     }
 
-    private void information(int y) {
-        action("PLAYER OVERVIEW",()->open(Tab.OVERVIEW),contentLeft,y+22,contentWidth,29);
-        action("LYRICS CONTROLS",()->open(Tab.LYRICS),contentLeft,y+62,contentWidth,29);
+    private void guide(int y) {
+        int gap = 8;
+        int width = (contentWidth - 2 * gap) / 3;
+        navigate("MUSIC CENTER",Tab.MUSIC,contentLeft,y+18,width,30);
+        navigate("LYRICS",Tab.LYRICS,contentLeft+width+gap,y+18,width,30);
+        navigate("ONLINE MUSIC",Tab.ONLINE,contentLeft+2*(width+gap),y+18,width,30);
+    }
+
+    private void navigate(String label,Tab next,int x,int y,int w,int h) {
+        addRenderableWidget(Button.builder(Component.literal(ui(label)), b -> open(next))
+                .bounds(x,y,w,h).build());
+    }
+
+    private void screenAction(String label,Runnable operation,int x,int y,int w,int h) {
+        addRenderableWidget(Button.builder(Component.literal(ui(label)), b -> operation.run())
+                .bounds(x,y,w,h).build());
     }
 
     private void action(String label,Runnable operation,int x,int y,int w,int h) {
-        addRenderableWidget(Button.builder(Component.literal(label), b -> {
+        addRenderableWidget(Button.builder(Component.literal(ui(label)), b -> {
             operation.run();
             open(tab);
         }).bounds(x,y,w,h).build());
     }
     private static String onOff(boolean value) { return value ? "ON" : "OFF"; }
+
+    private static String ui(String english) {
+        if (SkyLyricsClient.CONFIG.isEnglish()) return english;
+        // Dynamic toggle labels are composed from a translated ON/OFF state.
+        if (english.startsWith("SKY ENGINE  ")) return "MESIN LANGIT  " + english.substring("SKY ENGINE  ".length());
+        if (english.startsWith("LYRIC DISPLAY  ")) return "TAMPILAN LIRIK  " + english.substring("LYRIC DISPLAY  ".length());
+        if (english.startsWith("LYRICS  ")) return "LIRIK  " + english.substring("LYRICS  ".length());
+        if (english.startsWith("DISPLAY  ")) return "TAMPILAN  " + english.substring("DISPLAY  ".length());
+        if (english.startsWith("FOLLOW VIEW  ")) return "IKUTI PANDANGAN  " + english.substring("FOLLOW VIEW  ".length());
+        if (english.startsWith("WORD-BY-WORD REVEAL  ")) return "TAMPILKAN PER KATA  " + english.substring("WORD-BY-WORD REVEAL  ".length());
+        if (english.startsWith("WORD REVEAL  ")) return "TAMPILKAN PER KATA  " + english.substring("WORD REVEAL  ".length());
+        if (english.startsWith("GLOW  ")) return "CAHAYA  " + english.substring("GLOW  ".length());
+        if (english.startsWith("WORLD TEXT  ")) return "TEKS DUNIA  " + english.substring("WORLD TEXT  ".length());
+        if (english.startsWith("PREVIOUS / NEXT LINES  ")) return "BARIS SEBELUM / SESUDAH  " + english.substring("PREVIOUS / NEXT LINES  ".length());
+        if (english.startsWith("HUD BACKDROP  ")) return "LATAR HUD  " + english.substring("HUD BACKDROP  ".length());
+        if (english.startsWith("ELYTRA LYRICS MODE  ")) return "MODE LIRIK ELYTRA  " + english.substring("ELYTRA LYRICS MODE  ".length());
+        if (english.startsWith("NOW PLAYING STYLE  ·  ")) return "GAYA SEDANG DIPUTAR  ·  " + switch (english.substring("NOW PLAYING STYLE  ·  ".length())) {
+            case "Bordered" -> "Berbingkai";
+            case "Borderless" -> "Tanpa bingkai";
+            case "Compact" -> "Ringkas";
+            default -> english.substring("NOW PLAYING STYLE  ·  ".length());
+        };
+        if (english.startsWith("LANGUAGE  ·  ")) return "BAHASA  ·  " + (SkyLyricsClient.CONFIG.isEnglish() ? "English" : "Indonesia");
+        return switch (english) {
+            case "SkyLyrics by Sky" -> "SkyLyrics oleh Sky";
+            case "OVERVIEW" -> "RINGKASAN";
+            case "MUSIC CENTER" -> "PUSAT MUSIK";
+            case "OFFLINE LIBRARY" -> "PUSTAKA OFFLINE";
+            case "HISTORY & STATS" -> "RIWAYAT & STATISTIK";
+            case "ONLINE MUSIC" -> "MUSIK ONLINE";
+            case "LYRICS" -> "LIRIK";
+            case "STYLES" -> "GAYA";
+            case "SKIES" -> "LANGIT";
+            case "KEYBINDS" -> "TOMBOL";
+            case "PERFORMANCE" -> "PERFORMA";
+            case "SETTINGS" -> "PENGATURAN";
+            case "QUICK GUIDE" -> "PANDUAN CEPAT";
+            case "SKY ENGINE  ON" -> "MESIN LANGIT  AKTIF";
+            case "SKY ENGINE  OFF" -> "MESIN LANGIT  NONAKTIF";
+            case "LYRIC DISPLAY  ON" -> "TAMPILAN LIRIK  AKTIF";
+            case "LYRIC DISPLAY  OFF" -> "TAMPILAN LIRIK  NONAKTIF";
+            case "WORD REVEAL  ON" -> "TAMPILKAN PER KATA  AKTIF";
+            case "WORD REVEAL  OFF" -> "TAMPILKAN PER KATA  NONAKTIF";
+            case "OPEN MUSIC CENTER" -> "BUKA PUSAT MUSIK";
+            case "OPEN OFFLINE LIBRARY" -> "BUKA PUSTAKA OFFLINE";
+            case "LYRICS STUDIO" -> "STUDIO LIRIK";
+            case "PLAY VISUAL PREVIEW" -> "PUTAR PRATINJAU";
+            case "STOP VISUAL PREVIEW" -> "HENTIKAN PRATINJAU";
+            case "IMPORT SONG  +" -> "IMPOR LAGU  +";
+            case "PREVIOUS  ◀" -> "SEBELUMNYA  ◀";
+            case "PLAY / PAUSE" -> "PUTAR / JEDA";
+            case "NEXT  ▶" -> "BERIKUTNYA  ▶";
+            case "STOP" -> "BERHENTI";
+            case "SEEK −10s" -> "GESER −10 dtk";
+            case "SEEK +10s" -> "GESER +10 dtk";
+            case "IMPORT / MATCH LRC" -> "IMPOR / COCOKKAN LRC";
+            case "IMPORT AUDIO FILE" -> "IMPOR FILE AUDIO";
+            case "IMPORT .LRC LYRICS" -> "IMPOR LIRIK .LRC";
+            case "OPEN MUSIC FOLDER" -> "BUKA FOLDER MUSIK";
+            case "◀ PREVIOUS" -> "◀ SEBELUMNYA";
+            case "NEXT ▶" -> "BERIKUTNYA ▶";
+            case "CLEAR HISTORY" -> "HAPUS RIWAYAT";
+            case "OPEN YOUTUBE MUSIC" -> "BUKA YOUTUBE MUSIC";
+            case "OPEN SPOTIFY WEB" -> "BUKA SPOTIFY WEB";
+            case "NEXT TRACK ▶" -> "LAGU BERIKUTNYA ▶";
+            case "PREVIOUS ◀" -> "LAGU SEBELUMNYA ◀";
+            case "PAUSE ONLINE PLAYER" -> "JEDA PEMUTAR ONLINE";
+            case "TOGGLE LYRIC HUD" -> "UBAH HUD LIRIK";
+            case "NEXT TRACK" -> "LAGU BERIKUTNYA";
+            case "PREVIOUS TRACK" -> "LAGU SEBELUMNYA";
+            case "RESTORE DEFAULT KEYS" -> "PULIHKAN TOMBOL DEFAULT";
+            case "PRESS KEY OR MOUSE BUTTON  ·  ESC CANCEL" -> "TEKAN TOMBOL / MOUSE  ·  ESC BATAL";
+            case "CANCELLED" -> "DIBATALKAN";
+            case "LYRICS  ON" -> "LIRIK  AKTIF";
+            case "LYRICS  OFF" -> "LIRIK  NONAKTIF";
+            case "DISPLAY  FLOATING WORLD TEXT" -> "TAMPILAN  TEKS DUNIA MELAYANG";
+            case "DISPLAY  SCREEN HUD" -> "TAMPILAN  HUD LAYAR";
+            case "FOLLOW VIEW  ON" -> "IKUTI PANDANGAN  AKTIF";
+            case "FOLLOW VIEW  OFF" -> "IKUTI PANDANGAN  NONAKTIF";
+            case "WORD-BY-WORD REVEAL  ON" -> "TAMPILKAN PER KATA  AKTIF";
+            case "WORD-BY-WORD REVEAL  OFF" -> "TAMPILKAN PER KATA  NONAKTIF";
+            case "WORLD TEXT SIZE  −" -> "UKURAN TEKS DUNIA  −";
+            case "WORLD TEXT SIZE  +" -> "UKURAN TEKS DUNIA  +";
+            case "SYNC OFFSET  −250 ms" -> "GESER SINKRON  −250 ms";
+            case "SYNC OFFSET  +250 ms" -> "GESER SINKRON  +250 ms";
+            case "RESET OFFSET" -> "ATUR ULANG OFFSET";
+            case "GLOW  ON" -> "CAHAYA  AKTIF";
+            case "GLOW  OFF" -> "CAHAYA  NONAKTIF";
+            case "TEXT SIZE  −" -> "UKURAN TEKS  −";
+            case "TEXT SIZE  +" -> "UKURAN TEKS  +";
+            case "NOW PLAYING STYLE  ·  Bordered" -> "GAYA SEDANG DIPUTAR  ·  Berbingkai";
+            case "NOW PLAYING STYLE  ·  Borderless" -> "GAYA SEDANG DIPUTAR  ·  Tanpa bingkai";
+            case "NOW PLAYING STYLE  ·  Compact" -> "GAYA SEDANG DIPUTAR  ·  Ringkas";
+            case "WORLD TEXT  ON" -> "TEKS DUNIA  AKTIF";
+            case "WORLD TEXT  OFF" -> "TEKS DUNIA  NONAKTIF";
+            case "PREVIOUS / NEXT LINES  ON" -> "BARIS SEBELUM / SESUDAH  AKTIF";
+            case "PREVIOUS / NEXT LINES  OFF" -> "BARIS SEBELUM / SESUDAH  NONAKTIF";
+            case "HUD BACKDROP  ON" -> "LATAR HUD  AKTIF";
+            case "HUD BACKDROP  OFF" -> "LATAR HUD  NONAKTIF";
+            case "MOVE HUD UP" -> "GESER HUD KE ATAS";
+            case "MOVE HUD DOWN" -> "GESER HUD KE BAWAH";
+            case "ELYTRA LYRICS MODE  ON" -> "MODE LIRIK ELYTRA  AKTIF";
+            case "ELYTRA LYRICS MODE  OFF" -> "MODE LIRIK ELYTRA  NONAKTIF";
+            case "OPEN HUD LAYOUT STUDIO · 5 WIDGETS  ↗" -> "BUKA EDITOR TATA LETAK HUD · 5 WIDGET  ↗";
+            case "DISABLE SKY EFFECT" -> "MATIKAN EFEK LANGIT";
+            case "RESTORE SELECTED SKY" -> "AKTIFKAN LANGIT PILIHAN";
+            case "ON" -> "AKTIF";
+            case "OFF" -> "NONAKTIF";
+            case "LYRICS READY" -> "LIRIK SIAP";
+            case "WAITING FOR MUSIC" -> "MENUNGGU MUSIK";
+            case "PLAYING" -> "SEDANG DIPUTAR";
+            case "PAUSED" -> "DIJEDA";
+            case "Volume " -> "Volume ";
+            case "CINEMATIC MUSIC EXPERIENCE" -> "PENGALAMAN MUSIK SINEMATIK";
+            case "BY SKY  ·  CINEMATIC MUSIC EXPERIENCE" -> "OLEH SKY  ·  MUSIK SINEMATIK";
+            case "CINEMATIC PREVIEW" -> "PRATINJAU SINEMATIK";
+            case "Choose a local song or open an online provider." -> "Pilih lagu lokal atau buka penyedia online.";
+            case "SUPPORTED: MP3 · OGG · WAV · AIFF · AU" -> "FORMAT: MP3 · OGG · WAV · AIFF · AU";
+            case "Matching .lrc files are loaded automatically by filename." -> "File .lrc yang cocok dimuat otomatis berdasarkan nama.";
+            case "LISTENING OVERVIEW" -> "RINGKASAN PEMUTARAN";
+            case "PLAY SESSIONS" -> "SESI PEMUTARAN";
+            case "UNIQUE TRACKS IN RECENT HISTORY" -> "LAGU UNIK DI RIWAYAT TERBARU";
+            case "RECENTLY PLAYED" -> "BARU DIPUTAR";
+            case "No listening sessions yet. Play a local or supported online track." -> "Belum ada riwayat. Putar lagu lokal atau online.";
+            case "CONNECTED" -> "TERHUBUNG";
+            case "WAITING FOR BROWSER PLAYER" -> "MENUNGGU PEMUTAR BROWSER";
+            case "Browser extension required for remote controls and synced metadata." -> "Ekstensi browser diperlukan untuk kontrol jarak jauh dan metadata.";
+            case "EDIT CONTROLS DIRECTLY FROM THIS SCREEN" -> "UBAH KONTROL LANGSUNG DARI LAYAR INI";
+            case "Click a control above, then press a keyboard key or mouse button." -> "Klik kontrol di atas, lalu tekan tombol keyboard atau mouse.";
+            case "Press ESC while capturing to cancel. Defaults can be restored above." -> "Tekan ESC untuk batal. Tombol default dapat dipulihkan di atas.";
+            case "20 original animated, depth-masked sky presets" -> "20 preset langit animasi dengan mask kedalaman";
+            case "20 SKY PRESETS · AUTHENTIC NASA/JPL PHOTO PREVIEWS" -> "20 PRESET LANGIT · FOTO ASTRONOMI ASLI NASA/JPL";
+            case "ACTIVE PRESET: " -> "PRESET AKTIF: ";
+            case "No track loaded" -> "Belum ada lagu";
+            case "SYNC " -> "SINKRON ";
+            case "Manual sync offset: " -> "Offset sinkron manual: ";
+            case "Style: " -> "Gaya: ";
+            case "Font: " -> "Font: ";
+            case "Active: " -> "Aktif: ";
+            case "World text distance: " -> "Jarak teks dunia: ";
+            case "HUD vertical position: " -> "Posisi vertikal HUD: ";
+            case "Now Playing position: " -> "Posisi Now Playing: ";
+            case "Elytra lyrics mode: " -> "Mode lirik Elytra: ";
+            case "Drag and drop HUD panels in the Layout Editor." -> "Geser panel HUD di Editor Tata Letak.";
+            case "Only clear background pixels are replaced by the sky shader." -> "Hanya piksel latar kosong yang diganti shader langit.";
+            case "Terrain, entities, and HUD pixels are passed through." -> "Terrain, entitas, dan piksel HUD tetap ditampilkan.";
+            case "Rendering uses Minecraft's post-effect pipeline." -> "Rendering memakai pipeline post-effect Minecraft.";
+            case "Saved to config/skylyrics.properties" -> "Tersimpan di config/skylyrics.properties";
+            case "Keys: O menu · H lyrics · K play/pause" -> "Tombol: O menu · H lirik · K putar/jeda";
+            case "QUICK GUIDE · SKYLYRICS BY SKY" -> "PANDUAN CEPAT · SKYLYRICS OLEH SKY";
+            case "1. MUSIC CENTER → IMPORT SONG → CHOOSE MP3 / OGG / WAV." -> "1. PUSAT MUSIK → IMPOR LAGU → PILIH MP3 / OGG / WAV.";
+            case "2. LYRICS → IMPORT / MATCH LRC → CHOOSE THE MATCHING .LRC FILE." -> "2. LIRIK → IMPOR / COCOKKAN LRC → PILIH FILE .LRC YANG SESUAI.";
+            case "3. CHOOSE FLOATING WORLD TEXT (3D) OR SCREEN HUD (2D)." -> "3. PILIH TEKS DUNIA MELAYANG (3D) ATAU HUD LAYAR (2D).";
+            case "4. ONLINE: OPEN SPOTIFY WEB / YOUTUBE MUSIC IN CHROME OR EDGE." -> "4. ONLINE: BUKA SPOTIFY WEB / YOUTUBE MUSIC DI CHROME ATAU EDGE.";
+            case "5. LOAD THE INCLUDED BROWSER EXTENSION IN CHROME / EDGE." -> "5. MUAT EKSTENSI BROWSER YANG DISERTAKAN DI CHROME / EDGE.";
+            case "KEYS: O MENU · H LYRICS · K PLAY/PAUSE · N NEXT · B PREVIOUS." -> "TOMBOL: O MENU · H LIRIK · K PUTAR/JEDA · N BERIKUTNYA · B SEBELUMNYA.";
+            case "LOCAL AUDIO PLAYS THROUGH SKYLYRICS; ONLINE AUDIO STAYS IN THE BROWSER." -> "AUDIO LOKAL DIPUTAR OLEH SKYLYRICS; AUDIO ONLINE TETAP DI BROWSER.";
+            case "SPOTIFY WEB PROVIDES METADATA AND CONTROLS ONLY; LYRICS SYNC IS OFF." -> "SPOTIFY WEB HANYA MEMBERI METADATA DAN KONTROL; SINKRON LIRIK NONAKTIF.";
+            default -> english;
+        };
+    }
+
 
     private static int mixColor(int a, int b, float t) {
         int alpha = (a >>> 24) & 255;
@@ -424,10 +604,19 @@ public final class SkyLyricsScreen extends Screen {
             graphics.fill(contentLeft, cardTop, contentLeft + 3, cardBottom, 0xFFB38BFF);
         }
         if(tab==Tab.SKIES) {
-            int cols=4,gap=6,w=(contentWidth-gap*(cols-1))/cols,h=43, y=top+112+39;
+            String artwork = SkyPresetCatalog.artworkFor(SkyLyricsClient.CONFIG.skyPreset());
+            Identifier preview = Identifier.fromNamespaceAndPath(
+                    SkyLyricsClient.MOD_ID, "textures/gui/sky_gallery/" + artwork + ".jpg");
+            int previewY = top + 146;
+            graphics.blit(RenderPipelines.GUI_TEXTURED, preview,
+                    contentLeft, previewY, 0.0F, 0.0F, contentWidth, 72, 1600, 900);
+            graphics.fill(contentLeft, previewY, contentLeft + contentWidth, previewY + 72, 0x3A080711);
+            graphics.fill(contentLeft, previewY, contentLeft + contentWidth, previewY + 3,
+                    SkyPresetCatalog.byId(SkyLyricsClient.CONFIG.skyPreset()).horizonColor() | 0xFF000000);
+            int cols=4,gap=6,w=(contentWidth-gap*(cols-1))/cols,h=43, gridY=top+112+118;
             for(int i=0;i<SkyPresetCatalog.ALL.size();i++) {
                 SkyPresetCatalog.Preset p=SkyPresetCatalog.ALL.get(i);
-                int x=contentLeft+(i%cols)*(w+gap), cy=y+(i/cols)*(h+7);
+                int x=contentLeft+(i%cols)*(w+gap), cy=gridY+(i/cols)*50;
                 graphics.fill(x,cy,x+w,cy+4,p.topColor()|0xFF000000);
                 graphics.fill(x,cy+4,x+w,cy+7,p.nebulaColor()|0xFF000000);
             }
@@ -437,34 +626,34 @@ public final class SkyLyricsScreen extends Screen {
     @Override
     public void extractRenderState(GuiGraphicsExtractor graphics,int mouseX,int mouseY,float delta) {
         super.extractRenderState(graphics,mouseX,mouseY,delta);
-        graphics.text(font,"SKYLYRICS",left+16,top+16,0xFFFFFFFF,true);
-        graphics.text(font,"CINEMATIC MUSIC EXPERIENCE",left+16,top+33,0xFFC7B9E8,false);
-        graphics.text(font,tab.name(),contentLeft,top+78,0xFFFFFFFF,true);
+        graphics.text(font,ui("SKYLYRICS"),left+16,top+16,0xFFFFFFFF,true);
+        graphics.text(font,ui("BY SKY  ·  CINEMATIC MUSIC EXPERIENCE"),left+16,top+33,0xFFC7B9E8,false);
+        graphics.text(font,ui(tab == Tab.GUIDE ? "QUICK GUIDE" : tab.name()),contentLeft,top+78,0xFFFFFFFF,true);
         int activeY = top + 70 + tab.ordinal() * navStep;
         graphics.fill(left + 10, activeY + 2, left + 13, activeY + navHeight - 2, 0xFFB58BFF);
         boolean ready = SkyLyricsClient.PLAYER.hasTrack();
         graphics.fill(left + panelWidth - 142, top + 17, left + panelWidth - 20, top + 38,
                 ready ? 0xFF20372F : 0xFF30283B);
-        graphics.text(font, ready ? "LYRICS READY" : "WAITING FOR MUSIC",
+        graphics.text(font, ui(ready ? "LYRICS READY" : "WAITING FOR MUSIC"),
                 left + panelWidth - 132, top + 24, ready ? 0xFF9BE7BF : 0xFFD2BFEF, true);
         if(tab==Tab.OVERVIEW) {
-            graphics.text(font,"SKY PRESET  "+SkyPresetCatalog.byId(SkyLyricsClient.CONFIG.skyPreset()).name()
+            graphics.text(font,ui("SKY PRESET")+"  "+SkyPresetCatalog.byId(SkyLyricsClient.CONFIG.skyPreset()).name()
                     +"   ·   ENGINE "+onOff(SkyLyricsClient.CONFIG.skyEnabled()),
                     contentLeft,top+160,0xFFC6A0FF,true);
-            graphics.text(font,"CINEMATIC PREVIEW",contentLeft+14,top+277,0xFFBDA7E8,true);
+            graphics.text(font,ui("CINEMATIC PREVIEW"),contentLeft+14,top+277,0xFFBDA7E8,true);
             if(SkyLyricsClient.PLAYER.hasTrack()) {
                 graphics.text(font,SkyLyricsClient.PLAYER.track().title(),contentLeft+14,top+299,0xFFFFFFFF,true);
                 graphics.text(font,SkyLyricsClient.PLAYER.track().artist(),contentLeft+14,top+318,0xFFBDB7CD,false);
                 LyricsCue cue=SkyLyricsClient.PLAYER.currentCue();
                 if(cue!=null) graphics.text(font,cue.text(),contentLeft+14,top+344,SkyLyricsClient.CONFIG.accentColor(),true);
-                graphics.text(font,(SkyLyricsClient.PLAYER.isPlaying()?"PLAYING":"PAUSED")
+                graphics.text(font,ui(SkyLyricsClient.PLAYER.isPlaying()?"PLAYING":"PAUSED")
                         +"  ·  "+LyricsPlayer.formatTime(SkyLyricsClient.PLAYER.positionMs())
                         +" / "+LyricsPlayer.formatTime(SkyLyricsClient.PLAYER.durationMs()),
                         contentLeft+14,top+368,0xFFD4D1E2,false);
             } else {
-                graphics.text(font,"Press PLAY CINEMATIC PREVIEW to test the 3D lyrics offline.",
+                graphics.text(font,ui("Press PLAY CINEMATIC PREVIEW to test the 3D lyrics offline."),
                         contentLeft+14,top+305,0xFFBDB7CD,false);
-                graphics.text(font,"No browser extension, server resource pack or music account needed.",
+                graphics.text(font,ui("No browser extension, server resource pack or music account needed."),
                         contentLeft+14,top+324,0xFF9690A8,false);
             }
             if(SkyLyricsClient.MEDIA_NOTICE!=null&&!SkyLyricsClient.MEDIA_NOTICE.isBlank())
@@ -477,32 +666,32 @@ public final class SkyLyricsScreen extends Screen {
                 graphics.text(font, LyricsPlayer.formatTime(SkyLyricsClient.AUDIO.positionMs()) + " / "
                         + LyricsPlayer.formatTime(SkyLyricsClient.AUDIO.durationMs()),
                         contentLeft, top + 334, 0xFFD4D1E2, false);
-                graphics.text(font, "Volume " + Math.round(SkyLyricsClient.AUDIO.volume() * 100) + "%",
+                graphics.text(font, ui("Volume ") + Math.round(SkyLyricsClient.AUDIO.volume() * 100) + "%",
                         contentLeft, top + 358, 0xFFD4D1E2, false);
             } else if (SkyLyricsClient.CURRENT_MEDIA != null) {
                 graphics.text(font, SkyLyricsClient.CURRENT_MEDIA.title(), contentLeft, top + 285, 0xFFFFFFFF, true);
                 graphics.text(font, SkyLyricsClient.CURRENT_MEDIA.displaySource() + " · "
                         + SkyLyricsClient.CURRENT_MEDIA.artist(), contentLeft, top + 309, 0xFFC6A0FF, false);
             } else {
-                graphics.text(font, "Choose a local song or open an online provider.", contentLeft, top + 300, 0xFFD4D1E2, false);
+                graphics.text(font,ui("Choose a local song or open an online provider."), contentLeft, top + 300, 0xFFD4D1E2, false);
             }
             graphics.text(font, SkyLyricsClient.MEDIA_NOTICE, contentLeft, top + 388, 0xFF9D96B3, false);
         } else if (tab == Tab.LIBRARY) {
-            graphics.text(font, "OFFLINE LIBRARY  ·  " + SkyLyricsClient.MUSIC_LIBRARY.listAudio().size() + " audio files",
+            graphics.text(font, ui("OFFLINE LIBRARY") + "  ·  " + SkyLyricsClient.MUSIC_LIBRARY.listAudio().size() + " audio files",
                     contentLeft, top + 218, 0xFFC6A0FF, true);
-            graphics.text(font, "Supported: MP3 · OGG · WAV · AIFF · AU", contentLeft, top + 241, 0xFFD4D1E2, false);
-            graphics.text(font, "Matching .lrc files are loaded automatically by filename.", contentLeft, top + 263, 0xFFBDB7CD, false);
+            graphics.text(font,ui("Supported: MP3 · OGG · WAV · AIFF · AU"), contentLeft, top + 241, 0xFFD4D1E2, false);
+            graphics.text(font,ui("Matching .lrc files are loaded automatically by filename."), contentLeft, top + 263, 0xFFBDB7CD, false);
             graphics.text(font, SkyLyricsClient.MUSIC_LIBRARY.musicDirectory().toString(), contentLeft, top + 286, 0xFF9690A8, false);
         } else if (tab == Tab.HISTORY) {
-            graphics.text(font, "LISTENING OVERVIEW", contentLeft, top + 112, 0xFFC6A0FF, true);
-            graphics.text(font, "PLAY SESSIONS  ·  " + SkyLyricsClient.HISTORY.totalPlays(),
+            graphics.text(font,ui("LISTENING OVERVIEW"), contentLeft, top + 112, 0xFFC6A0FF, true);
+            graphics.text(font, ui("PLAY SESSIONS") + "  ·  " + SkyLyricsClient.HISTORY.totalPlays(),
                     contentLeft, top + 141, 0xFFFFFFFF, true);
-            graphics.text(font, "UNIQUE TRACKS IN RECENT HISTORY  ·  " + SkyLyricsClient.HISTORY.uniqueTrackCount(),
+            graphics.text(font, ui("UNIQUE TRACKS IN RECENT HISTORY") + "  ·  " + SkyLyricsClient.HISTORY.uniqueTrackCount(),
                     contentLeft, top + 164, 0xFFD4D1E2, false);
-            graphics.text(font, "RECENTLY PLAYED", contentLeft, top + 210, 0xFFC6A0FF, true);
+            graphics.text(font,ui("RECENTLY PLAYED"), contentLeft, top + 210, 0xFFC6A0FF, true);
             var entries = SkyLyricsClient.HISTORY.recent(7);
             if (entries.isEmpty()) {
-                graphics.text(font, "No listening sessions yet. Play a local or supported online track.",
+                graphics.text(font,ui("No listening sessions yet. Play a local or supported online track."),
                         contentLeft, top + 238, 0xFFBDB7CD, false);
             } else {
                 for (int i = 0; i < entries.size(); i++) {
@@ -516,11 +705,11 @@ public final class SkyLyricsScreen extends Screen {
                     graphics.text(font, subtitle, contentLeft + 12, rowY + 13, 0xFFBDB7CD, false);
                 }
             }
-            graphics.text(font, "History stays in config/skylyrics/history.json; audio is never stored here.",
+            graphics.text(font,ui("History stays in config/skylyrics/history.json; audio is never stored here."),
                     contentLeft, top + panelHeight - 28, 0xFF9690A8, false);
         } else if (tab == Tab.ONLINE) {
             var media = SkyLyricsClient.CURRENT_MEDIA;
-            graphics.text(font, media != null ? "CONNECTED  ·  " + media.displaySource() : "WAITING FOR BROWSER PLAYER",
+            graphics.text(font, media != null ? ui("CONNECTED") + "  ·  " + media.displaySource() : ui("WAITING FOR BROWSER PLAYER"),
                     contentLeft, top + 244, media != null ? 0xFF9BE7BF : 0xFFFFD58A, true);
             if (media != null) {
                 graphics.text(font, media.title(), contentLeft, top + 271, 0xFFFFFFFF, true);
@@ -528,60 +717,66 @@ public final class SkyLyricsScreen extends Screen {
                 graphics.text(font, LyricsPlayer.formatTime(media.positionMs()) + " / "
                         + LyricsPlayer.formatTime(media.durationMs()), contentLeft, top + 315, 0xFFD4D1E2, false);
             }
-            graphics.text(font, "Browser extension required for remote controls and synced metadata.",
+            graphics.text(font,ui("Browser extension required for remote controls and synced metadata."),
                     contentLeft, top + 354, 0xFFD4D1E2, false);
             graphics.text(font, SkyLyricsClient.MEDIA_NOTICE, contentLeft, top + 378, 0xFF9D96B3, false);
         } else if (tab == Tab.KEYBINDS) {
-            graphics.text(font, "EDIT CONTROLS DIRECTLY FROM THIS SCREEN",
+            graphics.text(font,ui("EDIT CONTROLS DIRECTLY FROM THIS SCREEN"),
                     contentLeft, top + 360, 0xFFFFFFFF, true);
-            graphics.text(font, "Click a control above, then press a keyboard key or mouse button.",
+            graphics.text(font,ui("Click a control above, then press a keyboard key or mouse button."),
                     contentLeft, top + 383, 0xFFD4D1E2, false);
-            graphics.text(font, "Press ESC while capturing to cancel. Defaults can be restored above.",
+            graphics.text(font,ui("Press ESC while capturing to cancel. Defaults can be restored above."),
                     contentLeft, top + 406, 0xFFBDB7CD, false);
         } else if(tab==Tab.SKIES) {
-            graphics.text(font,"20 original animated, depth-masked sky presets",contentLeft,top+98,0xFFBDB7CD,false);
-            graphics.text(font,"Active: "+SkyPresetCatalog.byId(SkyLyricsClient.CONFIG.skyPreset()).name(),
-                    contentLeft,top+panelHeight-28,SkyLyricsClient.CONFIG.accentColor(),true);
+            graphics.text(font,ui("20 SKY PRESETS · AUTHENTIC NASA/JPL PHOTO PREVIEWS"),
+                    contentLeft,top+138,0xFFE8DFFF,true);
+            graphics.text(font,ui("ACTIVE PRESET: ")+SkyPresetCatalog.byId(SkyLyricsClient.CONFIG.skyPreset()).name(),
+                    contentLeft,top+panelHeight-18,SkyLyricsClient.CONFIG.accentColor(),true);
         } else if(tab==Tab.LYRICS) {
             String title=SkyLyricsClient.PLAYER.hasTrack()?SkyLyricsClient.PLAYER.track().title():"No track loaded";
             graphics.text(font,title,contentLeft,top+302,0xFFFFFFFF,true);
             LyricsCue cue=SkyLyricsClient.PLAYER.currentCue();
             if(cue!=null) graphics.text(font,cue.text(),contentLeft,top+324,SkyLyricsClient.CONFIG.accentColor(),true);
-            graphics.text(font,"Sync "+LyricsPlayer.formatTime(SkyLyricsClient.PLAYER.positionMs())+
+            graphics.text(font,ui("SYNC ")+LyricsPlayer.formatTime(SkyLyricsClient.PLAYER.positionMs())+
                     " / "+LyricsPlayer.formatTime(SkyLyricsClient.PLAYER.durationMs()),contentLeft,top+346,0xFFD4D1E2,false);
-            graphics.text(font,"Manual sync offset: "+SkyLyricsClient.PLAYER.manualOffsetMs()+" ms",
+            graphics.text(font,ui("Manual sync offset: ")+SkyLyricsClient.PLAYER.manualOffsetMs()+" ms",
                     contentLeft,top+370,0xFFBDB7CD,false);
         } else if(tab==Tab.STYLES) {
-            graphics.text(font, "Style: " + SkyLyricsClient.CONFIG.textStyleName()
+            graphics.text(font, ui("Style: ") + SkyLyricsClient.CONFIG.textStyleName()
                     + "  ·  Glow: " + onOff(SkyLyricsClient.CONFIG.glowEnabled()),
                     contentLeft, top + 245, SkyLyricsClient.CONFIG.accentColor(), true);
             graphics.centeredText(font, SkyLyricsTypography.ordered("Dream it. Sing it."),
                     contentLeft + contentWidth / 2, top + 275, 0xFFFFFFFF);
-            graphics.text(font, "Font: " + SkyLyricsClient.CONFIG.fontFamilyName(),
+            graphics.text(font, ui("Font: ") + SkyLyricsClient.CONFIG.fontFamilyName(),
                     contentLeft, top + 312, 0xFFBDB7CD, false);
         } else if(tab==Tab.HUD) {
-            graphics.text(font,"World text distance: "+String.format("%.1f",SkyLyricsClient.CONFIG.worldDistance())+" blocks",
+            graphics.text(font,ui("World text distance: ")+String.format("%.1f",SkyLyricsClient.CONFIG.worldDistance())+" blocks",
                     contentLeft,top+235,0xFFD4D1E2,false);
-            graphics.text(font,"HUD vertical position: "+Math.round(SkyLyricsClient.CONFIG.verticalPosition()*100)+"%",
+            graphics.text(font,ui("HUD vertical position: ")+Math.round(SkyLyricsClient.CONFIG.verticalPosition()*100)+"%",
                     contentLeft,top+258,0xFFD4D1E2,false);
-            graphics.text(font,"Now Playing position: "+Math.round(SkyLyricsClient.CONFIG.nowPlayingHudX()*100)+"% X",
+            graphics.text(font,ui("Now Playing position: ")+Math.round(SkyLyricsClient.CONFIG.nowPlayingHudX()*100)+"% X",
                     contentLeft,top+281,0xFFD4D1E2,false);
-            graphics.text(font,"Elytra lyrics mode: "+onOff(SkyLyricsClient.CONFIG.elytraLyricsEnabled()),
+            graphics.text(font,ui("Elytra lyrics mode: ")+onOff(SkyLyricsClient.CONFIG.elytraLyricsEnabled()),
                     contentLeft,top+304,0xFFBDB7CD,false);
-            graphics.text(font,"Drag and drop HUD panels in the Layout Editor.",
+            graphics.text(font,ui("Drag and drop HUD panels in the Layout Editor."),
                     contentLeft,top+326,0xFFBDB7CD,false);
         } else if(tab==Tab.PERFORMANCE) {
-            graphics.text(font,"Only clear background pixels are replaced by the sky shader.",contentLeft,top+190,0xFFD4D1E2,false);
-            graphics.text(font,"Terrain, entities, and HUD pixels are passed through.",contentLeft,top+213,0xFFD4D1E2,false);
-            graphics.text(font,"Rendering uses Minecraft's post-effect pipeline.",contentLeft,top+236,0xFFD4D1E2,false);
+            graphics.text(font,ui("Only clear background pixels are replaced by the sky shader."),contentLeft,top+190,0xFFD4D1E2,false);
+            graphics.text(font,ui("Terrain, entities, and HUD pixels are passed through."),contentLeft,top+213,0xFFD4D1E2,false);
+            graphics.text(font,ui("Rendering uses Minecraft's post-effect pipeline."),contentLeft,top+236,0xFFD4D1E2,false);
         } else if(tab==Tab.SETTINGS) {
-            graphics.text(font,"Saved to config/skylyrics.properties",contentLeft,top+220,0xFFD4D1E2,false);
-            graphics.text(font,"Keys: O menu · H lyrics · K play/pause",contentLeft,top+244,0xFFD4D1E2,false);
-        } else if(tab==Tab.INFORMATION) {
-            graphics.text(font,"Fabric client mod · Minecraft Java 26.3",contentLeft,top+190,0xFFFFFFFF,true);
-            graphics.text(font,"YouTube / YouTube Music: browser media + synced lyric lookup.",contentLeft,top+216,0xFFD4D1E2,false);
-            graphics.text(font,"Spotify: Now Playing metadata only.",contentLeft,top+240,0xFFD4D1E2,false);
-            graphics.text(font,"Local .lrc files work offline.",contentLeft,top+264,0xFFD4D1E2,false);
+            graphics.text(font,ui("Saved to config/skylyrics.properties"),contentLeft,top+220,0xFFD4D1E2,false);
+            graphics.text(font,ui("Keys: O menu · H lyrics · K play/pause"),contentLeft,top+244,0xFFD4D1E2,false);
+        } else if(tab==Tab.GUIDE) {
+            graphics.text(font,ui("QUICK GUIDE · SKYLYRICS BY SKY"),contentLeft,top+190,0xFFFFFFFF,true);
+            graphics.text(font,ui("1. MUSIC CENTER → IMPORT SONG → CHOOSE MP3 / OGG / WAV."),contentLeft,top+218,0xFFD4D1E2,false);
+            graphics.text(font,ui("2. LYRICS → IMPORT / MATCH LRC → CHOOSE THE MATCHING .LRC FILE."),contentLeft,top+242,0xFFD4D1E2,false);
+            graphics.text(font,ui("3. CHOOSE FLOATING WORLD TEXT (3D) OR SCREEN HUD (2D)."),contentLeft,top+266,0xFFD4D1E2,false);
+            graphics.text(font,ui("4. ONLINE: OPEN SPOTIFY WEB / YOUTUBE MUSIC IN CHROME OR EDGE."),contentLeft,top+290,0xFFD4D1E2,false);
+            graphics.text(font,ui("5. LOAD THE INCLUDED BROWSER EXTENSION IN CHROME / EDGE."),contentLeft,top+314,0xFFD4D1E2,false);
+            graphics.text(font,ui("KEYS: O MENU · H LYRICS · K PLAY/PAUSE · N NEXT · B PREVIOUS."),contentLeft,top+350,0xFFC6A0FF,true);
+            graphics.text(font,ui("LOCAL AUDIO PLAYS THROUGH SKYLYRICS; ONLINE AUDIO STAYS IN THE BROWSER."),contentLeft,top+376,0xFFBDB7CD,false);
+            graphics.text(font,ui("SPOTIFY WEB PROVIDES METADATA AND CONTROLS ONLY; LYRICS SYNC IS OFF."),contentLeft,top+400,0xFF9690A8,false);
         }
     }
 }

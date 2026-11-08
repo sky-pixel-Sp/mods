@@ -28,6 +28,26 @@ public final class SkyPresetCatalog {
         new Preset("ocean", "Ocean", 0x061B2B, 0x168EAA, 0x4A91A9, 1.1f)
     );
 
+    /**
+     * Real NASA/JPL gallery photograph used as the visual preview for each
+     * procedural sky palette. The photograph is a UI reference, not a world
+     * texture or a replacement for the live shader.
+     */
+    public static String artworkFor(String id) {
+        if (id == null) return "eagle";
+        return switch (id) {
+            case "aurora", "comet", "ocean" -> "north_america";
+            case "galaxy", "golden_sunset", "synthwave" -> "eagle";
+            case "nebula_storm", "blood_moon" -> "jack_o_lantern";
+            case "nebula", "dreamscape" -> "catspaw";
+            case "sunset", "solar_flare" -> "audience_favorite";
+            case "pink_sunset", "saturn", "hyperspace", "prism" -> "blue_ring";
+            case "meteors", "thunderstorm" -> "w51";
+            case "star_trails", "black_hole" -> "lynds_bright";
+            default -> "eagle";
+        };
+    }
+
     private SkyPresetCatalog() {}
 
     public static Preset byId(String id) {
