@@ -10,7 +10,7 @@ SkyLyrics by **Sky** is a client-side Fabric mod for Minecraft Java 26.3. It com
 
 ## Language support
 
-The in-game interface defaults to **English**. Open **Settings → Language** to switch to **Bahasa Indonesia**; your selection is saved locally. The English documentation in this README is the primary guide. An Indonesian installation guide is available in [PANDUAN-ID.md](PANDUAN-ID.md).
+The in-game interface defaults to **English**. Open **Settings → Language** to switch to **Bahasa Indonesia**; your selection is saved locally. The English documentation in this README is the primary guide. See [CHANGELOG.md](CHANGELOG.md) for version history, [QA_STATUS.md](QA_STATUS.md) for verified checks and limitations, and [PANDUAN-ID.md](PANDUAN-ID.md) for the Indonesian installation guide.
 
 ## Music Center
 
