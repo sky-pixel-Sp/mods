@@ -125,14 +125,14 @@ public final class InGameFilePickerScreen extends Screen {
     private void navigate(Path target) {
         if (target == null || !Files.isDirectory(target)) return;
         lastDirectory = target.toAbsolutePath().normalize();
-        Minecraft.getInstance().setScreen(
+        Minecraft.getInstance().gui.setScreen(
                 new InGameFilePickerScreen(parent, lyricsOnly, callback, lastDirectory));
     }
 
     private void changePage(int delta) {
         int pages = Math.max(1, (entries.size() + PAGE_SIZE - 1) / PAGE_SIZE);
         int nextPage = Math.max(0, Math.min(pages - 1, page + delta));
-        Minecraft.getInstance().setScreen(
+        Minecraft.getInstance().gui.setScreen(
                 new InGameFilePickerScreen(parent, lyricsOnly, callback, directory, nextPage));
     }
 
@@ -173,7 +173,7 @@ public final class InGameFilePickerScreen extends Screen {
             return;
         }
         lastDirectory = file.getParent();
-        Minecraft.getInstance().setScreen(parent);
+        Minecraft.getInstance().gui.setScreen(parent);
         if (callback != null) callback.accept(file.toAbsolutePath().normalize());
     }
 
@@ -228,6 +228,6 @@ public final class InGameFilePickerScreen extends Screen {
 
     @Override
     public void onClose() {
-        Minecraft.getInstance().setScreen(parent);
+        Minecraft.getInstance().gui.setScreen(parent);
     }
 }
