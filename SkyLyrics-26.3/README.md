@@ -2,7 +2,7 @@
 
 ## 0.11.0 — playlists, favorites and queue controls
 
-The Offline Library now includes persistent playlists, per-track favorites, case-insensitive library search, queue filtering, shuffle, and three repeat modes (**Off**, **All**, and **One**). Playlist membership, favorites, and queue preferences are stored locally in `config/skylyrics/library-state.json`; only file names and playback preferences are saved, never audio data. Shuffle and repeat also control automatic track advancement at the end of a song.
+The Offline Library now includes persistent playlists, per-track favorites, case-insensitive library search, queue filtering, shuffle, and three repeat modes (**Off**, **All**, and **One**). Create a playlist, keep the filter on All to add songs, then switch the filter to Playlist to play only its members. Playlist membership, favorites, and queue preferences are stored locally in `config/skylyrics/library-state.json`; only file names and playback preferences are saved, never audio data. Shuffle and repeat also control automatic track advancement at the end of a song.
 
 ## 0.10.0 — fully in-game local music
 
