@@ -168,7 +168,6 @@ public final class SkyLyricsClient implements ClientModInitializer {
         if (!demoActive) return;
         demoActive = false;
         PLAYER.clear();
-        activeMediaIdentity = "";
         MEDIA_NOTICE = "Preview stopped.";
     }
 
@@ -210,12 +209,10 @@ public final class SkyLyricsClient implements ClientModInitializer {
     public static void playLocalTrack(Path file) {
         if (file == null) return;
         stopDemo();
-        activeMediaIdentity = "";
         CURRENT_MEDIA = null;
         AlbumArtManager.update(null);
         AUDIO.play(file);
         HISTORY.recordPlay(file.getFileName().toString(), "Local file", "Offline Library");
-        lastHistoryIdentity = "";
         Path matchingLyrics = MUSIC_LIBRARY.matchingLyrics(file);
         if (matchingLyrics != null) {
             try {
