@@ -37,6 +37,11 @@ public final class InGameFilePickerScreen extends Screen {
     private int panelHeight;
 
     public InGameFilePickerScreen(Screen parent, boolean lyricsOnly, Consumer<Path> callback, Path initialDirectory) {
+        this(parent, lyricsOnly, callback, initialDirectory, 0);
+    }
+
+    private InGameFilePickerScreen(Screen parent, boolean lyricsOnly, Consumer<Path> callback,
+                                   Path initialDirectory, int initialPage) {
         super(Component.literal(lyricsOnly ? "Import Lyrics" : "Import Music"));
         this.parent = parent;
         this.lyricsOnly = lyricsOnly;
@@ -44,6 +49,7 @@ public final class InGameFilePickerScreen extends Screen {
         Path candidate = initialDirectory == null ? defaultDirectory() : initialDirectory;
         this.directory = Files.isDirectory(candidate) ? candidate.toAbsolutePath().normalize() : defaultDirectory();
         loadEntries();
+        this.page = Math.max(0, Math.min(initialPage, Math.max(0, (entries.size() - 1) / PAGE_SIZE)));
     }
 
     public static Path defaultDirectory() {
@@ -125,8 +131,9 @@ public final class InGameFilePickerScreen extends Screen {
 
     private void changePage(int delta) {
         int pages = Math.max(1, (entries.size() + PAGE_SIZE - 1) / PAGE_SIZE);
-        page = Math.max(0, Math.min(pages - 1, page + delta));
-        init();
+        int nextPage = Math.max(0, Math.min(pages - 1, page + delta));
+        Minecraft.getInstance().setScreen(
+                new InGameFilePickerScreen(parent, lyricsOnly, callback, directory, nextPage));
     }
 
     private void loadEntries() {
@@ -144,7 +151,6 @@ public final class InGameFilePickerScreen extends Screen {
             entries = List.of();
             error = "Cannot read this folder";
         }
-        page = 0;
     }
 
     private boolean isSupported(Path path) {
