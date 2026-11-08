@@ -260,11 +260,7 @@ public final class SkyLyricsClient implements ClientModInitializer {
     }
 
     private static List<Path> playbackQueue() {
-        List<Path> all = MUSIC_LIBRARY.listAudio();
-        List<Path> selected = LIBRARY_STATE.filteredTracks(all);
-        Path current = AUDIO.currentFile();
-        if (current != null && selected.stream().noneMatch(path -> sameFile(path, current))) return all;
-        return selected;
+        return LIBRARY_STATE.filteredTracks(MUSIC_LIBRARY.listAudio());
     }
 
     private static boolean sameFile(Path first, Path second) {
@@ -333,7 +329,10 @@ public final class SkyLyricsClient implements ClientModInitializer {
         if (index < 0) return;
 
         int next = -1;
-        if (LIBRARY_STATE.shuffleEnabled() && tracks.size() > 1) {
+        if (index < 0) {
+            next = LIBRARY_STATE.shuffleEnabled() && tracks.size() > 1
+                    ? ThreadLocalRandom.current().nextInt(tracks.size()) : 0;
+        } else if (LIBRARY_STATE.shuffleEnabled() && tracks.size() > 1) {
             next = randomOtherIndex(tracks.size(), index);
         } else if (index + 1 < tracks.size()) {
             next = index + 1;
