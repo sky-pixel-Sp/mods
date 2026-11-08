@@ -508,9 +508,6 @@ public final class SkyLyricsScreen extends Screen {
             case "PLAY SESSIONS" -> "SESI PEMUTARAN";
             case "UNIQUE TRACKS IN RECENT HISTORY" -> "LAGU UNIK DI RIWAYAT TERBARU";
             case "RECENTLY PLAYED" -> "BARU DIPUTAR";
-            case "No listening sessions yet. Play a local or supported online track." -> "Belum ada riwayat. Putar lagu lokal atau online.";
-            case "CONNECTED" -> "TERHUBUNG";
-            case "WAITING FOR BROWSER PLAYER" -> "MENUNGGU PEMUTAR BROWSER";
             case "EDIT CONTROLS DIRECTLY FROM THIS SCREEN" -> "UBAH KONTROL LANGSUNG DARI LAYAR INI";
             case "Click a control above, then press a keyboard key or mouse button." -> "Klik kontrol di atas, lalu tekan tombol keyboard atau mouse.";
             case "Press ESC while capturing to cancel. Defaults can be restored above." -> "Tekan ESC untuk batal. Tombol default dapat dipulihkan di atas.";
@@ -537,9 +534,7 @@ public final class SkyLyricsScreen extends Screen {
             case "1. MUSIC CENTER → IMPORT SONG → CHOOSE MP3 / OGG / WAV." -> "1. PUSAT MUSIK → IMPOR LAGU → PILIH MP3 / OGG / WAV.";
             case "2. LYRICS → IMPORT / MATCH LRC → CHOOSE THE MATCHING .LRC FILE." -> "2. LIRIK → IMPOR / COCOKKAN LRC → PILIH FILE .LRC YANG SESUAI.";
             case "3. CHOOSE FLOATING WORLD TEXT (3D) OR SCREEN HUD (2D)." -> "3. PILIH TEKS DUNIA MELAYANG (3D) ATAU HUD LAYAR (2D).";
-            case "5. LOAD THE INCLUDED BROWSER EXTENSION IN CHROME / EDGE." -> "5. MUAT EKSTENSI BROWSER YANG DISERTAKAN DI CHROME / EDGE.";
             case "KEYS: O MENU · H LYRICS · K PLAY/PAUSE · N NEXT · B PREVIOUS." -> "TOMBOL: O MENU · H LIRIK · K PUTAR/JEDA · N BERIKUTNYA · B SEBELUMNYA.";
-            case "LOCAL AUDIO PLAYS THROUGH SKYLYRICS; ONLINE AUDIO STAYS IN THE BROWSER." -> "AUDIO LOKAL DIPUTAR OLEH SKYLYRICS; AUDIO ONLINE TETAP DI BROWSER.";
             default -> english;
         };
     }
