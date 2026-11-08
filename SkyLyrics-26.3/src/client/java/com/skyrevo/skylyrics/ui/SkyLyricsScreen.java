@@ -6,6 +6,7 @@ import net.minecraft.client.KeyMapping;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import com.skyrevo.skylyrics.core.LyricsCue;
+import com.skyrevo.skylyrics.core.MusicLibraryState;
 import com.skyrevo.skylyrics.core.LyricsPlayer;
 import com.skyrevo.skylyrics.core.SkyPresetCatalog;
 import com.skyrevo.skylyrics.core.SkyFontCatalog;
@@ -14,6 +15,9 @@ import com.skyrevo.skylyrics.render.SkyLyricsWorldText;
 import com.skyrevo.skylyrics.render.SkyLyricsTypography;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.EditBox;
+import java.nio.file.Path;
+import java.util.List;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.resources.Identifier;
@@ -25,6 +29,9 @@ public final class SkyLyricsScreen extends Screen {
     private final Tab tab;
     private int left, top, panelWidth, panelHeight, sideWidth, contentLeft, contentWidth;
     private static int libraryPage;
+    private static String librarySearchQuery = "";
+    private EditBox librarySearchBox;
+    private EditBox playlistNameBox;
     private KeyMapping pendingKeyBinding;
     private Button pendingKeyBindingButton;
     private int navStep = 34;
@@ -153,31 +160,100 @@ public final class SkyLyricsScreen extends Screen {
                 SkyLyricsClient.importAndPlayAudio(path);
                 open(Tab.LIBRARY);
             }
-        }), contentLeft, y + 10, half, 30);
+        }), contentLeft, y + 10, half, 28);
         screenAction("IMPORT .LRC LYRICS", () -> MusicFilePicker.chooseLyrics(this, path -> {
             if (path != null) {
                 SkyLyricsClient.importLyricsFile(path);
                 open(Tab.LIBRARY);
             }
-        }), contentLeft + half + gap, y + 10, half, 30);
+        }), contentLeft + half + gap, y + 10, half, 28);
 
-        var tracks = SkyLyricsClient.MUSIC_LIBRARY.listAudio();
-        int pageSize = 6;
+        int searchButtonWidth = Math.min(76, Math.max(58, contentWidth / 6));
+        librarySearchBox = new EditBox(font, contentLeft, y + 46,
+                contentWidth - searchButtonWidth - 6, 22, Component.literal(ui("SEARCH LIBRARY")));
+        librarySearchBox.setMaxLength(64);
+        librarySearchBox.setValue(librarySearchQuery);
+        librarySearchBox.setHint(Component.literal(ui("Type a song name...")));
+        addRenderableWidget(librarySearchBox);
+        screenAction("SEARCH", () -> {
+            librarySearchQuery = librarySearchBox.getValue().strip();
+            libraryPage = 0;
+            open(Tab.LIBRARY);
+        }, contentLeft + contentWidth - searchButtonWidth, y + 46, searchButtonWidth, 22);
+
+        MusicLibraryState state = SkyLyricsClient.LIBRARY_STATE;
+        String filterLabel = switch (state.filterMode()) {
+            case ALL -> "ALL";
+            case FAVORITES -> "FAVORITES";
+            case PLAYLIST -> "PLAYLIST";
+        };
+        String activePlaylist = state.activePlaylistName().isBlank() ? "NONE" : state.activePlaylistName();
+        action("FILTER  ·  " + filterLabel, state::cycleFilter,
+                contentLeft, y + 76, half, 24);
+        action("PLAYLIST  ·  " + activePlaylist, state::cyclePlaylist,
+                contentLeft + half + gap, y + 76, half, 24);
+
+        action("SHUFFLE  ·  " + onOff(state.shuffleEnabled()), state::toggleShuffle,
+                contentLeft, y + 106, half, 24);
+        action("REPEAT  ·  " + state.repeatMode().name(), state::cycleRepeatMode,
+                contentLeft + half + gap, y + 106, half, 24);
+
+        List<Path> scopedTracks = state.filteredTracks(SkyLyricsClient.MUSIC_LIBRARY.listAudio());
+        List<Path> tracks = MusicLibraryState.search(scopedTracks, librarySearchQuery);
+        int pageSize = 5;
         int pages = Math.max(1, (tracks.size() + pageSize - 1) / pageSize);
         libraryPage = Math.max(0, Math.min(libraryPage, pages - 1));
         int start = libraryPage * pageSize;
+        int rowY = y + 142;
+        int favoriteWidth = Math.min(34, Math.max(28, contentWidth / 16));
+        int playlistWidth = Math.min(44, Math.max(36, contentWidth / 13));
+        int rowGap = 5;
+        int playWidth = contentWidth - favoriteWidth - playlistWidth - rowGap * 2;
+
         for (int i = start; i < Math.min(tracks.size(), start + pageSize); i++) {
-            var track = tracks.get(i);
+            Path track = tracks.get(i);
             String name = track.getFileName().toString();
-            if (name.length() > 42) name = name.substring(0, 39) + "...";
-            final var selected = track;
+            int maxChars = Math.max(16, playWidth / 7);
+            if (name.length() > maxChars) name = name.substring(0, maxChars - 3) + "...";
+            final Path selected = track;
+            int currentRowY = rowY + (i - start) * 29;
             action("▶  " + name, () -> SkyLyricsClient.playLocalTrack(selected),
-                    contentLeft, y + 90 + (i - start) * 38, contentWidth, 31);
+                    contentLeft, currentRowY, playWidth, 25);
+            action(state.isFavorite(track) ? "★" : "☆", () -> state.toggleFavorite(selected),
+                    contentLeft + playWidth + rowGap, currentRowY, favoriteWidth, 25);
+            String playlistAction = state.isInActivePlaylist(track) ? "−" : "+";
+            Button playlistButton = addRenderableWidget(Button.builder(Component.literal(playlistAction), b -> {
+                if (state.playlistNames().isEmpty()) {
+                    SkyLyricsClient.MEDIA_NOTICE = "Create a playlist first to organise this track.";
+                    open(Tab.LIBRARY);
+                } else {
+                    state.toggleTrackInActivePlaylist(selected);
+                    open(Tab.LIBRARY);
+                }
+            }).bounds(contentLeft + playWidth + rowGap + favoriteWidth + rowGap,
+                    currentRowY, playlistWidth, 25).build());
+            playlistButton.active = !state.playlistNames().isEmpty();
         }
+
         action("◀ PREVIOUS", () -> { libraryPage = Math.max(0, libraryPage - 1); },
-                contentLeft, y + 90 + pageSize * 38, half, 27);
+                contentLeft, y + 292, half, 23);
         action("NEXT ▶", () -> { libraryPage = Math.min(pages - 1, libraryPage + 1); },
-                contentLeft + half + gap, y + 90 + pageSize * 38, half, 27);
+                contentLeft + half + gap, y + 292, half, 23);
+
+        playlistNameBox = new EditBox(font, contentLeft, y + 324,
+                contentWidth - 94, 21, Component.literal(ui("NEW PLAYLIST NAME")));
+        playlistNameBox.setMaxLength(40);
+        playlistNameBox.setHint(Component.literal(ui("New playlist name")));
+        addRenderableWidget(playlistNameBox);
+        screenAction("CREATE", () -> {
+            boolean created = state.createPlaylist(playlistNameBox.getValue());
+            SkyLyricsClient.MEDIA_NOTICE = created ? "Playlist created." : "Use a new playlist name (up to 40 characters).";
+            open(Tab.LIBRARY);
+        }, contentLeft + contentWidth - 88, y + 324, 88, 21);
+        action("DELETE ACTIVE PLAYLIST", () -> {
+            boolean deleted = state.deleteActivePlaylist();
+            SkyLyricsClient.MEDIA_NOTICE = deleted ? "Playlist deleted." : "No active playlist to delete.";
+        }, contentLeft, y + 353, contentWidth, 23);
     }
 
     private void history(int y) {
@@ -414,6 +490,24 @@ public final class SkyLyricsScreen extends Screen {
         };
         if (english.startsWith("LANGUAGE  ·  ")) return "BAHASA  ·  " + (SkyLyricsClient.CONFIG.isEnglish() ? "English" : "Indonesia");
         return switch (english) {
+            case "FILTER  ·  ALL" -> "FILTER  ·  SEMUA";
+            case "FILTER  ·  FAVORITES" -> "FILTER  ·  FAVORIT";
+            case "FILTER  ·  PLAYLIST" -> "FILTER  ·  PLAYLIST";
+            case "SEARCH" -> "CARI";
+            case "CREATE" -> "BUAT";
+            case "DELETE ACTIVE PLAYLIST" -> "HAPUS PLAYLIST AKTIF";
+            case "SHUFFLE  ·  ON" -> "ACAK  ·  AKTIF";
+            case "SHUFFLE  ·  OFF" -> "ACAK  ·  NONAKTIF";
+            case "REPEAT  ·  OFF" -> "ULANGI  ·  MATI";
+            case "REPEAT  ·  ALL" -> "ULANGI  ·  SEMUA";
+            case "REPEAT  ·  ONE" -> "ULANGI  ·  SATU";
+            case "LOCAL ONLY" -> "LOKAL SAJA";
+            case "Type a song name..." -> "Ketik nama lagu...";
+            case "New playlist name" -> "Nama playlist baru";
+            case "SEARCH LIBRARY" -> "CARI DI PUSTAKA";
+            case "No tracks in this view. Import audio or change the filter." -> "Tidak ada lagu pada tampilan ini. Impor audio atau ubah filter.";
+            case "No matching tracks. Try another search." -> "Tidak ada hasil. Coba kata pencarian lain.";
+
             case "SkyLyrics by Sky" -> "SkyLyrics oleh Sky";
             case "OVERVIEW" -> "RINGKASAN";
             case "MUSIC CENTER" -> "PUSAT MUSIK";
@@ -658,10 +752,18 @@ public final class SkyLyricsScreen extends Screen {
             }
             graphics.text(font, SkyLyricsClient.MEDIA_NOTICE, contentLeft + 14, top + 466, 0xFF81909F, false);
         } else if (tab == Tab.LIBRARY) {
-            graphics.text(font, ui("LIBRARY") + "  ·  " + SkyLyricsClient.MUSIC_LIBRARY.listAudio().size() + " TRACKS",
-                    contentLeft, top + 172, 0xFFE2E9F0, true);
-            graphics.text(font,ui("MP3 · OGG · WAV · AIFF · AU  ·  CLICK A TRACK TO PLAY"),
-                    contentLeft, top + 190, 0xFF9EABB8, false);
+            List<Path> scopedTracks = SkyLyricsClient.LIBRARY_STATE.filteredTracks(SkyLyricsClient.MUSIC_LIBRARY.listAudio());
+            List<Path> visibleTracks = MusicLibraryState.search(scopedTracks, librarySearchQuery);
+            graphics.text(font, visibleTracks.size() + " / " + SkyLyricsClient.MUSIC_LIBRARY.listAudio().size()
+                    + " TRACKS  ·  " + ui("LOCAL ONLY"), contentLeft, top + 105, 0xFFE2E9F0, true);
+            if (visibleTracks.isEmpty()) {
+                String emptyMessage = librarySearchQuery.isBlank()
+                        ? "No tracks in this view. Import audio or change the filter."
+                        : "No matching tracks. Try another search.";
+                graphics.text(font, ui(emptyMessage), contentLeft, top + 280, 0xFFB7C1CB, false);
+            }
+            graphics.text(font, ui("FAVORITE  ★   ·   + ADD TO PLAYLIST   ·   SHUFFLE / REPEAT APPLY TO THIS QUEUE"),
+                    contentLeft, top + 480, 0xFF8E9BA8, false);
         } else if (tab == Tab.HISTORY) {
             graphics.text(font,ui("LISTENING OVERVIEW"), contentLeft, top + 112, 0xFFC6A0FF, true);
             graphics.text(font, ui("PLAY SESSIONS") + "  ·  " + SkyLyricsClient.HISTORY.totalPlays(),
