@@ -163,6 +163,11 @@ public final class LocalAudioEngine implements AutoCloseable {
     public boolean isPlaying() { return playing && !paused; }
     public boolean isPaused() { return paused; }
 
+    /** True only after the decoder reached EOF successfully. */
+    public boolean isFinished() {
+        return !playing && !paused && "Finished".equals(status);
+    }
+
     public long positionMs() {
         SourceDataLine active = line;
         if (active != null && active.isOpen() && !paused) {
