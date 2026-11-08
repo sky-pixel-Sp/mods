@@ -75,7 +75,7 @@ public final class InGameFilePickerScreen extends Screen {
         int sx = left + 18;
         int sy = top + 62;
 
-        addButton("HOME", sx, sy, shortcutWidth, 24, () -> navigate(defaultDirectory()));
+        addButton("HOME", sx, sy, shortcutWidth, 24, () -> navigate(homeDirectory()));
         addButton("MUSIC", sx + shortcutWidth + gap, sy, shortcutWidth, 24,
                 () -> navigate(homeFolder("Music")));
         addButton("DOWNLOADS", sx + (shortcutWidth + gap) * 2, sy, shortcutWidth, 24,
