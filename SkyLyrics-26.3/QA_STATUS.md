@@ -1,4 +1,52 @@
-# QA STATUS — SkyLyrics 0.9.2 / Minecraft 26.3
+# QA STATUS — SkyLyrics 0.9.3 / Minecraft 26.3
+
+## 0.9.3 automated verification — 2026-11-08
+
+<details>
+<summary>Build and artifact evidence</summary>
+
+- Branch: `skylyrics-0.9.3-audio-session-stability`
+- Source revision tested by Run #157: `5ee98f42dad7115017675ce2b178e4b456b0e4ca`
+- GitHub Actions: [Run #157](https://github.com/sky-pixel-Sp/mods/actions/runs/42435751000)
+- Pull request: [#12 — SkyLyrics 0.9.3](https://github.com/sky-pixel-Sp/mods/pull/12)
+- Run conclusion: **success**; all eight build, test, validation, package, and upload steps completed.
+- Build command: `gradle --no-daemon clean test build`
+- Toolchain: JDK 25 and Gradle 9.8.2.
+- Browser extension: `node --check` passed for `content.js` and `background.js`; manifest JSON validation passed.
+- Final JAR verification reported 8 fonts, 20 sky presets, 4 shaders, 5 nested audio codecs, and 8 NASA/JPL 1600×900 previews.
+- Verified JAR: `skylyrics-0.9.3.jar`, **7,875,567 bytes**.
+- JAR SHA-256: `371bdf32552eb326a08d1a171427dda33fffdcc03f1226a7200d977c4fc5d4ef`.
+- Fabric metadata version: `0.9.3`; Minecraft dependency: `~26.3`; Java dependency: `>=25`.
+- GitHub Actions package artifact: `SkyLyrics-Minecraft-26.3`, artifact ID `13599532663`, archive size **7,851,745 bytes**, SHA-256 `7b5501ed284c76a4a6bb010d72204c8ec84568f2d31a9190c7249bb1bbbc0817`.
+- Artifact expires on **2026-12-08**.
+
+</details>
+
+## 0.9.3 audio lifecycle changes
+
+- Each local playback worker receives a unique generation token.
+- Replacing or stopping a track invalidates the previous session before stale work can update state.
+- A worker only closes the `SourceDataLine` instance that it created.
+- Stop no longer synchronously joins a codec worker from the Minecraft client thread.
+- A paused worker checks pending seek requests again after waking.
+- Added four JUnit regression tests for active-session creation, session replacement, invalidation, and stale-token rejection. The Gradle `test` task passed in Run #157.
+
+## Not manually verified
+
+- No Minecraft 26.3 client or TLauncher launch test was performed in this environment.
+- No audible output test was performed against a real audio device. The previous user-reported Offline Library visibility / playback problem therefore remains a manual acceptance gate; the concurrency hardening is not proof that the full playback issue is resolved.
+- Chrome / Edge extension loading, actual YouTube Music / Spotify browser sessions, live seek/volume behavior, Elytra rendering, and HUD mouse interactions were not tested in a running game.
+- Do not publish a stable release until these manual checks are completed.
+
+## Requested feature-scope gaps found in source audit
+
+- The current library lists and paginates local audio files, but a complete playlist editor, favorites, shuffle, repeat, and library search were not found in the audited UI / `MusicLibrary` implementation.
+- The HUD Layout Studio supports moving five widget cards, visibility toggles for optional cards, and reset actions. Resize handles, saved layout presets, and multiple named layouts were not found in the audited implementation.
+- These are outstanding feature requests, not verified 0.9.3 features.
+
+---
+
+## Historical QA — SkyLyrics 0.9.2 / Minecraft 26.3
 
 ## 0.9.2 gallery artwork, bilingual UI, and packaging checks
 - The build downloads and validates eight full-resolution NASA/JPL source JPGs, then creates eight 1600×900 photo previews. Only the eight previews actually used by the Skies selector ship in the runtime JAR; full-resolution source masters remain build-time inputs.

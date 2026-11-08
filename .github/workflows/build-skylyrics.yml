@@ -12,6 +12,7 @@ on:
     branches:
       - main
       - skylyrics-video-parity
+      - skylyrics-0.9.3-audio-session-stability
       - skylyrics-0.4-fonts-album-player
       - skylyrics-0.5-cinematic-overhaul
       - skylyrics-0.6-music-center
@@ -53,7 +54,7 @@ jobs:
           export JAVA_HOME="${JAVA_HOME_25_X64}"
           export PATH="${JAVA_HOME}/bin:${PATH}"
           java -version
-          java -version 2>&1 | head -n 1 | grep -Eq 'version "25([.]|\")'
+          java -version 2>&1 | head -n 1 | grep -Eq 'version "25([.]|\\")'
           gradle --no-daemon -Dorg.gradle.java.home="${JAVA_HOME}" clean test build
           MOD_VERSION="$(sed -n 's/^mod_version=//p' gradle.properties | head -n 1)"
           test -n "${MOD_VERSION}"
@@ -100,7 +101,7 @@ jobs:
           rm -rf "${DIST}"
           mkdir -p "${DIST}/browser-extension"
           cp "build/libs/skylyrics-${MOD_VERSION}.jar" "${DIST}/"
-          cp README.md LICENSE PANDUAN-ID.md "${DIST}/"
+          cp README.md LICENSE PANDUAN-ID.md CHANGELOG.md QA_STATUS.md "${DIST}/"
           cp browser-extension/manifest.json browser-extension/background.js browser-extension/content.js browser-extension/README.md "${DIST}/browser-extension/"
           test -s "${DIST}/skylyrics-${MOD_VERSION}.jar"
           test -s "${DIST}/browser-extension/manifest.json"

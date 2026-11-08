@@ -1,10 +1,16 @@
-# SkyLyrics 0.9.2 — by Sky
+# SkyLyrics 0.9.3 — by Sky
+
+## 0.9.3 audio stability update
+
+SkyLyrics 0.9.3 hardens offline playback lifecycle management. Each audio worker is tied to a unique playback session; replacing or stopping a track invalidates the older worker before it can update playback state or close another track's audio line. Stop no longer waits synchronously for codec I/O on the Minecraft client thread. The regression tests for session invalidation run as part of the Gradle test task.
+
+The CI build and packaged-JAR checks do not replace a manual audio-output test in a real Minecraft 26.3 client. See [QA_STATUS.md](QA_STATUS.md) for the exact verification boundary.
 
 SkyLyrics by **Sky** is a client-side Fabric mod for Minecraft Java 26.3. It combines an in-game clickable Music Center, local offline audio playback, browser-connected online music controls, synchronized lyrics, and optional cinematic sky effects.
 
 ## Language support
 
-The in-game interface defaults to **English**. Open **Settings → Language** to switch to **Bahasa Indonesia**; your selection is saved locally. The English documentation in this README is the primary guide. An Indonesian installation guide is available in [PANDUAN-ID.md](PANDUAN-ID.md).
+The in-game interface defaults to **English**. Open **Settings → Language** to switch to **Bahasa Indonesia**; your selection is saved locally. The English documentation in this README is the primary guide. See [CHANGELOG.md](CHANGELOG.md) for version history, [QA_STATUS.md](QA_STATUS.md) for verified checks and limitations, and [PANDUAN-ID.md](PANDUAN-ID.md) for the Indonesian installation guide.
 
 ## Music Center
 
@@ -127,7 +133,7 @@ The Music Center, offline audio engine, online browser bridge, playlists/library
 ## Install in TLauncher
 
 1. Start the Minecraft 26.3 Fabric profile once, then close Minecraft.
-2. Put `skylyrics-0.9.2.jar` and the matching Fabric API JAR in the `mods` folder used by that Fabric profile.
+2. Put `skylyrics-0.9.3.jar` and the matching Fabric API JAR in the `mods` folder used by that Fabric profile.
 3. Start TLauncher and select the Fabric 26.3 profile.
 4. Enter a world and press **O** to open SkyLyrics Music Center.
 
@@ -137,13 +143,13 @@ SkyLyrics is client-side; a multiplayer server does not need this mod installed.
 
 GitHub Actions uses JDK 25 and Gradle 9.8.2. The pipeline runs unit tests, verifies sky shaders and fonts, compiles the Minecraft 26.3 Fabric client, validates browser-extension JavaScript, verifies audio/player classes, and uploads the mod JAR.
 
-The SkyLyrics 0.8.0 baseline passed GitHub Actions Run #110. The 0.9.2 port additions are being checked in the current pull request; do not treat the older 0.8.0 artifact as the 0.9.2 release. CI cannot replace manual audio, Elytra, layout, and mouse-interaction tests in TLauncher.
+SkyLyrics 0.9.3 is built and checked by the GitHub Actions pipeline with JDK 25 and Gradle 9.8.2. The pipeline runs `clean test build`, validates the browser extension, verifies runtime resources and nested audio codecs in the final JAR, and assembles the complete install package. The run number, artifact identifier, package size, and SHA-256 are recorded in [QA_STATUS.md](QA_STATUS.md). CI does not verify audible output, browser integration in Chrome/Edge, Elytra behavior, or mouse interactions inside TLauncher; these still require a manual Minecraft 26.3 client test.
 
 ## Package contents and asset verification
 
 The Skies selector displays genuine NASA/JPL astronomy photographs as previews for the procedural sky presets. The build downloads the full-resolution source JPGs, validates them, and generates optimized 1600×900 preview textures. The source masters stay in the build workspace; the **eight preview textures actually used by the in-game selector** are bundled in the runtime JAR. Source page URLs, per-image credit lines, and the JPL image-use policy are included in `META-INF/licenses/skylyrics-artwork/NOTICE.txt`.
 
-The distributable JAR carries the Sky icon, eight embedded font files with their OFL notices, 20 sky post-effect presets, four shader files, five nested audio codec libraries, and eight 1600×900 NASA/JPL preview textures. The build verifies all of those entries inside the **final JAR**, not just in the source folders. The verified SkyLyrics 0.9.2 JAR is **7,874,042 bytes (7.51 MiB)**. The build also enforces a hard **5,000,000-byte minimum**; no padding, duplicate images, empty files, or dummy assets are used.
+The distributable JAR carries the Sky icon, eight embedded font files with their OFL notices, 20 sky post-effect presets, four shader files, five nested audio codec libraries, and eight 1600×900 NASA/JPL preview textures. The build verifies all of those entries inside the **final JAR**, not just in the source folders. The current 0.9.3 artifact's exact size and SHA-256 are recorded in [QA_STATUS.md](QA_STATUS.md). The build also enforces a hard **5,000,000-byte minimum**; no padding, duplicate images, empty files, or dummy assets are used.
 
 ## Licenses
 
