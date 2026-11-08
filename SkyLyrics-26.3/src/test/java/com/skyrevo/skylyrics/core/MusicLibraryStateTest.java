@@ -33,6 +33,8 @@ class MusicLibraryStateTest {
 
         state.toggleFavorite(favorite);
         assertTrue(state.isFavorite(favorite));
+        state.cycleFilter();
+        assertEquals(MusicLibraryState.FilterMode.FAVORITES, state.filterMode());
         assertEquals(List.of(favorite), state.filteredTracks(library.listAudio()));
 
         MusicLibraryState reloaded = new MusicLibraryState(temporaryDirectory.resolve("config"), library);
